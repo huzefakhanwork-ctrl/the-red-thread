@@ -3,7 +3,15 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
+# Pages, scripts and the live news: browsers re-check every time (cheap: unchanged files answer "not modified"),
+# so a news update shows up on the next visit or refresh.
 /*.js
-  Cache-Control: public, max-age=300
+  Cache-Control: public, max-age=0, must-revalidate
+/live/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Satellite images and the intro video rarely change: keep them for a week.
 /sat/*
+  Cache-Control: public, max-age=604800
+/intro.mp4
   Cache-Control: public, max-age=604800
