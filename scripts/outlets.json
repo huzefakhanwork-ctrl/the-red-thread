@@ -1,0 +1,118 @@
+{
+  "_note": "Lean ratings are PROVISIONAL editorial estimates based on how these outlets are commonly characterised in public media-bias discussions. They have not been reviewed by a Red Thread panel. Edit 'lean' here (L, LL, C, LR, R, or U for unrated); the site shows them as provisional.",
+  "outlets": [
+    {
+      "id": "hindu",
+      "name": "The Hindu",
+      "lean": "LL",
+      "feed": "https://www.thehindu.com/news/national/feeder/default.rss"
+    },
+    {
+      "id": "express",
+      "name": "The Indian Express",
+      "lean": "C",
+      "feed": "https://indianexpress.com/section/india/feed/"
+    },
+    {
+      "id": "ndtv",
+      "name": "NDTV",
+      "lean": "LL",
+      "feed": "https://feeds.feedburner.com/ndtvnews-india-news"
+    },
+    {
+      "id": "ht",
+      "name": "Hindustan Times",
+      "lean": "C",
+      "feed": "https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml"
+    },
+    {
+      "id": "toi",
+      "name": "The Times of India",
+      "lean": "C",
+      "feed": "https://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms"
+    },
+    {
+      "id": "scroll",
+      "name": "Scroll",
+      "lean": "L",
+      "feed": "https://feeds.feedburner.com/ScrollinArticles.rss"
+    },
+    {
+      "id": "print",
+      "name": "ThePrint",
+      "lean": "C",
+      "feed": "https://theprint.in/category/india/feed/"
+    },
+    {
+      "id": "opindia",
+      "name": "OpIndia",
+      "lean": "R",
+      "feed": "https://www.opindia.com/feed/"
+    },
+    {
+      "id": "republic",
+      "name": "Republic",
+      "lean": "R",
+      "feed": "https://www.republicworld.com/rss/india.xml"
+    },
+    {
+      "id": "mint",
+      "name": "Mint",
+      "lean": "C",
+      "feed": "https://www.livemint.com/rss/news"
+    },
+    {
+      "id": "indiatoday",
+      "name": "India Today",
+      "lean": "C",
+      "feed": "https://www.indiatoday.in/rss/1206578"
+    },
+    {
+      "id": "quint",
+      "name": "The Quint",
+      "lean": "LL",
+      "feed": "https://www.thequint.com/stories.rss"
+    },
+    {
+      "id": "zee",
+      "name": "Zee News",
+      "lean": "LR",
+      "feed": "https://zeenews.india.com/rss/india-national-news.xml"
+    },
+    {
+      "id": "bbc",
+      "name": "BBC News (India)",
+      "lean": "C",
+      "feed": "https://feeds.bbci.co.uk/news/world/asia/india/rss.xml"
+    },
+    {
+      "id": "herald",
+      "name": "National Herald",
+      "lean": "L",
+      "feed": "https://www.nationalheraldindia.com/stories.rss"
+    },
+    {
+      "id": "organiser",
+      "name": "Organiser",
+      "lean": "R",
+      "feed": "https://www.organiser.org/feed/"
+    }
+  ],
+  "factcheckers": [
+    {
+      "id": "altnews",
+      "name": "Alt News",
+      "feed": "https://www.altnews.in/feed/"
+    },
+    {
+      "id": "factly",
+      "name": "Factly",
+      "feed": "https://factly.in/feed/"
+    },
+    {
+      "id": "newschecker",
+      "name": "Newschecker",
+      "feed": "https://www.newschecker.in/feed"
+    }
+  ]
+}

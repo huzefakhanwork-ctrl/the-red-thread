@@ -1,0 +1,9 @@
+/*
+  Permissions-Policy: camera=(self), microphone=(self)
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/*.js
+  Cache-Control: public, max-age=300
+/sat/*
+  Cache-Control: public, max-age=604800
