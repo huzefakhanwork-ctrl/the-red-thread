@@ -1,5 +1,7 @@
 # The Red Thread
 
+Live at **https://huzefakhanwork-ctrl.github.io/the-red-thread/** (GitHub Pages, free, updates every 30 minutes).
+
 India's news, uncovered: every side of every story, mapped from orbit.
 
 ## Live news
@@ -11,7 +13,7 @@ outlet's lean. It writes `live/news.json` and `live/news.js`, which the site loa
 - Outlets, feeds and lean ratings: `scripts/outlets.json`. Lean ratings are **provisional** until reviewed; edit them there.
 - Run it by hand: `node scripts/collect-news.mjs` (Node 18 or newer, no packages needed).
 - Automatic updates: `.github/workflows/update-news.yml` runs it every 30 minutes on GitHub and commits the new
-  headlines. If Netlify is connected to this repository, every commit redeploys the site.
+  headlines. GitHub Pages republishes the site after every commit, for free. (`_redirects` forwards the old Netlify address here; `.nojekyll` tells GitHub Pages to serve the files exactly as they are.)
 
 ## Never put API keys in this repository
 
