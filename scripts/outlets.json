@@ -136,7 +136,7 @@
     {
       "id": "et",
       "name": "The Economic Times",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Times Group business daily; mainstream, pro-market, rarely partisan",
       "lang": "en",
@@ -146,7 +146,7 @@
     {
       "id": "businessline",
       "name": "BusinessLine",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "The Hindu group's business paper; sober, data-led coverage",
       "lang": "en",
@@ -156,7 +156,7 @@
     {
       "id": "businesstoday",
       "name": "Business Today",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "India Today group business title; matches India Today's centre rating",
       "lang": "en",
@@ -166,7 +166,7 @@
     {
       "id": "cnbctv18",
       "name": "CNBC-TV18",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Network18 (Reliance) business channel; market-focused, rarely political",
       "lang": "en",
@@ -176,7 +176,7 @@
     {
       "id": "zeebiz",
       "name": "Zee Business",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Zee group business channel; group leans right but business desk is largely market news",
       "lang": "en",
@@ -186,7 +186,7 @@
     {
       "id": "timesnow",
       "name": "Times Now",
-      "lean": "U",
+      "lean": "LR",
       "proposedLean": "LR",
       "why": "Times Group TV news; widely characterised as government-friendly",
       "lang": "en",
@@ -196,7 +196,7 @@
     {
       "id": "swarajya",
       "name": "Swarajya",
-      "lean": "U",
+      "lean": "R",
       "proposedLean": "R",
       "why": "Openly right-of-centre magazine; nationalist and pro-market",
       "lang": "en",
@@ -206,7 +206,7 @@
     {
       "id": "dna",
       "name": "DNA",
-      "lean": "U",
+      "lean": "LR",
       "proposedLean": "LR",
       "why": "Zee group digital title; follows the group's right-of-centre line",
       "lang": "en",
@@ -216,7 +216,7 @@
     {
       "id": "tfipost",
       "name": "TFI Post",
-      "lean": "U",
+      "lean": "R",
       "proposedLean": "R",
       "why": "Self-described nationalist digital outlet; strongly pro-BJP commentary",
       "lang": "en",
@@ -226,7 +226,7 @@
     {
       "id": "sundayguardian",
       "name": "The Sunday Guardian",
-      "lean": "U",
+      "lean": "LR",
       "proposedLean": "LR",
       "why": "iTV group weekly; commonly seen as right-of-centre",
       "lang": "en",
@@ -236,7 +236,7 @@
     {
       "id": "indiatv",
       "name": "India TV",
-      "lean": "U",
+      "lean": "LR",
       "proposedLean": "LR",
       "why": "Rajat Sharma's channel; widely characterised as government-friendly",
       "lang": "en",
@@ -246,7 +246,7 @@
     {
       "id": "newsable",
       "name": "Asianet Newsable",
-      "lean": "U",
+      "lean": "LR",
       "proposedLean": "LR",
       "why": "Asianet group (Jupiter Capital, historically linked to BJP's Rajeev Chandrasekhar)",
       "lang": "en",
@@ -256,7 +256,7 @@
     {
       "id": "bhaskar",
       "name": "Dainik Bhaskar",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Largest Hindi daily; mainstream, has run government-critical investigations",
       "lang": "hi",
@@ -266,7 +266,7 @@
     {
       "id": "amarujala",
       "name": "Amar Ujala",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Major Hindi daily; mainstream, no strong partisan profile",
       "lang": "hi",
@@ -276,7 +276,7 @@
     {
       "id": "bbchindi",
       "name": "BBC Hindi",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Same rating as BBC News (India); public broadcaster, impartiality rules",
       "lang": "hi",
@@ -286,7 +286,7 @@
     {
       "id": "ndtvindia",
       "name": "NDTV India",
-      "lean": "U",
+      "lean": "LL",
       "proposedLean": "LL",
       "why": "Matches NDTV's current rating; post-2022 Adani ownership may move it toward centre",
       "lang": "hi",
@@ -296,7 +296,7 @@
     {
       "id": "aajtak",
       "name": "Aaj Tak",
-      "lean": "U",
+      "lean": "LR",
       "proposedLean": "LR",
       "why": "India Today group Hindi channel; often seen as more government-friendly than its English sibling",
       "lang": "hi",
@@ -306,7 +306,7 @@
     {
       "id": "jagran",
       "name": "Dainik Jagran",
-      "lean": "U",
+      "lean": "LR",
       "proposedLean": "LR",
       "why": "Large Hindi daily; frequently characterised as BJP/Hindutva-sympathetic",
       "lang": "hi",
@@ -316,7 +316,7 @@
     {
       "id": "abphindi",
       "name": "ABP Live (Hindi)",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "ABP group; mainstream TV/digital news with a broadly centrist profile",
       "lang": "hi",
@@ -326,7 +326,7 @@
     {
       "id": "tv9hindi",
       "name": "TV9 Bharatvarsh",
-      "lean": "U",
+      "lean": "LR",
       "proposedLean": "LR",
       "why": "Hindi TV news; commonly seen as government-friendly",
       "lang": "hi",
@@ -336,7 +336,7 @@
     {
       "id": "indiatvhindi",
       "name": "India TV (Hindi)",
-      "lean": "U",
+      "lean": "LR",
       "proposedLean": "LR",
       "why": "Hindi site of India TV; same proposed lean as India TV",
       "lang": "hi",
@@ -346,7 +346,7 @@
     {
       "id": "zeehindi",
       "name": "Zee News (Hindi)",
-      "lean": "U",
+      "lean": "LR",
       "proposedLean": "LR",
       "why": "Hindi site of Zee News; matches Zee News' current rating",
       "lang": "hi",
@@ -356,7 +356,7 @@
     {
       "id": "newsnation",
       "name": "News Nation",
-      "lean": "U",
+      "lean": "LR",
       "proposedLean": "LR",
       "why": "Hindi TV news; commonly seen as government-friendly",
       "lang": "hi",
@@ -366,7 +366,7 @@
     {
       "id": "abplive",
       "name": "ABP Live",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "ABP group English site; broadly centrist",
       "lang": "en",
@@ -376,7 +376,7 @@
     {
       "id": "deccanherald",
       "name": "Deccan Herald",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Bengaluru daily (Printers Mysore); centrist, mildly liberal editorials",
       "lang": "en",
@@ -386,7 +386,7 @@
     {
       "id": "nie",
       "name": "The New Indian Express",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Chennai-based national daily; mainstream, centrist",
       "lang": "en",
@@ -396,7 +396,7 @@
     {
       "id": "outlook",
       "name": "Outlook",
-      "lean": "U",
+      "lean": "LL",
       "proposedLean": "LL",
       "why": "News magazine historically seen as liberal / left-of-centre",
       "lang": "en",
@@ -406,7 +406,7 @@
     {
       "id": "tnm",
       "name": "The News Minute",
-      "lean": "U",
+      "lean": "LL",
       "proposedLean": "LL",
       "why": "South India digital outlet; liberal, rights-focused reporting",
       "lang": "en",
@@ -416,7 +416,7 @@
     {
       "id": "newslaundry",
       "name": "Newslaundry",
-      "lean": "U",
+      "lean": "L",
       "proposedLean": "L",
       "why": "Reader-funded media critic; consistently critical of the government and TV news",
       "lang": "en",
@@ -426,7 +426,7 @@
     {
       "id": "frontline",
       "name": "Frontline",
-      "lean": "U",
+      "lean": "L",
       "proposedLean": "L",
       "why": "The Hindu group magazine; left-of-centre analysis",
       "lang": "en",
@@ -436,7 +436,7 @@
     {
       "id": "freepressjournal",
       "name": "Free Press Journal",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Mumbai daily; mainstream, no strong partisan profile",
       "lang": "en",
@@ -446,7 +446,7 @@
     {
       "id": "oneindia",
       "name": "Oneindia",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Aggregator-style digital news; mostly wire-based",
       "lang": "en",
@@ -456,7 +456,7 @@
     {
       "id": "siasat",
       "name": "Siasat",
-      "lean": "U",
+      "lean": "LL",
       "proposedLean": "LL",
       "why": "Hyderabad Urdu/English daily; minority-rights focus, critical of BJP",
       "lang": "en",
@@ -466,7 +466,7 @@
     {
       "id": "mathrubhumi",
       "name": "Mathrubhumi English",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Kerala's Mathrubhumi group; mainstream regional",
       "lang": "en",
@@ -476,7 +476,7 @@
     {
       "id": "onmanorama",
       "name": "Onmanorama",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Malayala Manorama's English site; mainstream, centrist",
       "lang": "en",
@@ -486,7 +486,7 @@
     {
       "id": "southfirst",
       "name": "South First",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Digital outlet covering the southern states; no strong partisan profile",
       "lang": "en",
@@ -496,7 +496,7 @@
     {
       "id": "eastmojo",
       "name": "EastMojo",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Northeast-focused digital outlet; regional, centrist",
       "lang": "en",
@@ -506,7 +506,7 @@
     {
       "id": "nenow",
       "name": "Northeast Now",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Guwahati-based digital outlet; regional, centrist",
       "lang": "en",
@@ -516,7 +516,7 @@
     {
       "id": "nagalandpost",
       "name": "Nagaland Post",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Dimapur daily; regional, no strong partisan profile",
       "lang": "en",
@@ -526,7 +526,7 @@
     {
       "id": "greaterkashmir",
       "name": "Greater Kashmir",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Srinagar daily; regional, cautious editorial line",
       "lang": "en",
@@ -536,7 +536,7 @@
     {
       "id": "kashmirobserver",
       "name": "Kashmir Observer",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Srinagar daily; regional, centrist",
       "lang": "en",
@@ -546,7 +546,7 @@
     {
       "id": "navhindtimes",
       "name": "The Navhind Times",
-      "lean": "U",
+      "lean": "C",
       "proposedLean": "C",
       "why": "Goa daily; regional, centrist",
       "lang": "en",
