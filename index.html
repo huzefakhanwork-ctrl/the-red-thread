@@ -902,8 +902,8 @@ mark.needsrc { background: var(--pink); color: #fff; font: 700 11px var(--f-mono
 html.intro .top, html.intro .dock { opacity: 0; pointer-events: none; }
 
 /* top bar */
-.top { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; z-index: 40; padding: 18px max(28px, env(safe-area-inset-right, 0px)) 18px max(28px, env(safe-area-inset-left, 0px)); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 28px; background: #04050A; border-bottom: 1px solid rgba(255,255,255,.08); transition: opacity .6s ease, background .4s, padding .4s; }
-body:not(.at-home) .top { padding-top: 12px; padding-bottom: 12px; background: #04050A; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid var(--edge); }
+.top { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; z-index: 40; padding: 18px max(28px, env(safe-area-inset-right, 0px)) 18px max(28px, env(safe-area-inset-left, 0px)); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 28px; background: linear-gradient(rgba(4,5,10,.6), transparent); transition: opacity .6s ease, background .4s, padding .4s; }
+body:not(.at-home) .top { padding-top: 12px; padding-bottom: 12px; background: rgba(4,5,10,.86); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid var(--edge); }
 .tnav { display: flex; gap: 22px; align-items: center; justify-content: center; min-width: 0; }
 .tnav > button, .tmore summary { background: none; border: 0; padding: 4px 0; cursor: pointer; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--ink-2); position: relative; white-space: nowrap; list-style: none; font-family: var(--f); }
 .tmore summary::-webkit-details-marker { display: none; }
@@ -1205,21 +1205,24 @@ body.in-reels footer.site, body.in-reels .dock { display: none; }
 body.in-reels { overflow: hidden; }
 .reels { height: calc(100vh - var(--topH, 58px)); height: calc(100dvh - var(--topH, 58px)); overflow-y: auto; scroll-snap-type: y mandatory; overscroll-behavior: contain; scrollbar-width: none; outline: none; }
 .reels::-webkit-scrollbar { display: none; }
-.reel { height: 100%; scroll-snap-align: start; scroll-snap-stop: always; display: grid; place-items: center; padding: 14px 0; }
-.reel-frame { position: relative; height: 100%; aspect-ratio: 9 / 16; max-width: 100vw; border-radius: 18px; overflow: hidden; background: #000; box-shadow: 0 30px 80px -20px rgba(0,0,0,.95); border: 1px solid var(--edge); }
+.reel { height: 100%; scroll-snap-align: start; scroll-snap-stop: always; display: grid; grid-template-columns: minmax(0, 300px) auto 64px; grid-template-rows: 100%; grid-template-areas: "info frame rail"; justify-content: center; align-items: end; column-gap: 24px; padding: 14px 16px; position: relative; }
+.reel-frame { grid-area: frame; position: relative; height: 100%; aspect-ratio: 9 / 16; max-width: 100vw; border-radius: 18px; overflow: hidden; background: #000; box-shadow: 0 30px 80px -20px rgba(0,0,0,.95); border: 1px solid var(--edge); }
 .reel-frame video, .reel-frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .reel-miss { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 30px; color: var(--ink-3); }
-.reel-over { position: absolute; left: 0; right: 64px; bottom: 0; padding: 60px 16px 18px; display: grid; gap: 8px; background: linear-gradient(transparent, rgba(0,0,0,.85) 45%); }
+.reel-over { grid-area: info; display: grid; gap: 10px; padding-bottom: 18px; }
 .reel-by { display: flex; align-items: center; gap: 8px; } .reel-by .logo { width: 30px; height: 30px; border-radius: 50%; } .reel-by b { font-size: 14px; }
 .reel-tag { font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; padding: 3px 7px; border-radius: 999px; background: rgba(255,255,255,.12); color: var(--ink-2); }
 .reel-over h3 { font-size: 19px; line-height: 1.2; letter-spacing: -.02em; } .reel-over p { font-size: 13.5px; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 0; }
 .reel-read { justify-self: start; }
-.reel-rail { position: absolute; right: 8px; bottom: 22px; display: grid; gap: 14px; }
+.reel-rail { grid-area: rail; display: grid; gap: 14px; padding-bottom: 18px; }
 .reel-rail button { background: none; border: 0; color: #fff; cursor: pointer; display: grid; justify-items: center; gap: 2px; font-family: var(--f); }
 .reel-rail span { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgba(0,0,0,.45); backdrop-filter: blur(10px); font-size: 19px; border: 1px solid var(--edge); }
 .reel-rail b { font-size: 10.5px; font-weight: 700; } .reel-rail [aria-pressed="true"] span { color: var(--rose); border-color: var(--rose); }
 .reels-top { position: fixed; z-index: 30; top: calc(var(--topH, 58px) + 14px); left: max(16px, env(safe-area-inset-left, 0px)); display: flex; gap: 8px; flex-wrap: wrap; }
-@media (max-width: 760px) { .reel { padding: 0; } .reel-frame { height: 100%; width: 100%; aspect-ratio: auto; border-radius: 0; border: 0; } .reels-top { top: calc(var(--topH, 58px) + 10px); } }
+@media (max-width: 760px) { .reel { display: block; padding: 0; } .reel-frame { height: 100%; width: 100%; aspect-ratio: auto; border-radius: 0; border: 0; }
+  .reel-over { position: absolute; left: 0; right: 64px; bottom: 0; padding: 60px 16px 18px; gap: 8px; background: linear-gradient(transparent, rgba(0,0,0,.85) 45%); }
+  .reel-rail { position: absolute; right: 8px; bottom: 22px; padding: 0; }
+  .reel.baked .reel-over h3, .reel.baked .reel-over p { display: none; } .reels-top { top: calc(var(--topH, 58px) + 10px); } }
 /* publish: attach a reel */
 .ppvid { display: flex; gap: 8px; flex-wrap: wrap; }
 .ppvidprev { display: flex; gap: 12px; align-items: center; } .ppvidprev video { width: 72px; aspect-ratio: 9/16; object-fit: cover; border-radius: 10px; border: 1px solid var(--edge); }
@@ -1399,7 +1402,6 @@ body.in-lab .dock, body.in-lab .dpanel { display: none; }
           <div id="cards"></div>
           <div class="headline" id="headline"><div class="mkick">WHAT THE MEDIA MISSED</div><h1>India, <span class="grad">uncovered</span></h1></div>
           <details class="today" id="today"><summary><i aria-hidden="true"></i><b id="todayN">0</b> STORIES TODAY <span>· TAP A PIN</span></summary><div class="tlist" id="todayList"></div></details>
-          <button class="edgechip" type="button" id="edgeN" hidden></button><button class="edgechip s" type="button" id="edgeS" hidden></button>
           <div class="credit" id="credit">Imagery: NASA Blue Marble &amp; Black Marble (public domain) · Sentinel-2 cloudless 2016 by EOX IT Services GmbH, CC BY 4.0, contains modified Copernicus Sentinel data. Satellite photos, no boundaries drawn. Stories are illustrative.</div>
         </div>
         <div class="focus" id="focus" hidden role="dialog" aria-label="Story"></div>

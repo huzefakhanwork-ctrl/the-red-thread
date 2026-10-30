@@ -336,7 +336,7 @@ Reply with only JSON: {"headline":"","summary":"","claims":[{"text":"","by":""}]
       const toWorld = e => { const r = wb.getBoundingClientRect(); return [(e.clientX - r.left - B.view.x) / B.view.k, (e.clientY - r.top - B.view.y) / B.view.k]; };
       let d = null;
       wb.addEventListener("pointerdown", e => {
-        if (e.target.closest("[contenteditable='true']") || e.target.closest(".cite") || e.target.closest("#wbEmpty")) return;
+        if (e.target.closest("[contenteditable='true']") || e.target.closest(".cite") || e.target.closest("#wbEmpty") || e.target.closest("#wbLinkBox, [role='dialog']")) return; // pop-ups on the board aren't the board
         const ob = e.target.closest(".obj"); wb.focus({ preventScroll: true });
         if (tool === "connect" && ob) {
           const id = ob.dataset.id;

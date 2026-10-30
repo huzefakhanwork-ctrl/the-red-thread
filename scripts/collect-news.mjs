@@ -120,7 +120,26 @@ const multi = stories.filter(s => s.outletCount >= 2), single = stories.filter(s
 const keep = [...multi.slice(0, 60), ...single.slice(0, Math.max(0, 80 - Math.min(60, multi.length)))];
 const factchecks = fcRaw.flat().sort((a, b) => b.time - a.time).slice(0, 15).map(({ title, link, time, snippet, outlet }) => ({ outlet, name: (cfg.factcheckers.find(f => f.id === outlet) || {}).name, title, link, time, snippet }));
 
-const out = { updated: new Date().toISOString(), windowHours: WINDOW_H, note: cfg._note, outlets: cfg.outlets.map(({ id, name, lean }) => ({ id, name, lean })), counts: { articles: articles.length, stories: keep.length, multiOutlet: multi.length }, stories: keep, factchecks };
+// the biggest story (most outlets, with a known place) gets a satellite close-up for the home page's final zoom
+// (Sentinel-2 cloudless 2016 by EOX IT Services GmbH, CC BY 4.0). Only refetched when the place changes.
+let city = null;
+const top = keep.find(x => x.lat != null);
+if (top) {
+  const W = 2000, H = 1314, dLon = 0.14, dLat = dLon * H / W * Math.cos(top.lat * Math.PI / 180);
+  const box = { id: top.id, place: top.place, lat: top.lat, lon: top.lon, w: W, h: H, lon0: +(top.lon - dLon / 2).toFixed(4), lon1: +(top.lon + dLon / 2).toFixed(4), lat0: +(top.lat + dLat / 2).toFixed(4), lat1: +(top.lat - dLat / 2).toFixed(4) };
+  let prev = null; try { prev = JSON.parse(await readFile(path.join(OUT, "news.json"), "utf8")).city; } catch {}
+  let have = false; try { await readFile(path.join(OUT, "city.jpg")); have = true; } catch {}
+  if (have && prev && prev.lat === box.lat && prev.lon === box.lon) city = { ...box, file: prev.file };
+  else {
+    try {
+      const url = `https://tiles.maps.eox.at/wms?service=WMS&request=GetMap&version=1.1.1&layers=s2cloudless&styles=&srs=EPSG:4326&bbox=${box.lon0},${box.lat1},${box.lon1},${box.lat0}&width=${W}&height=${H}&format=image/jpeg`;
+      const r = await fetch(url, { signal: AbortSignal.timeout(60000) });
+      if (r.ok && /jpeg/.test(r.headers.get("content-type") || "")) { await mkdir(OUT, { recursive: true }); await writeFile(path.join(OUT, "city.jpg"), Buffer.from(await r.arrayBuffer())); city = { ...box, file: "live/city.jpg?v=" + Date.now().toString(36) }; }
+    } catch (e) { console.log("city image failed:", e.message); }
+  }
+}
+
+const out = { city, updated: new Date().toISOString(), windowHours: WINDOW_H, note: cfg._note, outlets: cfg.outlets.map(({ id, name, lean }) => ({ id, name, lean })), counts: { articles: articles.length, stories: keep.length, multiOutlet: multi.length }, stories: keep, factchecks };
 await mkdir(OUT, { recursive: true });
 await writeFile(path.join(OUT, "news.json"), JSON.stringify(out));
 await writeFile(path.join(OUT, "news.js"), "window.LIVE = " + JSON.stringify(out).replace(/</g, "\\u003c") + ";\n");

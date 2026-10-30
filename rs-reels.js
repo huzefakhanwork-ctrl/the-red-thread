@@ -114,11 +114,11 @@
       if (arg) { const i = list.findIndex(p => p.id === arg); if (i > 0) list.unshift(list.splice(i, 1)[0]); }
       const L = likes();
       box.innerHTML = list.length ? list.map(p => { const pub = RS.pubOf(p), real = !!p.video;
-        return `<section class="reel" data-id="${esc(p.id)}"><div class="reel-frame">${real ? `<video playsinline loop preload="metadata" muted></video><div class="reel-miss" hidden>This video isn't available to you here.</div>` : `<canvas width="720" height="1280" aria-label="Animated news clip"></canvas>`}
+        return `<section class="reel${real ? " baked" : ""}" data-id="${esc(p.id)}"><div class="reel-frame">${real ? `<video playsinline loop preload="metadata" muted></video><div class="reel-miss" hidden>This video isn't available to you here.</div>` : `<canvas width="720" height="1280" aria-label="Animated news clip"></canvas>`}</div>
           <div class="reel-over"><div class="reel-by">${RS.logo({ name: pub.name, c: pub.color || "#2DD4BF" })}<b>${esc(pub.name)}</b>${real ? "" : `<span class="reel-tag">Sample clip</span>`}${p.mine ? `<span class="reel-tag">You</span>` : ""}</div>
             <h3>${esc(p.title)}</h3>${p.dek ? `<p>${esc(p.dek)}</p>` : ""}
             <button class="btn y reel-read" type="button" data-go="post" data-arg="${esc(p.id)}">Read the full article →</button></div>
-          <div class="reel-rail"><button type="button" data-like="${esc(p.id)}" aria-pressed="${L.has(p.id)}"><span>♥</span><b>${L.has(p.id) ? "Liked" : "Like"}</b></button><button type="button" data-go="post" data-arg="${esc(p.id)}"><span>💬</span><b>Discuss</b></button><button type="button" data-rshare="${esc(p.id)}"><span>↗</span><b>Share</b></button></div></div></section>`; }).join("")
+          <div class="reel-rail"><button type="button" data-like="${esc(p.id)}" aria-pressed="${L.has(p.id)}"><span>♥</span><b>${L.has(p.id) ? "Liked" : "Like"}</b></button><button type="button" data-go="post" data-arg="${esc(p.id)}"><span>💬</span><b>Discuss</b></button><button type="button" data-rshare="${esc(p.id)}"><span>↗</span><b>Share</b></button></div></section>`; }).join("")
         : `<div class="empty" style="margin:40px auto;max-width:420px">No reels yet. Publish an article with a video and it shows up here.</div>`;
       // load sources, then play whichever reel is on screen
       for (const sec of $$(".reel", box)) {

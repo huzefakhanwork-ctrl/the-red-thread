@@ -12,7 +12,7 @@
   const iv = $("#introVideo"), introEl = $("#intro");
   let introDone = false, outro = null, focusId = null;
   root.classList.add("intro"); root.style.overflow = "hidden";
-  const unlock = () => { root.classList.remove("intro"); if (!focusId) root.style.overflow = ""; setTimeout(() => edgeChips(), 600); };
+  const unlock = () => { root.classList.remove("intro"); if (!focusId) root.style.overflow = ""; setTimeout(() => hideUnderBars(), 600); };
   function snapshotHalves() {
     const w = innerWidth, h = innerHeight, dpr = Math.min(2, devicePixelRatio || 1);
     const vw = iv.videoWidth || 1920, vh = iv.videoHeight || 1080, sc = Math.max(w / vw, h / vh), dw = vw * sc, dh = vh * sc, dx = (w - dw) / 2, dy = (h - dh) / 2;
@@ -81,16 +81,23 @@
     { id: "eggs", k: "Karnataka · School meals", t: "Egg days cut from six to two", num: "-4", unit: "DAYS", neg: true, rows: [["Announced", "No"], ["Coverage", "7/48"]] },
     { id: "genz", k: "Delhi · Exam leak", t: "Students rally at Jantar Mantar", num: "88", unit: "SOURCES", hot: true, rows: [["Left · Centre · Right", "38 · 40 · 22"], ["Status", "Developing"]] }
   ];
-  // live news: the five best-covered real stories (different places) replace the samples
+  // live news: the scroll visits every live story on the map, north to south, and ends on the biggest one,
+  // where it dives down to a satellite close-up of that place
   const LIVE_ON = STORIES.some(x => x.live);
   const byCover = STORIES.filter(x => x.live && GEO[x.id]).sort((a, b) => b.outletCount - a.outletCount || b.lastSeen - a.lastSeen);
-  const pick = [], seenPlace = new Set();
-  for (const x of byCover) { if (pick.length >= 5) break; if (seenPlace.has(x.place)) continue; seenPlace.add(x.place); pick.push(x); }
-  if (LIVE_ON && pick.length >= 5) FEAT.splice(0, FEAT.length, ...pick.map(x => { const p = RS.share(x); return { id: x.id, k: x.place + " · " + x.cat, t: x.title.length > 92 ? x.title.slice(0, 89) + "…" : x.title, num: String(x.outletCount), unit: x.outletCount === 1 ? "OUTLET" : "OUTLETS", rows: [["Left · Centre · Right", p.l + " · " + p.c + " · " + p.r], ["Latest report", x.time]] }; }));
-  const DS = LIVE_ON ? byCover.find(x => /delhi/i.test(x.place)) : null; // the Delhi zoom follows the top live Delhi story
-  const FEAT_IDS = FEAT.map(f => f.id);
+  const CITY = LIVE_ON && window.LIVE && LIVE.city && GEO[LIVE.city.id] ? LIVE.city : null;
+  const DS = LIVE_ON ? (CITY ? STORIES.find(x => x.id === CITY.id) : byCover.find(x => /delhi/i.test(x.place))) || null : null;
+  if (CITY) Object.assign(DEL, { w: CITY.w, h: CITY.h, lon0: CITY.lon0, lon1: CITY.lon1, lat0: CITY.lat0, lat1: CITY.lat1 });
+  const featOf = x => { const p = RS.share(x); return { id: x.id, k: x.place + " · " + x.cat, t: x.title.length > 92 ? x.title.slice(0, 89) + "…" : x.title, num: String(x.outletCount), unit: x.outletCount === 1 ? "OUTLET" : "OUTLETS", rows: [["Left · Centre · Right", p.l + " · " + p.c + " · " + p.r], ["Latest report", x.time]] }; };
+  if (LIVE_ON && byCover.length) FEAT.splice(0, FEAT.length, ...[...byCover.filter(x => x !== DS).sort((a, b) => GEO[b.id][0] - GEO[a.id][0]), ...(DS ? [DS] : [])].map(featOf));
+  const FEAT_IDS = LIVE_ON ? [] : FEAT.map(f => f.id);
   const MAP = STORIES.filter(x => GEO[x.id] && (!LIVE_ON || x.live));
-  const JM = { lat: 28.6271, lon: 77.2166 };
+  const JM = CITY ? { lat: CITY.lat, lon: CITY.lon } : { lat: 28.6271, lon: 77.2166 };
+  const ZOOM_AT = DS && GEO[DS.id] ? GEO[DS.id] : [28.62, 77.21]; // where the final zoom dives in
+  if (CITY) {
+    $("#delhiBox img").src = CITY.file;
+    const ro = $(".readout"); if (ro) { ro.querySelector("b").textContent = CITY.lat.toFixed(4) + "°N · " + CITY.lon.toFixed(4) + "°E"; ro.querySelectorAll(".lbl")[1].textContent = CITY.place.toUpperCase() + " · SENTINEL-2 · 10 M/PX"; }
+  }
   let IB = null;
 
   function layoutBox(el, g, mode) {
@@ -101,24 +108,28 @@
     el.style.width = g.w * s + "px"; el.style.height = g.h * s + "px"; el.style.left = x + "px"; el.style.top = y + "px";
     return { s, x, y };
   }
-  // pins the viewer can't reach (under the top bar / dock, or off-screen) -> a button that slides the map to them
-  let panY = 0;
-  function edgeChips() {
-    const n = $("#edgeN"), so = $("#edgeS"); if (!n) return;
-    if (prog > .02 || focusId || !IB || root.classList.contains("intro")) { n.hidden = so.hidden = true; $$("#iPins .pin.offv").forEach(p => p.classList.remove("offv")); return; }
-    const top = $(".top").getBoundingClientRect().bottom + 14, bot = $(".dock").getBoundingClientRect().top - 14;
-    const ys = $$("#iPins .pin").map(p => { const r = p.getBoundingClientRect(), y = r.top + r.height / 2; p.classList.toggle("offv", y < top || y > bot); return y; });
-    const up = ys.filter(y => y < top), dn = ys.filter(y => y > bot);
-    n.hidden = !up.length; so.hidden = !dn.length;
-    n.innerHTML = `▲ NORTH<small>${up.length} MORE ${up.length === 1 ? "STORY" : "STORIES"}</small>`; so.innerHTML = `▼ SOUTH<small>${dn.length} MORE ${dn.length === 1 ? "STORY" : "STORIES"}</small>`;
-    n.onclick = () => slide(top + 40 - Math.min(...up)); so.onclick = () => slide(bot - 40 - Math.max(...dn));
+  // pins under the top bar or the dock stay hidden until the scroll slides them into view
+  function hideUnderBars() {
+    const pins = $$("#iPins .pin");
+    if (focusId || !IB || root.classList.contains("intro") || prog > TOUR_P) { pins.forEach(p => p.classList.remove("offv")); return; }
+    const top = $(".top").getBoundingClientRect().bottom + 6, bot = $(".dock").getBoundingClientRect().top - 6;
+    pins.forEach(p => { const r = p.getBoundingClientRect(), y = r.top + r.height / 2; p.classList.toggle("offv", y < top || y > bot); });
   }
-  function slide(d) {
-    const h = IND.h * IB.s, lo = innerHeight - IB.y - h, hi = -IB.y; // never slide past the edge of the picture
-    panY = Math.max(lo, Math.min(hi, panY + d));
-    if (hasG) gsap.to("#lIndia", { y: panY, duration: .8, ease: "power3.inOut", onComplete: edgeChips }); else { $("#lIndia").style.transform = `translateY(${panY}px)`; edgeChips(); }
+  // the walk through the stories: T0 + i*TU is story i; D is how much longer than the old five-story walk it is
+  const TU = .045, T0 = .06; let PAN = [], SC = [], D = 0, TOT = 1, TOUR_P = .3;
+  function tourPlan() {
+    const n = FEAT.length; D = Math.max(0, T0 + n * TU + .01 - .3); TOT = 1 + D; TOUR_P = (.3 + D) / TOT;
+    const H = innerHeight, h = IND.h * IB.s, cy = IB.y + h / 2;
+    const top = $(".top").getBoundingClientRect().bottom + 70, bot = $(".dock").getBoundingClientRect().top - 70;
+    let pan = 0;
+    SC = FEAT.map((f, i) => 1 + .08 * (T0 + i * TU) / (.3 + D));
+    PAN = FEAT.map((f, i) => {
+      const sc = SC[i], [, py] = toPx(IND, GEO[f.id][0], GEO[f.id][1]), y0 = cy + (IB.y + py * IB.s - cy) * sc;
+      if (i === n - 1 && DS) pan = H * .5 - y0; // the last (biggest) story is centred before the dive
+      else if (y0 + pan < top) pan = top - y0; else if (y0 + pan > bot) pan = bot - y0;
+      return pan = Math.max(H - (cy + h / 2 * sc), Math.min(-(cy - h / 2 * sc), pan));
+    });
   }
-  function unslide() { if (!panY) return; panY = 0; if (hasG) gsap.to("#lIndia", { y: 0, duration: .5, ease: "power2.out" }); else $("#lIndia").style.transform = ""; }
   function placePins() {
     $("#iPins").innerHTML = MAP.map(st => {
       const [lat, lon, nm] = GEO[st.id], [px, py] = toPx(IND, lat, lon), f = FEAT_IDS.includes(st.id);
@@ -126,7 +137,7 @@
     }).join("");
     const [jx, jy] = toPx(DEL, JM.lat, JM.lon);
     const rg = $("#rings"); rg.style.left = jx / DEL.w * 100 + "%"; rg.style.top = jy / DEL.h * 100 + "%";
-    $("#dPins").innerHTML = `<span class="pin hot" style="left:${jx / DEL.w * 100}%;top:${jy / DEL.h * 100}%"><span class="mnm">${DS ? "NEW DELHI · LIVE" : "JANTAR MANTAR"}</span></span>`;
+    $("#dPins").innerHTML = `<span class="pin hot" style="left:${jx / DEL.w * 100}%;top:${jy / DEL.h * 100}%"><span class="mnm">${DS ? esc(DS.place.toUpperCase()) + " · LIVE" : "JANTAR MANTAR"}</span></span>`;
     $("#todayN").textContent = MAP.length;
     $("#todayList").innerHTML = MAP.map(st => `<button type="button" data-focus="${st.id}"><span>${esc(GEO[st.id][2].split(" · ")[0])} · ${esc(st.cat)}</span><b>${esc(st.title)}</b></button>`).join("");
   }
@@ -134,7 +145,7 @@
   function cityCards(x) {
     const p = RS.share(x), LO = window.LIVE_OUTLETS || {}, latest = (x.articles || []).slice().sort((a, b) => b.time - a.time)[0];
     const short = t => esc(t.length > 120 ? t.slice(0, 117) + "…" : t);
-    return `<div class="card" data-city="1" style="left:max(16px, 5vw);top:22vh"><span class="lbl">New Delhi · ${esc(x.cat)} · live</span><h3>${short(x.title)}</h3><span class="mnum">${x.outletCount}<small>${x.outletCount === 1 ? "OUTLET" : "OUTLETS"} COVERING IT</small></span></div>` +
+    return `<div class="card" data-city="1" style="left:max(16px, 5vw);top:22vh"><span class="lbl">${esc(x.place)} · ${esc(x.cat)} · live</span><h3>${short(x.title)}</h3><span class="mnum">${x.outletCount}<small>${x.outletCount === 1 ? "OUTLET" : "OUTLETS"} COVERING IT</small></span></div>` +
       `<div class="card" data-city="2" style="right:max(16px, 5vw);top:38vh"><span class="lbl">Coverage · ${p.total} articles</span><h3>How each side covers it</h3><div class="bar"><i style="flex:${p.l || .001};background:var(--rose)"></i><i style="flex:${p.c || .001};background:rgba(255,255,255,.35)"></i><i style="flex:${p.r || .001};background:var(--teal-3)"></i></div><div class="mrow"><span>Left</span><b>${p.l}%</b></div><div class="mrow"><span>Centre</span><b>${p.c}%</b></div><div class="mrow"><span>Right</span><b>${p.r}%</b></div></div>` +
       `<div class="card" data-city="3" style="left:max(16px, 6vw);top:30vh"><span class="lbl">What's being reported</span>${x.sum.slice(0, 3).map(t => `<div class="mrow" style="display:block;font-weight:600;line-height:1.35">${short(t)}</div>`).join("")}</div>` +
       `<div class="card" data-city="4" style="right:max(16px, 6vw);top:20vh"><span class="lbl">Latest report</span><h3>${esc(latest ? ((LO[latest.outlet] || {}).name || latest.outlet) : "")}</h3><span class="mnum">${esc(x.time)}</span><div class="mrow"><span>Left/right labels</span><b>Provisional</b></div></div>` +
@@ -145,9 +156,10 @@
     $$("#cards .card[data-pin]").forEach(c => { if (!c.offsetHeight || hi < 200) return; c.style.top = Math.max(lo, Math.min(hi - c.offsetHeight, parseFloat(c.style.top))) + "px"; });
   }
   function buildCards() {
-    const W = innerWidth, H = innerHeight;
+    const W = innerWidth, H = innerHeight; tourPlan();
     $("#cards").innerHTML = FEAT.map((f, i) => {
-      const [lat, lon] = GEO[f.id], [px, py] = toPx(IND, lat, lon), sx = IB.x + px * IB.s, sy = IB.y + py * IB.s;
+      const [lat, lon] = GEO[f.id], [px, py] = toPx(IND, lat, lon), w = IND.w * IB.s, h = IND.h * IB.s, cx = IB.x + w / 2, cy = IB.y + h / 2;
+      const sx = cx + (IB.x + px * IB.s - cx) * SC[i], sy = cy + (IB.y + py * IB.s - cy) * SC[i] + PAN[i];
       const left = sx > W * .55 ? sx - 330 : sx + 60, top = Math.min(H - 330, Math.max(90, sy - 120));
       return `<div class="card" data-pin="${i}" data-id="${f.id}" style="left:${Math.max(16, Math.min(W - 290, left))}px;top:${top}px"><span class="lbl">${f.k}</span><h3>${f.t}</h3><span class="mnum${f.neg ? " neg" : ""}">${f.num}<small>${f.unit}</small></span>${f.rows.map(r => `<div class="mrow"><span>${r[0]}</span><b class="${r[1] === "None" || r[1] === "No" ? "" : "mt"}">${r[1]}</b></div>`).join("")}<div class="macts"><button class="mbtn mg" type="button" data-focus="${f.id}">ZOOM IN</button></div></div>`;
     }).join("") +
@@ -197,23 +209,26 @@
   function setupDive() {
     if (tl) { tl.revert(); tl = null; }
     IB = layoutBox($("#indiaBox"), IND, "india"); layoutBox($("#delhiBox"), DEL, "delhi");
-    panY = 0; if (hasG) gsap.set("#lIndia", { y: 0 }); placePins(); buildCards(); fitCards(); drawLinks(); requestAnimationFrame(() => { edgeChips(); drawLinks(); });
+    placePins(); buildCards(); fitCards(); drawLinks(); requestAnimationFrame(() => { hideUnderBars(); drawLinks(); });
+    $("#dive").style.height = Math.round(620 * TOT * 1.15) + "vh"; // more stories, a longer scroll
     if (!hasG || RM) { $("#imgNight").style.opacity = 1; $$("#cards .card[data-city]").forEach(c => c.style.display = "none"); drawLinks(); return; }
-    const [jx, jy] = toPx(IND, 28.62, 77.21), oIndia = `${jx / IND.w * 100}% ${jy / IND.h * 100}%`;
+    const [jx, jy] = toPx(IND, ZOOM_AT[0], ZOOM_AT[1]), oIndia = `${jx / IND.w * 100}% ${jy / IND.h * 100}%`;
     const [dx, dy] = toPx(DEL, JM.lat, JM.lon), oDelhi = `${dx / DEL.w * 100}% ${dy / DEL.h * 100}%`;
     gsap.set("#cards .card", { autoAlpha: 0, y: 30 }); gsap.set("#dPins .pin", { scale: 0 });
     const main = gsap.timeline({ defaults: { ease: "power2.out" } });
-    main.to("#indiaBox", { scale: 1.08, duration: .3, ease: "none", transformOrigin: "50% 50%" }, 0)
+    main.to("#indiaBox", { scale: 1.08, duration: .3 + D, ease: "none", transformOrigin: "50% 50%" }, 0)
       .to("#imgNight", { opacity: 1, duration: .07, ease: "none" }, .02)
       .to("#headline", { opacity: 0, y: -50, duration: .05 }, .05)
-      .to("#today", { opacity: 0, duration: .03 }, .27);
+      .to("#today", { opacity: 0, duration: .03 }, .27 + D);
     FEAT.forEach((f, i) => {
-      const at = .06 + i * .045;
+      const at = T0 + i * TU;
+      main.to("#indiaBox", { y: PAN[i], duration: TU * .7, ease: "power2.inOut" }, Math.max(0, at - TU * .5));
       main.fromTo(`#iPins .pin[data-id="${f.id}"]`, { scale: 1 }, { scale: 1.9, duration: .012, yoyo: true, repeat: 1, ease: "power2.out" }, at)
         .to(`#cards .card[data-pin="${i}"]`, { autoAlpha: 1, y: 0, duration: .025 }, at + .005);
       if (i < FEAT.length - 1) main.to(`#cards .card[data-pin="${i}"]`, { autoAlpha: 0, y: -20, duration: .015 }, at + .04);
     });
-    main.to(`#cards .card[data-pin="4"]`, { autoAlpha: 0, duration: .02 }, .3)
+    const after = gsap.timeline({ defaults: { ease: "power2.out" } }); main.add(after, D);
+    after.to(`#cards .card[data-pin="${FEAT.length - 1}"]`, { autoAlpha: 0, duration: .02 }, .3)
       .to("#credit", { opacity: 0, duration: .02 }, .3)
       .to("#indiaBox", { scale: 14, transformOrigin: oIndia, duration: .08, ease: "power3.in" }, .3)
       .to("#streak", { opacity: 1, duration: .03 }, .34)
@@ -234,14 +249,20 @@
       .to(`#cards .card[data-city="4"]`, { autoAlpha: 1, y: 0, duration: .03 }, .86)
       .to(`#cards .card[data-city="5"]`, { autoAlpha: 1, y: 0, duration: .03 }, .9)
       .to({}, { duration: .04 }, .96);
-    tl = gsap.timeline({ defaults: { ease: "power2.out" }, scrollTrigger: { trigger: "#dive", start: "top top", end: "bottom bottom", scrub: .8,
-      onUpdate: s => { prog = s.progress; $("#progBar").style.width = prog * 100 + "%"; const st = [...STEP].reverse().find(x => prog >= x[0] - .001); $("#stepName").innerHTML = `<b>${st[1]}</b>${st[2]}`; $("#prev").disabled = prog < .01; $("#next").disabled = prog > .97; $("#iPins").classList.toggle("off", prog > .3); if (prog > .02) unslide(); if (prog < .3) fitCards(); edgeChips(); drawLinks(); } } });
+    tl = gsap.timeline({ defaults: { ease: "power2.out" }, onUpdate: () => { if (prog < TOUR_P) hideUnderBars(); drawLinks(); }, scrollTrigger: { trigger: "#dive", start: "top top", end: "bottom bottom", scrub: .8,
+      onUpdate: s => { prog = s.progress; $("#progBar").style.width = prog * 100 + "%"; $("#stepName").innerHTML = stepLabel(); $("#prev").disabled = prog < .01; $("#next").disabled = prog > .97; $("#iPins").classList.toggle("off", prog > TOUR_P); if (prog < TOUR_P) { fitCards(); hideUnderBars(); } drawLinks(); } } });
     tl.add(main, 0);
     if (introDone) ScrollTrigger.refresh();
   }
+  function stepLabel() {
+    const t = prog * TOT, n = FEAT.length;
+    if (t >= T0 - TU * .5 && t < .3 + D) return `<b>01</b>STORY ${Math.max(0, Math.min(n - 1, Math.round((t - T0) / TU))) + 1} OF ${n}`;
+    const st = [...STEP].reverse().find(x => (t < .3 + D ? t : t - D) >= x[0] - .001); return `<b>${st[1]}</b>${st[2]}`;
+  }
   function jump(dir) {
     const st = tl && tl.scrollTrigger; if (!st) return;
-    const m = dir > 0 ? MARKS.find(x => x > prog + .02) : [...MARKS].reverse().find(x => x < prog - .02);
+    const marks = [0, ...FEAT.map((f, i) => (T0 + i * TU + .02) / TOT), ...MARKS.slice(1).map(x => (x + D) / TOT)];
+    const m = dir > 0 ? marks.find(x => x > prog + .004) : [...marks].reverse().find(x => x < prog - .004);
     if (m == null) return; window.scrollTo({ top: st.start + (st.end - st.start) * m, behavior: "smooth" });
   }
   $("#prev").onclick = () => jump(-1); $("#next").onclick = () => jump(1);
@@ -250,8 +271,8 @@
   /* ---------- today's map: click any story to zoom into it ---------- */
   function focusStory(id) {
     const s = RS.story(id), pin = $(`#iPins .pin[data-id="${id}"]`); if (!s || !pin) return;
-    if (prog > .3) { const st = tl && tl.scrollTrigger; if (st) { window.scrollTo(0, st.start); tl.progress(0); ScrollTrigger.update(); } }
-    focusId = id; edgeChips(); root.style.overflow = "hidden"; document.body.classList.add("focusing"); $("#today").open = false;
+    if (prog > TOUR_P) { const st = tl && tl.scrollTrigger; if (st) { window.scrollTo(0, st.start); tl.progress(0); ScrollTrigger.update(); } }
+    focusId = id; hideUnderBars(); root.style.overflow = "hidden"; document.body.classList.add("focusing"); $("#today").open = false;
     $$("#iPins .pin").forEach(p => p.classList.toggle("dim", p !== pin)); pin.classList.add("on");
     const r = pin.getBoundingClientRect(), W = innerWidth, H = innerHeight, mob = W < 760, k = mob ? 2.2 : 2.6;
     const lr = $("#lIndia").getBoundingClientRect(), cur = hasG ? gsap.getProperty("#lIndia", "scale") : 1;
@@ -272,7 +293,7 @@
     gsap.fromTo("#focus", { x: mob ? 0 : 40, y: mob ? 40 : 0, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: .6, delay: .55, ease: "power3.out" });
   }
   function unfocus(now) {
-    if (!focusId) return; focusId = null; panY = 0; document.body.classList.remove("focusing"); setTimeout(edgeChips, 1000);
+    if (!focusId) return; focusId = null; document.body.classList.remove("focusing"); setTimeout(hideUnderBars, 1000);
     $$("#iPins .pin").forEach(p => p.classList.remove("dim", "on"));
     $("#focus").hidden = true; if (!root.classList.contains("intro")) root.style.overflow = "";
     if (!hasG || RM || now) { if (hasG) gsap.set("#lIndia", { x: 0, y: 0, scale: 1 }); $("#mui").style.opacity = 1; return; }
