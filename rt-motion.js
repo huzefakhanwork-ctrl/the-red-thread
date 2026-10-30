@@ -54,8 +54,7 @@
       .from("#headline > *", { y: 40, opacity: 0, stagger: .12, duration: .9, ease: "power3.out" }, 3.9);
   }
   // only the home page gets the intro; a deep link (#story-…, #chat) skips it
-  let seenIntro = false; try { seenIntro = localStorage.getItem("rtIntroSeen") === "1"; localStorage.setItem("rtIntroSeen", "1"); } catch {}
-  if ((location.hash || "").length > 1 || seenIntro) { introDone = true; unlock(); introEl.remove(); }
+  if ((location.hash || "").length > 1) { introDone = true; unlock(); introEl.remove(); }
   else {
     iv.addEventListener("timeupdate", () => {
       if (iv.duration && $("#ibar")) $("#ibar").style.width = Math.min(100, iv.currentTime / SPLIT_AT * 100) + "%";
