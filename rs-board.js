@@ -146,14 +146,15 @@
     if (s.dossier) return TEMPLATES.story[1]();
     const ox = originX(), p = RS.share(s), tot = Object.values(s.cov).reduce((a, b) => a + b, 0);
     addObj({ type: "heading", x: ox, y: 30, title: s.title, mine: false }, true);
-    addObj({ type: "sticky", x: ox, y: 120, w: 520, title: `${s.place} · ${s.cat} · ${s.time}`, text: `Coverage: ${tot} articles · Left ${p.l}% · Centre ${p.c}% · Right ${p.r}%. Story from The Red Thread (illustrative).`, mine: false }, true);
+    addObj({ type: "sticky", x: ox, y: 120, w: 520, title: `${s.place} · ${s.cat} · ${s.time}`, text: s.live ? `Live: ${s.outletCount} outlets, ${tot} articles · Left ${p.l}% · Centre ${p.c}% · Right ${p.r}%. Left/right labels are provisional.` : `Coverage: ${tot} articles · Left ${p.l}% · Centre ${p.c}% · Right ${p.r}%. Story from The Red Thread (illustrative).`, mine: false }, true);
     let y = 300;
     y = rowOf("What we know", s.sum.map(t => ({ title: t, type: "event" })), "event", ox, y);
     const L = rowOf("How the left frames it", [{ title: s.hl.L, text: "Left-leaning headline", type: "claim" }, ...s.L.map(t => ({ title: t, type: "note" }))], "note", ox, y);
     rowOf("How the right frames it", [{ title: s.hl.R, text: "Right-leaning headline", type: "claim" }, ...s.R.map(t => ({ title: t, type: "note" }))], "note", ox + 3 * 240 + 70, y);
     y = Math.max(L, y + 300);
     y = rowOf("Centre / neutral framing", [{ title: s.hl.C, text: "Centre headline", type: "claim" }], "claim", ox, y);
-    rowOf("Open questions", QS.map(t => ({ title: t, type: "question" })), "question", ox, y);
+    y = rowOf("Open questions", QS.map(t => ({ title: t, type: "question" })), "question", ox, y);
+    if (s.live && s.articles) { const LO = window.LIVE_OUTLETS || {}; rowOf("Who reported what", s.articles.slice(0, 8).map(a => ({ title: (LO[a.outlet] || {}).name || a.outlet, text: a.title, type: "note" })), "note", ox, y); }
     return { x: ox, y: 30 };
   }
   function boardFromPost(p) {
@@ -165,7 +166,8 @@
     let y = 300;
     y = rowOf("Key points from the article", lines.map(x => ({ title: x.t, type: x.s.length ? "evidence" : "claim", src: x.s })), "claim", ox, y);
     y = rowOf("Sources it cites", srcs.map(sid => ({ title: C.sources[sid].title, text: C.sources[sid].ex, type: "source", src: [sid] })), "source", ox, y);
-    rowOf("Open questions", QS.map(t => ({ title: t, type: "question" })), "question", ox, y);
+    y = rowOf("Open questions", QS.map(t => ({ title: t, type: "question" })), "question", ox, y);
+    if (s.live && s.articles) { const LO = window.LIVE_OUTLETS || {}; rowOf("Who reported what", s.articles.slice(0, 8).map(a => ({ title: (LO[a.outlet] || {}).name || a.outlet, text: a.title, type: "note" })), "note", ox, y); }
     return { x: ox, y: 30 };
   }
   function scanText(text) { // no AI: sort sentences into claims, facts, notes
@@ -270,6 +272,7 @@ Reply with only JSON: {"headline":"","summary":"","claims":[{"text":"","by":""}]
             <button class="tool" type="button" data-tool="select" aria-pressed="true">Select</button><button class="tool" type="button" data-tool="pan" aria-pressed="false">Hand</button><button class="tool" type="button" data-tool="pen" aria-pressed="false">Pen</button><button class="tool" type="button" data-tool="connect" aria-pressed="false">Connect</button>
             <input id="linkLbl" class="search" style="width:110px;padding:4px 8px;font-size:13px" value="relates to" aria-label="Label for new connections">
             <span class="tsep"></span>
+            <select id="wbStory" class="wbstory" aria-label="Build a board for a story"><option value="">Map a story…</option>${STORIES.filter(x => x.live).length ? `<optgroup label="Live today">${STORIES.filter(x => x.live).map(x => `<option value="${x.id}">${esc(x.title)}</option>`).join("")}</optgroup>` : ""}<optgroup label="${STORIES.some(x => x.live) ? "Samples" : "Stories"}">${STORIES.filter(x => !x.live).map(x => `<option value="${x.id}">${esc(x.title)}${x.dossier ? " · full dossier" : ""}</option>`).join("")}</optgroup></select>
             <select id="wbAdd" aria-label="Add an item"><option value="">+ Add item</option>${ADDABLE.map(t => `<option value="${t}">${LABEL[t]}</option>`).join("")}</select>
             <button class="tool linktool" type="button" id="wbLink">🔗 Paste a link</button>
             <select id="wbTpl" aria-label="Add a template"><option value="">Templates</option>${Object.entries(TEMPLATES).map(([k, [l]]) => `<option value="${k}">${l}</option>`).join("")}</select>
@@ -293,7 +296,7 @@ Reply with only JSON: {"headline":"","summary":"","claims":[{"text":"","by":""}]
               <div class="wblink-h"><div><span class="eyebrow">New board from a link</span><b>Paste a news link</b></div><button type="button" class="pubx" id="wbLinkX" aria-label="Close">×</button></div>
               <input id="wbLinkIn" placeholder="https://… a news article, or a Red Thread story / post link" autocomplete="off" aria-label="Link">
               <details id="wbLinkMore"><summary>Add the article text (best for outside links)</summary><textarea id="wbLinkTxt" placeholder="This page can't open other websites, so copy the article's text and paste it here. Dhaga sorts it into claims, facts, people, a timeline and open questions."></textarea></details>
-              <div class="wblink-try"><span class="muted">Try a Red Thread story:</span> ${["floods", "sand", "riders", "tram", "genz"].map(id => `<button type="button" class="chipx" data-try="story:${id}">${esc((RS.story(id) || {}).place || id)}</button>`).join("")}</div>
+              <div class="wblink-try"><span class="muted">Try a Red Thread story:</span> ${(STORIES.some(x => x.live) ? STORIES.filter(x => x.live).sort((a, b) => b.outletCount - a.outletCount).slice(0, 5).map(x => x.id) : ["floods", "sand", "riders", "tram", "genz"]).map(id => `<button type="button" class="chipx" data-try="story:${id}">${esc((RS.story(id) || {}).place || id)}</button>`).join("")}</div>
               <div class="wblink-f"><span id="wbLinkMsg" class="muted" aria-live="polite"></span><button class="btn y sm" type="submit">Build my board</button></div></form></div>
             <div class="wb-hint" id="wbHint">${HINTS.select}</div>
           </div>
@@ -325,6 +328,7 @@ Reply with only JSON: {"headline":"","summary":"","claims":[{"text":"","by":""}]
       const openLink = (val = "") => { const box = $("#wbLinkBox"); box.hidden = false; $("#wbLinkMsg").textContent = ""; $("#wbLinkIn").value = val; $("#wbLinkTxt").value = ""; $("#wbLinkMore").open = false; setTimeout(() => $("#wbLinkIn").focus(), 30); };
       $("#wbLink").onclick = () => openLink(); $("#wbLink2").onclick = () => openLink();
       $("#wbLinkX").onclick = () => { $("#wbLinkBox").hidden = true; };
+      $("#wbStory").onchange = e => { const id = e.target.value; e.target.value = ""; if (id) buildFromLink("story:" + id, ""); };
       $("#wbLinkIn").addEventListener("input", e => { const L = parseLink(e.target.value); if (L && L.kind === "web") { $("#wbLinkMore").open = true; $("#wbLinkMsg").textContent = `${L.outlet}${L.headline ? ": “" + L.headline + "”" : ""}`; } else $("#wbLinkMsg").textContent = L ? "Red Thread link: the board comes straight from our data." : ""; });
       $("#wbLinkBox").addEventListener("click", e => { const t = e.target.closest("[data-try]"); if (t) { $("#wbLinkIn").value = t.dataset.try; buildFromLink(t.dataset.try, ""); } });
       $("#wbLinkForm").addEventListener("submit", e => { e.preventDefault(); buildFromLink($("#wbLinkIn").value, $("#wbLinkTxt").value); });
