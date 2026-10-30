@@ -12,7 +12,7 @@
   const iv = $("#introVideo"), introEl = $("#intro");
   let introDone = false, outro = null, focusId = null;
   root.classList.add("intro"); root.style.overflow = "hidden";
-  const unlock = () => { root.classList.remove("intro"); if (!focusId) root.style.overflow = ""; setTimeout(() => hideUnderBars(), 600); };
+  const unlock = () => { root.classList.remove("intro"); if (!focusId) root.style.overflow = ""; setTimeout(() => hideUnderBars(), 600); setTimeout(() => window.RT_TOUR && RT_TOUR.auto(), 1600); };
   function snapshotHalves() {
     const w = innerWidth, h = innerHeight, dpr = Math.min(2, devicePixelRatio || 1);
     const vw = iv.videoWidth || 1920, vh = iv.videoHeight || 1080, sc = Math.max(w / vw, h / vh), dw = vw * sc, dh = vh * sc, dx = (w - dw) / 2, dy = (h - dh) / 2;
