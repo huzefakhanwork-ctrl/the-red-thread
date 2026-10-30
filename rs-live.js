@@ -23,11 +23,17 @@
   }));
   STORIES.unshift(...live);
   // map pins: the best-covered real stories with a known place, spread out a little so pins in one city don't stack
-  const ring = [[0, 0], [.55, .35], [-.5, .4], [.1, -.6], [-.6, -.3], [.65, -.35], [0, .75], [-.75, .1]];
+  // nth story in a place: golden-angle spiral, about 0.8° apart, so pins never stack
+  const ring = n => n === 0 ? [0, 0] : [.8 * Math.sqrt(n) * Math.sin(n * 2.4), .8 * Math.sqrt(n) * Math.cos(n * 2.4)];
+  const taken = [];
   const perPlace = {};
   live.filter(s => s.lat != null).sort((a, b) => b.outletCount - a.outletCount || b.lastSeen - a.lastSeen).slice(0, 40).forEach(s => {
-    const k = s.place, i = perPlace[k] = (perPlace[k] || 0) + 1, [dy, dx] = ring[(i - 1) % ring.length];
-    GEO[s.id] = [s.lat + dy, s.lon + dx, s.place.toUpperCase() + " · LIVE"];
+    const k = s.place, i = perPlace[k] = (perPlace[k] || 0) + 1, [dy, dx] = ring(i - 1);
+    let lat = s.lat + dy, lon = s.lon + dx;
+    // a pin from a nearby place that lands on another one is nudged outward until it's clear
+    for (let t = 0; t < 12 && taken.some(([a, b]) => Math.hypot(a - lat, b - lon) < .6); t++) { const [ny, nx] = ring(i + t + 1); lat = s.lat + ny; lon = s.lon + nx; }
+    taken.push([lat, lon]);
+    GEO[s.id] = [lat, lon, s.place.toUpperCase() + " · LIVE"];
   });
 
   // a photo that won't load (blocked hotlink, removed image) quietly falls back to the drawn art underneath

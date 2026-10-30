@@ -1081,6 +1081,11 @@ body:not(.at-home) .dpanel { left: auto; right: max(20px, env(safe-area-inset-ri
 
 body.focusing .stepper { display: none; }
 
+/* slide the map to reach pins hidden off the top or bottom of a wide screen */
+.edgechip { position: absolute; left: 50%; transform: translateX(-50%); top: calc(var(--topH, 70px) + 12px); z-index: 3; pointer-events: auto; background: rgba(0,0,0,.72); color: var(--ink); border: 1px solid var(--edge); border-radius: 999px; padding: 8px 16px; font: 800 11px/1 var(--f); letter-spacing: .16em; backdrop-filter: blur(20px); cursor: pointer; }
+.edgechip.s { top: auto; bottom: 116px; }
+.edgechip:hover { border-color: var(--teal-3); color: var(--teal-3); }
+
 /* ===== minimal satellite theme over the app pages: black glass, Inter, teal ===== */
 html, body { background: var(--space); }
 body { font-family: var(--f); -webkit-font-smoothing: antialiased; }
@@ -1391,6 +1396,7 @@ body.in-lab .dock, body.in-lab .dpanel { display: none; }
           <div id="cards"></div>
           <div class="headline" id="headline"><div class="mkick">WHAT THE MEDIA MISSED</div><h1>India, <span class="grad">uncovered</span></h1></div>
           <details class="today" id="today"><summary><i aria-hidden="true"></i><b id="todayN">0</b> STORIES TODAY <span>· TAP A PIN</span></summary><div class="tlist" id="todayList"></div></details>
+          <button class="edgechip" type="button" id="edgeN" hidden></button><button class="edgechip s" type="button" id="edgeS" hidden></button>
           <div class="credit" id="credit">Imagery: NASA Blue Marble &amp; Black Marble (public domain) · Sentinel-2 cloudless 2016 by EOX IT Services GmbH, CC BY 4.0, contains modified Copernicus Sentinel data. Satellite photos, no boundaries drawn. Stories are illustrative.</div>
         </div>
         <div class="focus" id="focus" hidden role="dialog" aria-label="Story"></div>

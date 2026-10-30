@@ -12,7 +12,7 @@
   const iv = $("#introVideo"), introEl = $("#intro");
   let introDone = false, outro = null, focusId = null;
   root.classList.add("intro"); root.style.overflow = "hidden";
-  const unlock = () => { root.classList.remove("intro"); if (!focusId) root.style.overflow = ""; };
+  const unlock = () => { root.classList.remove("intro"); if (!focusId) root.style.overflow = ""; setTimeout(() => edgeChips(), 600); };
   function snapshotHalves() {
     const w = innerWidth, h = innerHeight, dpr = Math.min(2, devicePixelRatio || 1);
     const vw = iv.videoWidth || 1920, vh = iv.videoHeight || 1080, sc = Math.max(w / vw, h / vh), dw = vw * sc, dh = vh * sc, dx = (w - dw) / 2, dy = (h - dh) / 2;
@@ -101,6 +101,24 @@
     el.style.width = g.w * s + "px"; el.style.height = g.h * s + "px"; el.style.left = x + "px"; el.style.top = y + "px";
     return { s, x, y };
   }
+  // pins the viewer can't reach (under the top bar / dock, or off-screen) -> a button that slides the map to them
+  let panY = 0;
+  function edgeChips() {
+    const n = $("#edgeN"), so = $("#edgeS"); if (!n) return;
+    if (prog > .02 || focusId || !IB || root.classList.contains("intro")) { n.hidden = so.hidden = true; return; }
+    const top = $(".top").getBoundingClientRect().bottom + 14, bot = $(".dock").getBoundingClientRect().top - 14;
+    const ys = $$("#iPins .pin").map(p => { const r = p.getBoundingClientRect(); return r.top + r.height / 2; });
+    const up = ys.filter(y => y < top), dn = ys.filter(y => y > bot);
+    n.hidden = !up.length; so.hidden = !dn.length;
+    n.textContent = `▲ ${up.length} ${up.length === 1 ? "STORY" : "STORIES"} FURTHER NORTH`; so.textContent = `▼ ${dn.length} ${dn.length === 1 ? "STORY" : "STORIES"} FURTHER SOUTH`;
+    n.onclick = () => slide(top + 40 - Math.min(...up)); so.onclick = () => slide(bot - 40 - Math.max(...dn));
+  }
+  function slide(d) {
+    const h = IND.h * IB.s, lo = innerHeight - IB.y - h, hi = -IB.y; // never slide past the edge of the picture
+    panY = Math.max(lo, Math.min(hi, panY + d));
+    if (hasG) gsap.to("#lIndia", { y: panY, duration: .8, ease: "power3.inOut", onComplete: edgeChips }); else { $("#lIndia").style.transform = `translateY(${panY}px)`; edgeChips(); }
+  }
+  function unslide() { if (!panY) return; panY = 0; if (hasG) gsap.to("#lIndia", { y: 0, duration: .5, ease: "power2.out" }); else $("#lIndia").style.transform = ""; }
   function placePins() {
     $("#iPins").innerHTML = MAP.map(st => {
       const [lat, lon, nm] = GEO[st.id], [px, py] = toPx(IND, lat, lon), f = FEAT_IDS.includes(st.id);
@@ -121,6 +139,10 @@
       `<div class="card" data-city="3" style="left:max(16px, 6vw);top:30vh"><span class="lbl">What's being reported</span>${x.sum.slice(0, 3).map(t => `<div class="mrow" style="display:block;font-weight:600;line-height:1.35">${short(t)}</div>`).join("")}</div>` +
       `<div class="card" data-city="4" style="right:max(16px, 6vw);top:20vh"><span class="lbl">Latest report</span><h3>${esc(latest ? ((LO[latest.outlet] || {}).name || latest.outlet) : "")}</h3><span class="mnum">${esc(x.time)}</span><div class="mrow"><span>Left/right labels</span><b>Provisional</b></div></div>` +
       `<div class="card" data-city="5" style="left:calc(50% - min(210px, 50vw - 16px));bottom:120px;width:min(420px, calc(100vw - 32px))"><span class="lbl">Pull this thread</span><h3>Investigate it yourself</h3><div class="macts"><button class="mbtn mt" type="button" data-go="story" data-arg="${x.id}">READ ALL SIDES</button><button class="mbtn mg" type="button" data-go="investigate" data-arg="${x.id}|map">OPEN MIND MAP</button><button class="mbtn mg" type="button" data-go="board">WHITEBOARD</button></div></div>`;
+  }
+  function fitCards() {
+    const lo = $(".top").getBoundingClientRect().bottom + 12, hi = $(".dock").getBoundingClientRect().top - 16;
+    $$("#cards .card[data-pin]").forEach(c => { if (!c.offsetHeight || hi < 200) return; c.style.top = Math.max(lo, Math.min(hi - c.offsetHeight, parseFloat(c.style.top))) + "px"; });
   }
   function buildCards() {
     const W = innerWidth, H = innerHeight;
@@ -175,11 +197,11 @@
   function setupDive() {
     if (tl) { tl.revert(); tl = null; }
     IB = layoutBox($("#indiaBox"), IND, "india"); layoutBox($("#delhiBox"), DEL, "delhi");
-    placePins(); buildCards(); drawLinks();
+    panY = 0; if (hasG) gsap.set("#lIndia", { y: 0 }); placePins(); buildCards(); fitCards(); drawLinks(); requestAnimationFrame(edgeChips);
     if (!hasG || RM) { $("#imgNight").style.opacity = 1; $$("#cards .card[data-city]").forEach(c => c.style.display = "none"); drawLinks(); return; }
     const [jx, jy] = toPx(IND, 28.62, 77.21), oIndia = `${jx / IND.w * 100}% ${jy / IND.h * 100}%`;
     const [dx, dy] = toPx(DEL, JM.lat, JM.lon), oDelhi = `${dx / DEL.w * 100}% ${dy / DEL.h * 100}%`;
-    gsap.set("#cards .card", { opacity: 0, y: 30 }); gsap.set("#dPins .pin", { scale: 0 });
+    gsap.set("#cards .card", { autoAlpha: 0, y: 30 }); gsap.set("#dPins .pin", { scale: 0 });
     const main = gsap.timeline({ defaults: { ease: "power2.out" } });
     main.to("#indiaBox", { scale: 1.08, duration: .3, ease: "none", transformOrigin: "50% 50%" }, 0)
       .to("#imgNight", { opacity: 1, duration: .07, ease: "none" }, .02)
@@ -188,10 +210,10 @@
     FEAT.forEach((f, i) => {
       const at = .06 + i * .045;
       main.fromTo(`#iPins .pin[data-id="${f.id}"]`, { scale: 1 }, { scale: 1.9, duration: .012, yoyo: true, repeat: 1, ease: "power2.out" }, at)
-        .to(`#cards .card[data-pin="${i}"]`, { opacity: 1, y: 0, duration: .025 }, at + .005);
-      if (i < FEAT.length - 1) main.to(`#cards .card[data-pin="${i}"]`, { opacity: 0, y: -20, duration: .015 }, at + .04);
+        .to(`#cards .card[data-pin="${i}"]`, { autoAlpha: 1, y: 0, duration: .025 }, at + .005);
+      if (i < FEAT.length - 1) main.to(`#cards .card[data-pin="${i}"]`, { autoAlpha: 0, y: -20, duration: .015 }, at + .04);
     });
-    main.to(`#cards .card[data-pin="4"]`, { opacity: 0, duration: .02 }, .3)
+    main.to(`#cards .card[data-pin="4"]`, { autoAlpha: 0, duration: .02 }, .3)
       .to("#credit", { opacity: 0, duration: .02 }, .3)
       .to("#indiaBox", { scale: 14, transformOrigin: oIndia, duration: .08, ease: "power3.in" }, .3)
       .to("#streak", { opacity: 1, duration: .03 }, .34)
@@ -202,18 +224,18 @@
       .to("#streak", { opacity: 0, duration: .04 }, .39)
       .to("#dPins .pin", { scale: 1, duration: .02, ease: "back.out(3)" }, .45)
       .to("#rings", { opacity: 1, duration: .04 }, .46)
-      .to(`#cards .card[data-city="1"]`, { opacity: 1, y: 0, duration: .03 }, .5)
-      .to(`#cards .card[data-city="2"]`, { opacity: 1, y: 0, duration: .03 }, .55)
-      .to(`#cards .card[data-city="1"], #cards .card[data-city="2"]`, { opacity: 0, y: -20, duration: .03 }, .64)
+      .to(`#cards .card[data-city="1"]`, { autoAlpha: 1, y: 0, duration: .03 }, .5)
+      .to(`#cards .card[data-city="2"]`, { autoAlpha: 1, y: 0, duration: .03 }, .55)
+      .to(`#cards .card[data-city="1"], #cards .card[data-city="2"]`, { autoAlpha: 0, y: -20, duration: .03 }, .64)
       .to("#delhiBox", { scale: 1.2, transformOrigin: oDelhi, duration: .1, ease: "power2.inOut" }, .66)
       .to("#hud", { opacity: 1, duration: .06 }, .7)
       .fromTo("#scan", { top: "-10%" }, { top: "110%", duration: .14, ease: "none" }, .7)
-      .to(`#cards .card[data-city="3"]`, { opacity: 1, y: 0, duration: .03 }, .8)
-      .to(`#cards .card[data-city="4"]`, { opacity: 1, y: 0, duration: .03 }, .86)
-      .to(`#cards .card[data-city="5"]`, { opacity: 1, y: 0, duration: .03 }, .9)
+      .to(`#cards .card[data-city="3"]`, { autoAlpha: 1, y: 0, duration: .03 }, .8)
+      .to(`#cards .card[data-city="4"]`, { autoAlpha: 1, y: 0, duration: .03 }, .86)
+      .to(`#cards .card[data-city="5"]`, { autoAlpha: 1, y: 0, duration: .03 }, .9)
       .to({}, { duration: .04 }, .96);
     tl = gsap.timeline({ defaults: { ease: "power2.out" }, scrollTrigger: { trigger: "#dive", start: "top top", end: "bottom bottom", scrub: .8,
-      onUpdate: s => { prog = s.progress; $("#progBar").style.width = prog * 100 + "%"; const st = [...STEP].reverse().find(x => prog >= x[0] - .001); $("#stepName").innerHTML = `<b>${st[1]}</b>${st[2]}`; $("#prev").disabled = prog < .01; $("#next").disabled = prog > .97; $("#iPins").classList.toggle("off", prog > .3); drawLinks(); } } });
+      onUpdate: s => { prog = s.progress; $("#progBar").style.width = prog * 100 + "%"; const st = [...STEP].reverse().find(x => prog >= x[0] - .001); $("#stepName").innerHTML = `<b>${st[1]}</b>${st[2]}`; $("#prev").disabled = prog < .01; $("#next").disabled = prog > .97; $("#iPins").classList.toggle("off", prog > .3); if (prog > .02) unslide(); if (prog < .3) fitCards(); edgeChips(); drawLinks(); } } });
     tl.add(main, 0);
     if (introDone) ScrollTrigger.refresh();
   }
@@ -229,7 +251,7 @@
   function focusStory(id) {
     const s = RS.story(id), pin = $(`#iPins .pin[data-id="${id}"]`); if (!s || !pin) return;
     if (prog > .3) { const st = tl && tl.scrollTrigger; if (st) { window.scrollTo(0, st.start); tl.progress(0); ScrollTrigger.update(); } }
-    focusId = id; root.style.overflow = "hidden"; document.body.classList.add("focusing"); $("#today").open = false;
+    focusId = id; edgeChips(); root.style.overflow = "hidden"; document.body.classList.add("focusing"); $("#today").open = false;
     $$("#iPins .pin").forEach(p => p.classList.toggle("dim", p !== pin)); pin.classList.add("on");
     const r = pin.getBoundingClientRect(), W = innerWidth, H = innerHeight, mob = W < 760, k = mob ? 2.2 : 2.6;
     const lr = $("#lIndia").getBoundingClientRect(), cur = hasG ? gsap.getProperty("#lIndia", "scale") : 1;
@@ -250,7 +272,7 @@
     gsap.fromTo("#focus", { x: mob ? 0 : 40, y: mob ? 40 : 0, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: .6, delay: .55, ease: "power3.out" });
   }
   function unfocus(now) {
-    if (!focusId) return; focusId = null; document.body.classList.remove("focusing");
+    if (!focusId) return; focusId = null; panY = 0; document.body.classList.remove("focusing"); setTimeout(edgeChips, 1000);
     $$("#iPins .pin").forEach(p => p.classList.remove("dim", "on"));
     $("#focus").hidden = true; if (!root.classList.contains("intro")) root.style.overflow = "";
     if (!hasG || RM || now) { if (hasG) gsap.set("#lIndia", { x: 0, y: 0, scale: 1 }); $("#mui").style.opacity = 1; return; }
