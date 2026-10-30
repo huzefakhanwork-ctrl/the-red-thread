@@ -105,12 +105,12 @@
   let panY = 0;
   function edgeChips() {
     const n = $("#edgeN"), so = $("#edgeS"); if (!n) return;
-    if (prog > .02 || focusId || !IB || root.classList.contains("intro")) { n.hidden = so.hidden = true; return; }
+    if (prog > .02 || focusId || !IB || root.classList.contains("intro")) { n.hidden = so.hidden = true; $$("#iPins .pin.offv").forEach(p => p.classList.remove("offv")); return; }
     const top = $(".top").getBoundingClientRect().bottom + 14, bot = $(".dock").getBoundingClientRect().top - 14;
-    const ys = $$("#iPins .pin").map(p => { const r = p.getBoundingClientRect(); return r.top + r.height / 2; });
+    const ys = $$("#iPins .pin").map(p => { const r = p.getBoundingClientRect(), y = r.top + r.height / 2; p.classList.toggle("offv", y < top || y > bot); return y; });
     const up = ys.filter(y => y < top), dn = ys.filter(y => y > bot);
     n.hidden = !up.length; so.hidden = !dn.length;
-    n.textContent = `▲ ${up.length} ${up.length === 1 ? "STORY" : "STORIES"} FURTHER NORTH`; so.textContent = `▼ ${dn.length} ${dn.length === 1 ? "STORY" : "STORIES"} FURTHER SOUTH`;
+    n.innerHTML = `▲ NORTH<small>${up.length} MORE ${up.length === 1 ? "STORY" : "STORIES"}</small>`; so.innerHTML = `▼ SOUTH<small>${dn.length} MORE ${dn.length === 1 ? "STORY" : "STORIES"}</small>`;
     n.onclick = () => slide(top + 40 - Math.min(...up)); so.onclick = () => slide(bot - 40 - Math.max(...dn));
   }
   function slide(d) {
@@ -197,7 +197,7 @@
   function setupDive() {
     if (tl) { tl.revert(); tl = null; }
     IB = layoutBox($("#indiaBox"), IND, "india"); layoutBox($("#delhiBox"), DEL, "delhi");
-    panY = 0; if (hasG) gsap.set("#lIndia", { y: 0 }); placePins(); buildCards(); fitCards(); drawLinks(); requestAnimationFrame(edgeChips);
+    panY = 0; if (hasG) gsap.set("#lIndia", { y: 0 }); placePins(); buildCards(); fitCards(); drawLinks(); requestAnimationFrame(() => { edgeChips(); drawLinks(); });
     if (!hasG || RM) { $("#imgNight").style.opacity = 1; $$("#cards .card[data-city]").forEach(c => c.style.display = "none"); drawLinks(); return; }
     const [jx, jy] = toPx(IND, 28.62, 77.21), oIndia = `${jx / IND.w * 100}% ${jy / IND.h * 100}%`;
     const [dx, dy] = toPx(DEL, JM.lat, JM.lon), oDelhi = `${dx / DEL.w * 100}% ${dy / DEL.h * 100}%`;
