@@ -227,7 +227,8 @@
         .to(`#cards .card[data-pin="${i}"]`, { autoAlpha: 1, y: 0, duration: .025 }, at + .005);
       if (i < FEAT.length - 1) main.to(`#cards .card[data-pin="${i}"]`, { autoAlpha: 0, y: -20, duration: .015 }, at + .04);
     });
-    const after = gsap.timeline({ defaults: { ease: "power2.out" } }); main.add(after, D);
+    // the dive and city scene, D later than before (added straight to main: a nested timeline would replay its start values while you scroll back through the tour)
+    const after = { to(t, v, p) { main.to(t, v, p + D); return after; }, set(t, v, p) { main.set(t, v, p + D); return after; }, fromTo(t, a, b, p) { main.fromTo(t, a, b, p + D); return after; } };
     after.to(`#cards .card[data-pin="${FEAT.length - 1}"]`, { autoAlpha: 0, duration: .02 }, .3)
       .to("#credit", { opacity: 0, duration: .02 }, .3)
       .to("#indiaBox", { scale: 14, transformOrigin: oIndia, duration: .08, ease: "power3.in" }, .3)
@@ -256,7 +257,7 @@
   }
   function stepLabel() {
     const t = prog * TOT, n = FEAT.length;
-    if (t >= T0 - TU * .5 && t < .3 + D) return `<b>01</b>STORY ${Math.max(0, Math.min(n - 1, Math.round((t - T0) / TU))) + 1} OF ${n}`;
+    if (t >= T0 && t < .3 + D) return `<b>01</b>STORY ${Math.max(0, Math.min(n - 1, Math.floor((t - T0) / TU))) + 1} OF ${n}`;
     const st = [...STEP].reverse().find(x => (t < .3 + D ? t : t - D) >= x[0] - .001); return `<b>${st[1]}</b>${st[2]}`;
   }
   function jump(dir) {
