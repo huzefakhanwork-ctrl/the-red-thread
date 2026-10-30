@@ -81,8 +81,15 @@
     { id: "eggs", k: "Karnataka · School meals", t: "Egg days cut from six to two", num: "-4", unit: "DAYS", neg: true, rows: [["Announced", "No"], ["Coverage", "7/48"]] },
     { id: "genz", k: "Delhi · Exam leak", t: "Students rally at Jantar Mantar", num: "88", unit: "SOURCES", hot: true, rows: [["Left · Centre · Right", "38 · 40 · 22"], ["Status", "Developing"]] }
   ];
+  // live news: the five best-covered real stories (different places) replace the samples
+  const LIVE_ON = STORIES.some(x => x.live);
+  const byCover = STORIES.filter(x => x.live && GEO[x.id]).sort((a, b) => b.outletCount - a.outletCount || b.lastSeen - a.lastSeen);
+  const pick = [], seenPlace = new Set();
+  for (const x of byCover) { if (pick.length >= 5) break; if (seenPlace.has(x.place)) continue; seenPlace.add(x.place); pick.push(x); }
+  if (LIVE_ON && pick.length >= 5) FEAT.splice(0, FEAT.length, ...pick.map(x => { const p = RS.share(x); return { id: x.id, k: x.place + " · " + x.cat, t: x.title.length > 92 ? x.title.slice(0, 89) + "…" : x.title, num: String(x.outletCount), unit: x.outletCount === 1 ? "OUTLET" : "OUTLETS", rows: [["Left · Centre · Right", p.l + " · " + p.c + " · " + p.r], ["Latest report", x.time]] }; }));
+  const DS = LIVE_ON ? byCover.find(x => /delhi/i.test(x.place)) : null; // the Delhi zoom follows the top live Delhi story
   const FEAT_IDS = FEAT.map(f => f.id);
-  const MAP = STORIES.filter(s => GEO[s.id]);
+  const MAP = STORIES.filter(x => GEO[x.id] && (!LIVE_ON || x.live));
   const JM = { lat: 28.6271, lon: 77.2166 };
   let IB = null;
 
@@ -97,13 +104,23 @@
   function placePins() {
     $("#iPins").innerHTML = MAP.map(st => {
       const [lat, lon, nm] = GEO[st.id], [px, py] = toPx(IND, lat, lon), f = FEAT_IDS.includes(st.id);
-      return `<span class="pin${f ? " feat" : ""}${st.id === "genz" ? " hot" : ""}" role="button" tabindex="0" data-id="${st.id}" aria-label="${esc(nm + ": " + st.title)}" style="left:${px / IND.w * 100}%;top:${py / IND.h * 100}%"><span class="mnm">${esc(nm)}</span></span>`;
+      return `<span class="pin${f ? " feat" : ""}${st.id === (DS ? DS.id : "genz") ? " hot" : ""}" role="button" tabindex="0" data-id="${st.id}" aria-label="${esc(nm + ": " + st.title)}" style="left:${px / IND.w * 100}%;top:${py / IND.h * 100}%"><span class="mnm">${esc(nm)}</span></span>`;
     }).join("");
     const [jx, jy] = toPx(DEL, JM.lat, JM.lon);
     const rg = $("#rings"); rg.style.left = jx / DEL.w * 100 + "%"; rg.style.top = jy / DEL.h * 100 + "%";
-    $("#dPins").innerHTML = `<span class="pin hot" style="left:${jx / DEL.w * 100}%;top:${jy / DEL.h * 100}%"><span class="mnm">JANTAR MANTAR</span></span>`;
+    $("#dPins").innerHTML = `<span class="pin hot" style="left:${jx / DEL.w * 100}%;top:${jy / DEL.h * 100}%"><span class="mnm">${DS ? "NEW DELHI · LIVE" : "JANTAR MANTAR"}</span></span>`;
     $("#todayN").textContent = MAP.length;
     $("#todayList").innerHTML = MAP.map(st => `<button type="button" data-focus="${st.id}"><span>${esc(GEO[st.id][2].split(" · ")[0])} · ${esc(st.cat)}</span><b>${esc(st.title)}</b></button>`).join("");
+  }
+  // the Delhi zoom scene for a live story: what it is, how it's covered, what's reported, the latest report, and what to do next
+  function cityCards(x) {
+    const p = RS.share(x), LO = window.LIVE_OUTLETS || {}, latest = (x.articles || []).slice().sort((a, b) => b.time - a.time)[0];
+    const short = t => esc(t.length > 120 ? t.slice(0, 117) + "…" : t);
+    return `<div class="card" data-city="1" style="left:max(16px, 5vw);top:22vh"><span class="lbl">New Delhi · ${esc(x.cat)} · live</span><h3>${short(x.title)}</h3><span class="mnum">${x.outletCount}<small>${x.outletCount === 1 ? "OUTLET" : "OUTLETS"} COVERING IT</small></span></div>` +
+      `<div class="card" data-city="2" style="right:max(16px, 5vw);top:38vh"><span class="lbl">Coverage · ${p.total} articles</span><h3>How each side covers it</h3><div class="bar"><i style="flex:${p.l || .001};background:var(--rose)"></i><i style="flex:${p.c || .001};background:rgba(255,255,255,.35)"></i><i style="flex:${p.r || .001};background:var(--teal-3)"></i></div><div class="mrow"><span>Left</span><b>${p.l}%</b></div><div class="mrow"><span>Centre</span><b>${p.c}%</b></div><div class="mrow"><span>Right</span><b>${p.r}%</b></div></div>` +
+      `<div class="card" data-city="3" style="left:max(16px, 6vw);top:30vh"><span class="lbl">What's being reported</span>${x.sum.slice(0, 3).map(t => `<div class="mrow" style="display:block;font-weight:600;line-height:1.35">${short(t)}</div>`).join("")}</div>` +
+      `<div class="card" data-city="4" style="right:max(16px, 6vw);top:20vh"><span class="lbl">Latest report</span><h3>${esc(latest ? ((LO[latest.outlet] || {}).name || latest.outlet) : "")}</h3><span class="mnum">${esc(x.time)}</span><div class="mrow"><span>Left/right labels</span><b>Provisional</b></div></div>` +
+      `<div class="card" data-city="5" style="left:calc(50% - min(210px, 50vw - 16px));bottom:120px;width:min(420px, calc(100vw - 32px))"><span class="lbl">Pull this thread</span><h3>Investigate it yourself</h3><div class="macts"><button class="mbtn mt" type="button" data-go="story" data-arg="${x.id}">READ ALL SIDES</button><button class="mbtn mg" type="button" data-go="investigate" data-arg="${x.id}|map">OPEN MIND MAP</button><button class="mbtn mg" type="button" data-go="board">WHITEBOARD</button></div></div>`;
   }
   function buildCards() {
     const W = innerWidth, H = innerHeight;
@@ -112,11 +129,13 @@
       const left = sx > W * .55 ? sx - 330 : sx + 60, top = Math.min(H - 330, Math.max(90, sy - 120));
       return `<div class="card" data-pin="${i}" data-id="${f.id}" style="left:${Math.max(16, Math.min(W - 290, left))}px;top:${top}px"><span class="lbl">${f.k}</span><h3>${f.t}</h3><span class="mnum${f.neg ? " neg" : ""}">${f.num}<small>${f.unit}</small></span>${f.rows.map(r => `<div class="mrow"><span>${r[0]}</span><b class="${r[1] === "None" || r[1] === "No" ? "" : "mt"}">${r[1]}</b></div>`).join("")}<div class="macts"><button class="mbtn mg" type="button" data-focus="${f.id}">ZOOM IN</button></div></div>`;
     }).join("") +
+      (DS ? cityCards(DS) : (
       `<div class="card" data-city="1" style="left:max(16px, 5vw);top:22vh"><span class="lbl">Jantar Mantar · Crowd size</span><h3>How many came?</h3><span class="mnum">5,000<small>ORGANISERS</small></span><span class="mnum" style="color:var(--teal-3)">1,200<small style="color:var(--ink-3)">POLICE</small></span><div class="mrow"><span>Status</span><b style="color:var(--amber)">Disputed</b></div></div>` +
       `<div class="card" data-city="2" style="right:max(16px, 5vw);top:38vh"><span class="lbl">Coverage · 88 sources</span><h3>Same protest, three framings</h3><div class="bar"><i style="flex:38;background:var(--rose)"></i><i style="flex:40;background:rgba(255,255,255,.35)"></i><i style="flex:22;background:var(--teal-3)"></i></div><div class="mrow"><span>Left</span><b>38%</b></div><div class="mrow"><span>Centre</span><b>40%</b></div><div class="mrow"><span>Right</span><b>22%</b></div></div>` +
       `<div class="card" data-city="3" style="left:max(16px, 6vw);top:30vh"><span class="lbl">Ground report</span><h3>What's established</h3><div class="mrow"><span>Arrests</span><b class="mt">4</b></div><div class="mrow"><span>Centres breached</span><b class="mt">2</b></div><div class="mrow"><span>Nationwide leak</span><b style="color:var(--amber)">Unverified</b></div></div>` +
       `<div class="card" data-city="4" style="right:max(16px, 6vw);top:20vh"><span class="lbl">Next</span><h3>Court hearing</h3><span class="mnum">4 NOV<small>2026</small></span><div class="mrow"><span>Committee report</span><b>Due in 60 days</b></div></div>` +
-      `<div class="card" data-city="5" style="left:calc(50% - min(210px, 50vw - 16px));bottom:120px;width:min(420px, calc(100vw - 32px))"><span class="lbl">Pull this thread</span><h3>Investigate it yourself</h3><div class="macts"><button class="mbtn mt" type="button" data-go="inv" data-arg="genz">OPEN INVESTIGATION</button><button class="mbtn mg" type="button" data-go="board">OPEN WHITEBOARD</button></div></div>`;
+      `<div class="card" data-city="5" style="left:calc(50% - min(210px, 50vw - 16px));bottom:120px;width:min(420px, calc(100vw - 32px))"><span class="lbl">Pull this thread</span><h3>Investigate it yourself</h3><div class="macts"><button class="mbtn mt" type="button" data-go="inv" data-arg="genz">OPEN INVESTIGATION</button><button class="mbtn mg" type="button" data-go="board">OPEN WHITEBOARD</button></div></div>`
+      ));
   }
 
   /* ---------- clouds: fractal noise, drifting left to right ---------- */

@@ -25,7 +25,7 @@
   // map pins: the best-covered real stories with a known place, spread out a little so pins in one city don't stack
   const ring = [[0, 0], [.55, .35], [-.5, .4], [.1, -.6], [-.6, -.3], [.65, -.35], [0, .75], [-.75, .1]];
   const perPlace = {};
-  live.filter(s => s.lat != null).sort((a, b) => b.outletCount - a.outletCount || b.lastSeen - a.lastSeen).slice(0, 24).forEach(s => {
+  live.filter(s => s.lat != null).sort((a, b) => b.outletCount - a.outletCount || b.lastSeen - a.lastSeen).slice(0, 40).forEach(s => {
     const k = s.place, i = perPlace[k] = (perPlace[k] || 0) + 1, [dy, dx] = ring[(i - 1) % ring.length];
     GEO[s.id] = [s.lat + dy, s.lon + dx, s.place.toUpperCase() + " · LIVE"];
   });

@@ -36,11 +36,13 @@
     return `<div class="bbar ${big ? "big" : ""}" role="img" aria-label="Coverage: ${p.l}% left, ${p.c}% centre, ${p.r}% right">
       <span class="l" style="flex:${Math.max(p.l, 4)}">${big || p.l >= 18 ? `L ${p.l}%` : ""}</span><span class="c" style="flex:${Math.max(p.c, 4)}">${big || p.c >= 18 ? `C ${p.c}%` : ""}</span><span class="r" style="flex:${Math.max(p.r, 4)}">${big || p.r >= 18 ? `R ${p.r}%` : ""}</span></div>`;
   }
+  // the distinct real outlets in a live story, with their (provisional) lean, in order of first report
+  const liveOutlets = s => { const LO = window.LIVE_OUTLETS || {}, seen = new Set(); return (s.articles || []).map(a => a.outlet).filter(id => !seen.has(id) && seen.add(id)).map(id => LO[id] || { id, name: id, b: "U", c: "#64748B" }); };
   function biasColumns(s) {
     const groups = ["L", "LL", "C", "LR", "R"];
     return `<div class="bcols">${groups.map(g => {
-      const n = s.cov[g], os = OUTLETS.filter(o => o.b === g), shown = os.slice(0, Math.min(n, 4));
-      return `<div class="bcol" style="--g:${BIAS[g][1]}" title="${BIAS[g][0]}: ${n} sources">${shown.map(o => logo(o)).join("")}${n > shown.length ? `<span class="logo more">+${n - shown.length}</span>` : ""}${!n ? `<span class="zero">0</span>` : ""}<span class="glabel">${BIAS[g][0]}</span></div>`;
+      const n = s.cov[g], os = s.live ? liveOutlets(s).filter(o => o.b === g) : OUTLETS.filter(o => o.b === g), shown = os.slice(0, s.live ? 4 : Math.min(n, 4));
+      return `<div class="bcol" style="--g:${BIAS[g][1]}" title="${BIAS[g][0]}: ${n} sources">${shown.map(o => logo(o)).join("")}${(s.live ? os.length > shown.length : n > shown.length) ? `<span class="logo more">+${s.live ? os.length - shown.length : n - shown.length}</span>` : ""}${!n ? `<span class="zero">0</span>` : ""}<span class="glabel">${BIAS[g][0]}</span></div>`;
     }).join("")}</div>`;
   }
   const agoOf = t => { const m = Math.max(1, Math.round((Date.now() - t) / 60000)); return m < 60 ? m + " min ago" : m < 2880 ? Math.round(m / 60) + "h ago" : Math.round(m / 1440) + "d ago"; };
@@ -373,7 +375,7 @@
           <div class="metaline"><span>${s.live ? "Latest update" : "Published"} ${esc(s.time)}</span><span>${esc(s.cat)} · ${esc(s.place)}</span>${s.live ? `<span class="demo-tag live-tag">● Live · real headlines</span>` : `<span class="demo-tag">Illustrative story</span>`}
             <span style="margin-left:auto;display:flex;gap:6px"><button class="btn sm" type="button" id="stSave">${isSaved("story", s.id) ? "Saved" : "Save"}</button><button class="btn sm" type="button" id="stChat">Share to chat</button></span></div>
           <h1 class="display story-title">${esc(s.title)}</h1>
-          <figure class="story-hero">${art(s.id)}<figcaption class="mono">Illustration · ${esc(s.place)}</figcaption></figure>
+          <figure class="story-hero">${art(s.id)}${s.live && s.image ? "" : `<figcaption class="mono">Illustration · ${esc(s.place)}</figcaption>`}</figure>
           ${s.hide ? `<div class="gapbanner"><b>Under-covered:</b> ${esc(s.hide)}.</div>` : ""}
           <div class="seg3" role="tablist">${[["L", "Left"], ["C", "Centre"], ["R", "Right"]].map(([k, n]) => `<button type="button" role="tab" aria-selected="${this.side === k}" data-side="${k}">${n}</button>`).join("")}<button type="button" id="cmpBtn" class="cmp">⇆ Bias comparison</button></div>
           <ul class="sumlist" id="sumList">${sumFor(this.side).map(x => `<li>${esc(x)}</li>`).join("")}</ul>
@@ -387,7 +389,7 @@
         <aside class="story-side">
           <div class="sidecard"><h3>Coverage details</h3><dl class="covdl"><dt>Total news sources</dt><dd>${p.total}</dd><dt>Leaning left</dt><dd>${p.L}</dd><dt>Leaning right</dt><dd>${p.R}</dd><dt>Centre</dt><dd>${p.C}</dd><dt>Untracked bias</dt><dd>${s.cov.U}</dd><dt>Bias distribution</dt><dd>${p.l >= p.r && p.l >= p.c ? p.l + "% Left" : p.r >= p.c ? p.r + "% Right" : p.c + "% Centre"}</dd></dl></div>
           <div class="sidecard"><h3>Bias distribution</h3><p style="font-size:13.5px">• ${Math.max(p.l, p.c, p.r)}% of the sources ${p.l >= p.c && p.l >= p.r ? "lean left" : p.r >= p.c ? "lean right" : "are centre"}</p>${biasBar(s, true)}${biasColumns(s)}
-            <h4 class="eyebrow" style="margin-top:12px">Untracked bias</h4><div class="untracked">${OUTLETS.filter(o => o.b === "U").map(o => logo(o)).join("")}<span class="logo more">+${Math.max(0, s.cov.U - 4)}</span></div></div>
+            <h4 class="eyebrow" style="margin-top:12px">Untracked bias</h4><div class="untracked">${s.live ? (liveOutlets(s).filter(o => o.b === "U").map(o => logo(o)).join("") || `<span class="mono muted" style="font-size:12px">None: every outlet on this story has a (provisional) lean rating.</span>`) : `${OUTLETS.filter(o => o.b === "U").map(o => logo(o)).join("")}<span class="logo more">+${Math.max(0, s.cov.U - 4)}</span>`}</div></div>
           <div class="sidecard"><h3>Factuality &amp; ownership</h3>${s.live ? `<p class="mono muted" style="font-size:12px">Factuality and ownership ratings for real outlets aren't published yet. They need a reviewed method first.</p>` : ""}${(s.live ? [] : arts).slice(0, 5).map(a => `<div class="fo"><span>${logo(a.o)} ${esc(a.o.name)}</span><span class="mono">${esc(a.o.fact)} factuality</span></div>`).join("")}${s.live ? "" : `<p class="mono muted" style="font-size:11px">Ratings are sample values for this demo.</p>`}</div>
           <div class="sidecard"><h3>More stories like this</h3>${STORIES.filter(x => x.id !== s.id && (x.cat === s.cat || x.hide)).slice(0, 3).map(x => `<button type="button" class="linkish" style="display:block;text-align:left;margin-bottom:8px" data-go="story" data-arg="${x.id}">${esc(x.title)}</button>`).join("")}</div>
         </aside></div></div>`;
