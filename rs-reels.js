@@ -93,7 +93,7 @@
     const cv = sec.querySelector("canvas"); if (!cv || !RS.drawClip) return;
     const p = RS.allPosts().find(x => x.id === sec.dataset.id), cl = p && RS.clipFromPost(p); if (!cl) return;
     const ctx = cv.getContext("2d"), t0 = performance.now(), total = RS.drawClip(ctx, 0, null, cl);
-    const loop = now => { RS.drawClip(ctx, ((now - t0) / 1000) % total, null, cl); canvasRaf = requestAnimationFrame(loop); };
+    const loop = now => { RS.drawClip(ctx, Math.max(0, (now - t0) / 1000) % total, null, cl); canvasRaf = requestAnimationFrame(loop); };
     canvasRaf = requestAnimationFrame(loop);
   }
   RS.V.reels = {

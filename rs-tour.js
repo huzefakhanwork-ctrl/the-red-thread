@@ -1,27 +1,34 @@
-/* THE RED THREAD — first-visit guided tour. After the intro, a first-time visitor gets a short step-by-step tour:
-   a spotlight on each part of the page with one line on what it does. Shown once (remembered in this browser);
-   "Take the tour" under More replays it. Steps whose target isn't on screen (e.g. on a phone) are skipped. */
+/* THE RED THREAD — first-visit guided tour. After the intro, a first-time visitor is walked through the real features:
+   each step opens the page itself (including the ones tucked under More, like Creator Studio and the Clip maker) and
+   puts a spotlight on the thing to use there, with one line on what it does. Shown once (remembered in this browser);
+   "Take the tour" under More replays it. If a step's target isn't on screen, the card just sits in the middle. */
 (function () {
-  const { $ } = RS;
+  const { $, $$ } = RS;
   const KEY = "rtTourDone";
+  // the best-covered live story, for the steps that open a story
+  const top = () => (STORIES.filter(s => s.live && s.outletCount > 2).sort((a, b) => b.outletCount - a.outletCount)[0] || STORIES[0] || {}).id;
+  const btn = (view, re) => () => $$(`#v-${view} button`).find(b => re.test(b.textContent) && b.getBoundingClientRect().width > 0);
   const STEPS = [
-    { title: "Welcome to The Red Thread", text: "Today's Indian news from 16 outlets in one place, and how left, centre and right each cover it. Here's a 30-second tour." },
-    { sel: "#today summary", title: "Every pin is a live story", text: "The map shows today's stories where they happened. Tap a pin, or open this list, to read one." },
-    { sel: "#stepper", title: "Scroll through the day", text: "Scroll, or use these arrows, to go story by story across India. It ends by zooming into today's biggest story." },
-    { sel: '.tnav [data-go="discover"]', title: "Discover", text: "All of today's headlines as a list, each with its left / centre / right split and blindspots." },
-    { sel: '.tnav [data-go="investigate"]', title: "Investigate", text: "Open any story as a mind map: who said what, the timeline, and what's still missing." },
-    { sel: '.tnav [data-go="board"]', title: "Research board", text: "Lay a story out yourself on a whiteboard, or paste any news link to build one." },
-    { sel: '.tnav [data-go="shame"]', title: "Media watch", text: "Live fact-checks from Alt News, Factly and Newschecker, and how outlets handle corrections." },
-    { sel: '.tnav [data-go="reels"]', title: "Reels", text: "Short videos on the news, each linked to the full article." },
-    { sel: '.tnav [data-go="publications"]', title: "Publications", text: "Read articles from independent writers, or write and publish your own, with a reel to go with it." },
-    { sel: "#aiBtn", title: "Ask AI", text: "Ask Dhaga, our AI assistant, anything about a story. It answers from the sources and shows them." },
-    { sel: "#tmore summary", title: "More", text: "How it works (our sources, and how left and right are decided), creator tools, publications and chat." }
+    { view: "home", title: "Welcome to The Red Thread", text: "Today's Indian news from 16 outlets in one place, and how left, centre and right each cover it. Let's walk through what you can do here." },
+    { view: "home", sel: "#today summary", title: "Every pin is a live story", text: "The map shows today's stories where they happened. Tap a pin, or open this list, to read one." },
+    { view: "home", sel: "#stepper", title: "Scroll through the day", text: "Scroll, or use these arrows, to go story by story across India. It ends by zooming into today's biggest story." },
+    { view: "discover", sel: ".gn-feat", title: "Discover", text: "Today's stories as a feed. Each one shows how much of its coverage came from the left, centre and right, and Blindspot shows what one side is ignoring." },
+    { view: "story", arg: top, sel: "#cmpBtn", title: "Read all sides", text: "Every story page lists each outlet's own headline with a link to it. Bias comparison puts the left, centre and right versions next to each other." },
+    { view: "investigate", arg: () => top() + "|map", sel: ".inv-bar-in", title: "Investigate", text: "Pick any story from this list and open it as a mind map: who said what, the timeline, and what's still missing. Add your own notes." },
+    { view: "board", sel: "#wbStory", title: "Research board", text: "Choose a story here and it lays the whole thing out on a whiteboard for you: what each side says, open questions, sources. Or paste any news link." },
+    { view: "shame", sel: ".fcfeed", title: "Media watch", text: "Live fact-checks from India's fact-checkers, and how outlets handle their corrections." },
+    { view: "reels", sel: ".reel-frame", title: "Reels", text: "Short news videos you swipe through. Every reel links to the full article behind it." },
+    { view: "publications", sel: ".pc-body", title: "Publications", text: "Articles by independent writers. Hit \"New article\" to write your own: Dhaga can draft it with you from the sources, and you can record a reel to go with it." },
+    { view: "studio", find: btn("studio", /Generate/), title: "Creator Studio", text: "Hidden under More, and made for creators: turn any story into a ready research brief for a YouTube video or reel, with the script, angles and sources." },
+    { view: "clip", title: "Clip maker", text: "Also under More: turn an article you've published into a 60-second news clip with captions and pop-ups, record yourself on camera, then trim and download it." },
+    { view: "home", sel: "#aiBtn", title: "Ask AI", text: "Ask Dhaga, our AI assistant, anything about a story, on any page. It answers from the sources and shows them." },
+    { view: "home", sel: "#tmore summary", title: "Find it all under More", text: "How it works (our sources, and how left and right are decided), Creator Studio, Clip maker, Chat, My Library and more. Enjoy exploring." }
   ];
-  let i = 0, open = false, el = null;
-  const visible = s => { if (!s.sel) return true; const t = $(s.sel); if (!t) return false; const r = t.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth && getComputedStyle(t).visibility !== "hidden"; };
+  let i = 0, open = false, el = null, busy = false;
+  const target = s => { const t = s.find ? s.find() : s.sel ? $(`#v-${s.view} ${s.sel}`) || $(s.sel) : null; if (!t) return null; const r = t.getBoundingClientRect(); return r.width > 0 && r.height > 0 ? t : null; };
   function build() {
     el = document.createElement("div"); el.className = "tour"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Guided tour");
-    el.innerHTML = `<div class="tour-spot" aria-hidden="true"></div><div class="tour-card"><span class="tour-n"></span><h3></h3><p></p>
+    el.innerHTML = `<div class="tour-spot" aria-hidden="true"></div><div class="tour-card"><span class="tour-n"></span><h3></h3><p></p><div class="tour-dots" aria-hidden="true"></div>
       <div class="tour-acts"><button type="button" class="tour-skip">Skip tour</button><span></span><button type="button" class="mbtn mg tour-back">Back</button><button type="button" class="mbtn mt tour-next">Next</button></div></div>`;
     document.body.appendChild(el);
     el.querySelector(".tour-skip").onclick = () => close(true);
@@ -31,27 +38,43 @@
     document.addEventListener("keydown", e => { if (!open) return; if (e.key === "Escape") close(true); else if (e.key === "ArrowRight") go(1); else if (e.key === "ArrowLeft") go(-1); });
     addEventListener("resize", () => open && place());
   }
-  const steps = () => STEPS.filter(visible);
-  function place() {
-    const list = steps(), s = list[i], spot = el.querySelector(".tour-spot"), card = el.querySelector(".tour-card");
-    el.querySelector(".tour-n").textContent = `${i + 1} of ${list.length}`;
-    el.querySelector("h3").textContent = s.title; el.querySelector("p").textContent = s.text;
-    el.querySelector(".tour-back").hidden = i === 0;
-    el.querySelector(".tour-next").textContent = i === list.length - 1 ? "Start exploring" : "Next";
-    const W = innerWidth, H = innerHeight, cw = Math.min(360, W - 32);
-    card.style.width = cw + "px";
-    if (!s.sel) { spot.style.cssText = `left:${W / 2}px;top:${H / 2}px;width:0;height:0`; card.style.left = (W - cw) / 2 + "px"; card.style.top = Math.max(16, H / 2 - 110) + "px"; return; }
-    const r = $(s.sel).getBoundingClientRect(), pad = 8;
-    spot.style.cssText = `left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px`;
-    const ch = card.offsetHeight || 190, below = r.bottom + pad + 14, above = r.top - pad - 14 - ch;
-    card.style.top = (below + ch < H - 8 ? below : Math.max(8, above)) + "px";
-    card.style.left = Math.max(16, Math.min(W - cw - 16, r.left + r.width / 2 - cw / 2)) + "px";
+  // open the step's page, bring its target into view, then place the spotlight and card
+  async function show() {
+    const s = STEPS[i]; busy = true;
+    const cur = Object.keys(RS.V).find(k => { const v = $("#v-" + k); return v && !v.hidden; });
+    if (s.view !== cur || s.arg) { try { RS.show(s.view, typeof s.arg === "function" ? s.arg() : s.arg); } catch (e) { console.error(e); } await new Promise(r => setTimeout(r, 500)); }
+    if (s.view === "home") window.scrollTo(0, 0);
+    const t = target(s);
+    if (t) { const r = t.getBoundingClientRect(); if (r.top < 80 || r.bottom > innerHeight - 120) { t.scrollIntoView({ block: "center" }); await new Promise(r => setTimeout(r, 250)); } }
+    busy = false; place();
   }
-  function go(d) { const n = steps().length; i += d; if (i < 0) i = 0; if (i >= n) { close(true); return; } place(); }
+  function place() {
+    const s = STEPS[i], spot = el.querySelector(".tour-spot"), card = el.querySelector(".tour-card");
+    el.querySelector(".tour-n").textContent = `${i + 1} of ${STEPS.length}`;
+    el.querySelector("h3").textContent = s.title; el.querySelector("p").textContent = s.text;
+    el.querySelector(".tour-dots").innerHTML = STEPS.map((_, k) => `<i class="${k === i ? "on" : k < i ? "done" : ""}"></i>`).join("");
+    el.querySelector(".tour-back").hidden = i === 0;
+    el.querySelector(".tour-next").textContent = i === STEPS.length - 1 ? "Start exploring" : "Next";
+    const W = innerWidth, H = innerHeight, cw = Math.min(380, W - 32), t = target(s);
+    card.style.width = cw + "px";
+    if (!t) { spot.style.cssText = `left:${W / 2}px;top:${H / 2}px;width:0;height:0`; card.style.left = (W - cw) / 2 + "px"; card.style.top = Math.max(16, H / 2 - 120) + "px"; return; }
+    const r = t.getBoundingClientRect(), pad = 8, ch = card.offsetHeight || 210;
+    const sx = Math.max(4, r.left - pad), sy = Math.max(4, r.top - pad), sw = Math.min(W - 8, r.width + pad * 2), sh = Math.min(H - 8 - sy, r.height + pad * 2);
+    spot.style.cssText = `left:${sx}px;top:${sy}px;width:${sw}px;height:${sh}px`;
+    const below = sy + sh + 14, above = sy - 14 - ch;
+    // below or above the target; for a tall target (a reel, a big panel) beside it, so the card never covers it
+    if (below + ch < H - 8) { card.style.top = below + "px"; card.style.left = Math.max(16, Math.min(W - cw - 16, r.left + r.width / 2 - cw / 2)) + "px"; }
+    else if (above > 8) { card.style.top = above + "px"; card.style.left = Math.max(16, Math.min(W - cw - 16, r.left + r.width / 2 - cw / 2)) + "px"; }
+    else { const right = sx + sw + 16, left = sx - 16 - cw, mid = Math.max(16, Math.min(H - ch - 16, r.top + r.height / 2 - ch / 2));
+      if (right + cw < W - 8) { card.style.left = right + "px"; card.style.top = mid + "px"; }
+      else if (left > 8) { card.style.left = left + "px"; card.style.top = mid + "px"; }
+      else { card.style.left = (W - cw) / 2 + "px"; card.style.top = Math.max(8, H - ch - 16) + "px"; } }
+  }
+  function go(d) { if (busy) return; i += d; if (i < 0) i = 0; if (i >= STEPS.length) { close(true); return; } show(); }
   function start() {
     if (open) return; if (!el) build();
     $("#tmore") && ($("#tmore").open = false);
-    i = 0; open = true; el.hidden = false; document.documentElement.classList.add("touring"); place();
+    i = 0; open = true; el.hidden = false; document.documentElement.classList.add("touring"); show();
     el.querySelector(".tour-next").focus({ preventScroll: true });
   }
   function close(done) {
@@ -64,5 +87,5 @@
     // after the intro: first-time visitors on the home page get the tour
     auto() { if (seen || open) return; const home = $("#v-home"); if (!home || home.hidden || window.scrollY > 40) return; start(); }
   };
-  document.addEventListener("click", e => { if (e.target.closest("[data-tour]")) { e.preventDefault(); if (window.RT_GO && !$("#v-home").hidden) start(); else { RS.show("home"); setTimeout(start, 900); } } });
+  document.addEventListener("click", e => { if (e.target.closest("[data-tour]")) { e.preventDefault(); $("#tmore") && ($("#tmore").open = false); start(); } });
 })();
