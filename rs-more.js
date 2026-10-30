@@ -356,7 +356,7 @@
   }
   function wrapCanvas(ctx, text, maxW) { const words = String(text).split(/\s+/), out = []; let line = ""; words.forEach(w => { const test = line ? line + " " + w : w; if (ctx.measureText(test).width > maxW && line) { out.push(line); line = w; } else line = test; }); if (line) out.push(line); return out; }
   function drawClip(ctx, t, cam, cl) {
-    const W = 720, H = 1280, c = cl || clip, acc = CLIP_STYLES[c.style][1], scenes = [{ hook: true, line: c.hook }, ...c.scenes, { outro: true, line: c.outro }], d = c.dur, total = scenes.length * d;
+    const W = 720, H = 1280, c = cl || clip, acc = CLIP_STYLES[c.style][1], scenes = [{ hook: true, line: c.hook }, ...c.scenes, { outro: true, line: c.outro }], d = c.dur || 3, total = scenes.length * d;
     const i = Math.min(scenes.length - 1, Math.floor(t / d)), lt = (t - i * d) / d, sc = scenes[i];
     if (cam && cam.readyState >= 2 && cam.videoWidth) {
       const vw = cam.videoWidth, vh = cam.videoHeight, s = Math.max(W / vw, H / vh), dw = vw * s, dh = vh * s;

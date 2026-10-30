@@ -22,6 +22,14 @@
     hl: { L: s.hl.L || "Not covered by left-leaning outlets we track", C: s.hl.C || s.title, R: s.hl.R || "Not covered by right-leaning outlets we track" }
   }));
   STORIES.unshift(...live);
+  // with live news on, the old sample stories leave every list and map (pages that link to one by id still find it)
+  window.SAMPLE_STORIES = STORIES.filter(x => !x.live); STORIES.splice(0, STORIES.length, ...live);
+  // blindspots, from real coverage: one side has two or more articles, the other none
+  live.forEach(x => { const l = (x.cov.L || 0) + (x.cov.LL || 0), r = (x.cov.R || 0) + (x.cov.LR || 0); x.blind = l >= 2 && !r ? "right" : r >= 2 && !l ? "left" : null; });
+  // the footer, the map credit and the home line describe the live feed
+  const fn = $("#footNote"); if (fn) fn.textContent = `Live headlines from ${L.outlets.length} Indian outlets' public news feeds, updated every 30 minutes. Left/centre/right labels are provisional.`;
+  const cr = $("#credit"); if (cr) cr.innerHTML = cr.innerHTML.replace(" Stories are illustrative.", " Stories: live headlines from Indian outlets.");
+  const hs = $("#hsub"); if (hs) hs.textContent = `Today's news from ${L.outlets.length} Indian outlets, and how left, centre and right each cover it. Scroll to go story by story.`;
   // map pins: the best-covered real stories with a known place, spread out a little so pins in one city don't stack
   // nth story in a place: golden-angle spiral, about 0.8° apart, so pins never stack
   const ring = n => n === 0 ? [0, 0] : [.8 * Math.sqrt(n) * Math.sin(n * 2.4), .8 * Math.sqrt(n) * Math.cos(n * 2.4)];
@@ -38,7 +46,7 @@
 
   // a photo that won't load (blocked hotlink, removed image) quietly falls back to the drawn art underneath
   document.addEventListener("error", e => { const t = e.target; if (t && t.classList && t.classList.contains("livephoto")) { t.closest(".livephoto-wrap")?.querySelector(".photocredit")?.remove(); t.remove(); } }, true);
-  const banner = extra => `<div class="livebar"><span class="livedot" aria-hidden="true"></span><b>LIVE</b><span>Real headlines from ${L.outlets.length} Indian outlets · ${L.counts.articles} articles · updated ${esc(window.LIVE_UPDATED)}</span>${extra || ""}<span class="livenote">Left/centre/right labels are provisional</span></div>`;
+  const banner = extra => `<div class="livebar"><span class="livedot" aria-hidden="true"></span><b>LIVE</b><span>Real headlines from ${L.outlets.length} Indian outlets · ${L.counts.articles} articles · updated ${esc(window.LIVE_UPDATED)}</span>${extra || ""}<button type="button" class="footlink" data-go="how">How left/right is decided</button><span class="livenote">Left/centre/right labels are provisional</span></div>`;
   // Discover: say it's live, and how fresh
   const disc = RS.V.discover, dShow = disc.show.bind(disc);
   disc.show = (arg, el) => { const r = dShow(arg, el); el = el || $("#v-discover"); el.querySelector(".livebar")?.remove(); el.insertAdjacentHTML("afterbegin", `<div class="wrap">${banner()}</div>`); return r; };

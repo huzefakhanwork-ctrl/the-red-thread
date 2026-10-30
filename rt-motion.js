@@ -54,15 +54,16 @@
       .from("#headline > *", { y: 40, opacity: 0, stagger: .12, duration: .9, ease: "power3.out" }, 3.9);
   }
   // only the home page gets the intro; a deep link (#story-…, #chat) skips it
-  if ((location.hash || "").length > 1) { introDone = true; unlock(); introEl.remove(); }
+  let seenIntro = false; try { seenIntro = localStorage.getItem("rtIntroSeen") === "1"; localStorage.setItem("rtIntroSeen", "1"); } catch {}
+  if ((location.hash || "").length > 1 || seenIntro) { introDone = true; unlock(); introEl.remove(); }
   else {
     iv.addEventListener("timeupdate", () => {
-      if (iv.duration) $("#ibar").style.width = Math.min(100, iv.currentTime / SPLIT_AT * 100) + "%";
+      if (iv.duration && $("#ibar")) $("#ibar").style.width = Math.min(100, iv.currentTime / SPLIT_AT * 100) + "%";
       if (iv.currentTime >= SPLIT_AT) endIntro();
     });
     iv.addEventListener("ended", endIntro);
     iv.addEventListener("error", endIntro);
-    $("#skipBtn").onclick = () => introDone ? outro && outro.progress(1) : endIntro();
+    $("#skipBtn").onclick = () => { if (!introDone) endIntro(); if (outro) outro.progress(1); };
     $("#soundBtn").onclick = e => { iv.muted = !iv.muted; e.currentTarget.setAttribute("aria-pressed", !iv.muted); e.currentTarget.textContent = iv.muted ? "SOUND ON" : "SOUND OFF"; if (iv.paused && !introDone) iv.play().catch(() => {}); };
     if (RM) endIntro();
     else iv.play().catch(() => { $("#soundBtn").textContent = "PLAY INTRO"; });
@@ -88,7 +89,7 @@
   const CITY = LIVE_ON && window.LIVE && LIVE.city && GEO[LIVE.city.id] ? LIVE.city : null;
   const DS = LIVE_ON ? (CITY ? STORIES.find(x => x.id === CITY.id) : byCover.find(x => /delhi/i.test(x.place))) || null : null;
   if (CITY) Object.assign(DEL, { w: CITY.w, h: CITY.h, lon0: CITY.lon0, lon1: CITY.lon1, lat0: CITY.lat0, lat1: CITY.lat1 });
-  const featOf = x => { const p = RS.share(x); return { id: x.id, k: x.place + " · " + x.cat, t: x.title.length > 92 ? x.title.slice(0, 89) + "…" : x.title, num: String(x.outletCount), unit: x.outletCount === 1 ? "OUTLET" : "OUTLETS", rows: [["Left · Centre · Right", p.l + " · " + p.c + " · " + p.r], ["Latest report", x.time]] }; };
+  const featOf = x => { const p = RS.share(x); return { id: x.id, k: x.place + " · " + x.cat, t: x.title.length > 92 ? x.title.slice(0, 89) + "…" : x.title, num: String(x.outletCount), unit: x.outletCount === 1 ? "OUTLET" : "OUTLETS", rows: [["Left · Centre · Right", x.outletCount < 2 ? "1 outlet so far" : p.l + " · " + p.c + " · " + p.r], ["Latest report", x.time]] }; };
   if (LIVE_ON && byCover.length) FEAT.splice(0, FEAT.length, ...[...byCover.filter(x => x !== DS).sort((a, b) => GEO[b.id][0] - GEO[a.id][0]), ...(DS ? [DS] : [])].map(featOf));
   const FEAT_IDS = LIVE_ON ? [] : FEAT.map(f => f.id);
   const MAP = STORIES.filter(x => GEO[x.id] && (!LIVE_ON || x.live));
@@ -96,7 +97,7 @@
   const ZOOM_AT = DS && GEO[DS.id] ? GEO[DS.id] : [28.62, 77.21]; // where the final zoom dives in
   if (CITY) {
     $("#delhiBox img").src = CITY.file;
-    const ro = $(".readout"); if (ro) { ro.querySelector("b").textContent = CITY.lat.toFixed(4) + "°N · " + CITY.lon.toFixed(4) + "°E"; ro.querySelectorAll(".lbl")[1].textContent = CITY.place.toUpperCase() + " · SENTINEL-2 · 10 M/PX"; }
+    const ro = $(".readout"); if (ro) { ro.querySelector("b").textContent = CITY.place; }
   }
   let IB = null;
 
@@ -283,10 +284,10 @@
     $("#focus").innerHTML = `<button class="fx" type="button" data-unfocus aria-label="Back to the map">×</button>
       ${s.live && s.image ? `<span class="livephoto-wrap focusphoto"><img class="livephoto" src="${esc(s.image)}" alt="" referrerpolicy="no-referrer"><span class="photocredit">Photo: ${esc(((window.LIVE_OUTLETS || {})[s.imageBy] || {}).name || "the outlet")}</span></span>` : ""}<span class="lbl">${esc(nm)} · ${esc(s.cat)} · ${esc(s.time)}</span><h3>${esc(s.title)}</h3>
       <ul>${s.sum.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
-      <div class="bar"><i style="flex:${p.l};background:var(--rose)"></i><i style="flex:${p.c};background:rgba(255,255,255,.35)"></i><i style="flex:${p.r};background:var(--teal-3)"></i></div>
-      <span class="lbl">L ${p.l}% · C ${p.c}% · R ${p.r}% · ${Object.values(s.cov).reduce((a, b) => a + b, 0)} articles</span>
+      ${s.live && s.outletCount < 2 ? `<span class="lbl">Only 1 outlet so far · nothing to compare yet</span>` : `<div class="bar"><i style="flex:${p.l};background:var(--rose)"></i><i style="flex:${p.c};background:rgba(255,255,255,.35)"></i><i style="flex:${p.r};background:var(--teal-3)"></i></div>
+      <span class="lbl">L ${p.l}% · C ${p.c}% · R ${p.r}% · ${Object.values(s.cov).reduce((a, b) => a + b, 0)} articles</span>`}
       <div class="macts"><button class="mbtn mt" type="button" data-go="story" data-arg="${id}">READ ALL SIDES</button>${s.dossier ? `<button class="mbtn" type="button" data-go="inv" data-arg="${id}">INVESTIGATE</button>` : ""}<button class="mbtn mg" type="button" data-ask="${id}">ASK DHAGA</button></div>
-      <span class="lbl" style="color:var(--ink-4)">Illustrative story for this prototype</span>`;
+      ${s.live ? "" : `<span class="lbl" style="color:var(--ink-4)">Illustrative story for this prototype</span>`}`;
     $("#focus").hidden = false;
     if (!hasG || RM) { $("#mui").style.opacity = 0; return; }
     gsap.to("#lIndia", { x: cx - px * k, y: cy - py * k, scale: k, transformOrigin: "0 0", duration: 1.1, ease: "power3.inOut" });
@@ -338,9 +339,10 @@
     path.setAttribute("d", `M${x0} ${y0} C ${x0} ${y0 + H * .45}, ${W * .2} ${H * .9}, ${W * .45} ${H * .62} S ${W * .75} ${H * .1}, ${W + 60} ${H * .4}`);
     // the red thread shoots out of what you clicked; the next page opens under it while it is still moving, then it pulls away
     const len = path.getTotalLength(); gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, opacity: 1 });
+    let shown = false; const safety = setTimeout(() => { if (shown) return; shown = true; busy = false; gsap.set(path, { opacity: 0 }); try { RS.show(name, arg); } catch (err) { console.error(err); } }, 700);
     gsap.timeline({ onComplete: () => busy = false })
       .to(path, { strokeDashoffset: 0, duration: .42, ease: "power2.in" })
-      .add(() => { try { RS.show(name, arg); } catch (err) { console.error(err); } if (cur !== "home") gsap.fromTo(`#v-${cur}`, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .45, ease: "power3.out", clearProps: "transform,opacity" }); }, .26)
+      .add(() => { if (shown) return; shown = true; clearTimeout(safety); try { RS.show(name, arg); } catch (err) { console.error(err); } if (cur !== "home") gsap.fromTo(`#v-${cur}`, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .45, ease: "power3.out", clearProps: "transform,opacity" }); }, .26)
       .to(path, { strokeDashoffset: -len, duration: .4, ease: "power2.out" }, .42)
       .to(path, { opacity: 0, duration: .2 }, .62);
   };

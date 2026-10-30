@@ -24,7 +24,7 @@
   const outlet = id => OUTLETS.find(o => o.id === id);
   const initials = n => n.replace(/^The /, "").split(/[\s']+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase();
   const logo = (o, cls = "") => `<span class="logo ${cls}" style="--c:${o.c}" title="${esc(o.name)}">${initials(o.name)}</span>`;
-  const story = id => STORIES.find(s => s.id === id);
+  const story = id => STORIES.find(s => s.id === id) || (window.SAMPLE_STORIES || []).find(s => s.id === id);
   function share(s) {
     const v = s.cov, L = v.L + v.LL, C = v.C, R = v.R + v.LR, t = L + C + R || 1;
     const l = Math.round(L / t * 100), c = Math.round(C / t * 100);
@@ -32,6 +32,7 @@
   }
   const leanText = s => { const p = share(s); const m = Math.max(p.l, p.c, p.r); return m === p.c ? `${p.c}% Centre coverage` : m === p.l ? `${p.l}% Left coverage` : `${p.r}% Right coverage`; };
   function biasBar(s, big) {
+    if (s.live && s.outletCount < 2) return `<div class="bbar-none mono">Only 1 outlet so far · nothing to compare yet</div>`;
     const p = share(s);
     return `<div class="bbar ${big ? "big" : ""}" role="img" aria-label="Coverage: ${p.l}% left, ${p.c}% centre, ${p.r}% right">
       <span class="l" style="flex:${Math.max(p.l, 4)}">${big || p.l >= 18 ? `L ${p.l}%` : ""}</span><span class="c" style="flex:${Math.max(p.c, 4)}">${big || p.c >= 18 ? `C ${p.c}%` : ""}</span><span class="r" style="flex:${Math.max(p.r, 4)}">${big || p.r >= 18 ? `R ${p.r}%` : ""}</span></div>`;

@@ -49,7 +49,7 @@
     const t = totals(), sel = {}; $$("#actGrid [data-amt][aria-pressed=true]").forEach(b => sel[b.dataset.act] = b.dataset.amt);
     box.innerHTML = ACTS.map(a => card(a, t[a.id])).join("");
     Object.entries(sel).forEach(([k, v]) => $(`#actGrid [data-act="${k}"][data-amt="${v}"]`)?.setAttribute("aria-pressed", "true"));
-    $("#actMode").textContent = db ? "Live: totals include everyone this page is shared with." : "Demo mode: your pledges and signatures are saved in this browser. Open the site on claude.ai to count everyone's.";
+    $("#actMode").textContent = db ? "Live: totals include everyone this page is shared with." : "Prototype: pledges and signatures are saved only in this browser. No money is charged.";
   }
   document.addEventListener("click", e => {
     const am = e.target.closest("[data-amt]"); if (am) { $$(`#actGrid [data-act="${am.dataset.act}"]`).forEach(b => b.setAttribute("aria-pressed", b === am)); const i = $("#amt-" + am.dataset.act); if (i) i.value = ""; return; }

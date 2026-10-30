@@ -220,7 +220,7 @@
   RS.V.investigate = {
     mount(el) {
       el.innerHTML = `<div class="inv-bar"><div class="inv-bar-in">
-          <select id="invStory" aria-label="Choose a story">${STORIES.map(s => `<option value="${s.id}">${esc(s.title)}${s.dossier ? " · full dossier" : ""}</option>`).join("")}</select>
+          <select id="invStory" aria-label="Choose a story">${[...STORIES, ...(window.SAMPLE_STORIES || [])].map(s => `<option value="${s.id}">${esc(s.title)}${s.dossier ? " · example case study" : s.live ? "" : " · sample"}</option>`).join("")}</select>
           <div class="itabs" role="tablist">${[["dossier", "Dossier"], ["map", "Mind map"], ["timeline", "Timeline"], ["notes", "My notes"]].map(([k, n]) => `<button type="button" role="tab" data-itab="${k}">${n}<span class="cnt" data-cnt="${k}"></span></button>`).join("")}</div>
           <span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap"><button class="tool" type="button" data-go="board" data-arg="import">Whiteboard</button><button class="btn r sm" type="button" data-write="1">✍ Write my article</button></span></div></div>
         <div class="inv-grid"><div class="inv-center" id="invCenter"></div><aside class="pane-right" id="assistant" aria-label="${AI}"></aside></div>`;
