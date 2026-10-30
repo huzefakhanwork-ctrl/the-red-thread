@@ -30,6 +30,8 @@
     const l = Math.round(L / t * 100), c = Math.round(C / t * 100);
     return { l, c, r: 100 - l - c, L, C, R, tracked: L + C + R, total: L + C + R + v.U };
   }
+  const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+  const countLine = s => s.live ? `${plural(s.outletCount, "outlet")} · ${plural(s.articleCount || (s.articles || []).length, "article")}` : `${share(s).total} sources`;
   const leanText = s => { const p = share(s); const m = Math.max(p.l, p.c, p.r); return m === p.c ? `${p.c}% Centre coverage` : m === p.l ? `${p.l}% Left coverage` : `${p.r}% Right coverage`; };
   function biasBar(s, big) {
     if (s.live && s.outletCount < 2) return `<div class="bbar-none mono">Only 1 outlet so far · nothing to compare yet</div>`;
@@ -43,7 +45,7 @@
     const groups = ["L", "LL", "C", "LR", "R"];
     return `<div class="bcols">${groups.map(g => {
       const n = s.cov[g], os = s.live ? liveOutlets(s).filter(o => o.b === g) : OUTLETS.filter(o => o.b === g), shown = os.slice(0, s.live ? 4 : Math.min(n, 4));
-      return `<div class="bcol" style="--g:${BIAS[g][1]}" title="${BIAS[g][0]}: ${n} sources">${shown.map(o => logo(o)).join("")}${(s.live ? os.length > shown.length : n > shown.length) ? `<span class="logo more">+${s.live ? os.length - shown.length : n - shown.length}</span>` : ""}${!n ? `<span class="zero">0</span>` : ""}<span class="glabel">${BIAS[g][0]}</span></div>`;
+      return `<div class="bcol" style="--g:${BIAS[g][1]}" title="${BIAS[g][0]}: ${n} ${s.live ? (n === 1 ? "outlet" : "outlets") : "sources"}">${shown.map(o => logo(o)).join("")}${(s.live ? os.length > shown.length : n > shown.length) ? `<span class="logo more">+${s.live ? os.length - shown.length : n - shown.length}</span>` : ""}${!n ? `<span class="zero">0</span>` : ""}<span class="glabel">${BIAS[g][0]}</span></div>`;
     }).join("")}</div>`;
   }
   const agoOf = t => { const m = Math.max(1, Math.round((Date.now() - t) / 60000)); return m < 60 ? m + " min ago" : m < 2880 ? Math.round(m / 60) + "h ago" : Math.round(m / 1440) + "d ago"; };
@@ -260,7 +262,7 @@
           <div class="sec-head"><h2>Daily briefing</h2><button class="linkish" type="button" data-go="discover">Open Discover →</button></div>
           <div class="brief3">
             <button class="feat-card" type="button" data-go="story" data-arg="${feat.id}">${art(feat.id, 140)}<span class="eyebrow">${esc(feat.cat)} · ${esc(feat.place)} · featured investigation</span><span class="ft">${esc(feat.title)}</span>${biasBar(feat, true)}</button>
-            <div class="toplist">${STORIES.filter(s => !HIDDEN.includes(s.id) && s.id !== "genz").concat(story("upi")).slice(0, 5).map(s => `<button type="button" class="trow" data-go="story" data-arg="${s.id}"><span class="eyebrow">${esc(s.cat)} · ${esc(s.place)}</span><b>${esc(s.title)}</b>${biasBar(s)}<span class="mono muted" style="font-size:11px">${leanText(s)}: ${share(s).total} sources</span></button>`).join("")}</div>
+            <div class="toplist">${STORIES.filter(s => !HIDDEN.includes(s.id) && s.id !== "genz").concat(story("upi")).slice(0, 5).map(s => `<button type="button" class="trow" data-go="story" data-arg="${s.id}"><span class="eyebrow">${esc(s.cat)} · ${esc(s.place)}</span><b>${esc(s.title)}</b>${biasBar(s)}<span class="mono muted" style="font-size:11px">${leanText(s)}: ${countLine(s)}</span></button>`).join("")}</div>
             <div class="blindcol"><span class="blindlogo">BLINDSPOT</span><p class="muted" style="font-size:13.5px">Stories covered mostly by one side of the spectrum.</p>
               ${STORIES.filter(s => s.blind).slice(0, 3).map(s => `<button type="button" class="blindcard" data-go="story" data-arg="${s.id}"><span class="tagb">Blindspot · ${s.blind === "right" ? "Right" : "Left"} barely covered</span><b>${esc(s.title)}</b>${biasBar(s)}</button>`).join("")}</div>
           </div>
@@ -350,7 +352,7 @@
       if (this.tab === "Local" && this.city) list = list.filter(s => s.place.toLowerCase().includes(this.city.toLowerCase()));
       if (this.tab === "For You") { const f = store.get("follows", []); list = [...list].sort((a, b) => (b.cat === "Education") - (a.cat === "Education")); }
       const feat = list[0], rest = list.slice(1);
-      const row = s => `<button type="button" class="gn-row" data-go="story" data-arg="${s.id}"><span class="txt"><span class="eyebrow">${esc(s.cat)} · ${esc(s.place)}${s.hide ? " · <b style='color:var(--pink)'>Under-covered</b>" : ""}</span><b>${esc(s.title)}</b><span class="mini">${biasBar(s)}<span class="mono">${leanText(s)}: ${share(s).total} sources</span></span></span>${art(s.id, 90)}</button>`;
+      const row = s => `<button type="button" class="gn-row" data-go="story" data-arg="${s.id}"><span class="txt"><span class="eyebrow">${esc(s.cat)} · ${esc(s.place)}${s.hide ? " · <b style='color:var(--pink)'>Under-covered</b>" : ""}</span><b>${esc(s.title)}</b><span class="mini">${biasBar(s)}<span class="mono">${leanText(s)}: ${countLine(s)}</span></span></span>${art(s.id, 90)}</button>`;
       $("#gn").innerHTML = !list.length ? `<div class="empty">No stories match. Clear the topic or search and try again.</div>` : `
         <div class="gn-left"><h3 class="display" style="font-size:30px">Daily Briefing</h3><p class="mono muted">${list.length} stories · ${list.reduce((a, s) => a + share(s).total, 0)} articles</p>
           ${list.slice(0, 4).map(s => `<button type="button" class="brief-item" data-go="story" data-arg="${s.id}"><b>${esc(s.title)}</b><span class="muted">${esc(s.sum[0])}</span></button>`).join("")}
@@ -358,7 +360,7 @@
         <div class="gn-main">${feat ? `<button type="button" class="gn-feat" data-go="story" data-arg="${feat.id}">${art(feat.id, 150)}<span class="cap"><span class="eyebrow">${esc(feat.cat)} · ${esc(feat.place)}</span><span class="ft">${esc(feat.title)}</span>${biasBar(feat, true)}</span></button>` : ""}
           <div class="gn-list">${rest.map(row).join("")}</div></div>
         <div class="gn-right"><span class="blindlogo">BLINDSPOT</span><p class="muted" style="font-size:13.5px">Stories covered disproportionately by one side, or barely covered at all.</p>
-          ${STORIES.filter(s => s.blind || s.hide).slice(0, 4).map(s => `<button type="button" class="blindcard" data-go="story" data-arg="${s.id}"><span class="tagb">${s.blind ? "Blindspot · " + (s.blind === "right" ? "Right" : "Left") : "Under-covered"} · ${share(s).total} sources</span><b>${esc(s.title)}</b>${biasBar(s)}</button>`).join("")}</div>`;
+          ${STORIES.filter(s => s.blind || s.hide).slice(0, 4).map(s => `<button type="button" class="blindcard" data-go="story" data-arg="${s.id}"><span class="tagb">${s.blind ? "Blindspot · " + (s.blind === "right" ? "Right" : "Left") : "Under-covered"} · ${countLine(s)}</span><b>${esc(s.title)}</b>${biasBar(s)}</button>`).join("")}</div>`;
       const go = () => { this.city = $("#cityIn").value.trim(); this.tab = "Local"; this.render(); };
       if ($("#cityGo")) { $("#cityGo").onclick = go; $("#cityIn").onkeydown = e => { if (e.key === "Enter") go(); }; }
     }
@@ -381,15 +383,15 @@
           <div class="seg3" role="tablist">${[["L", "Left"], ["C", "Centre"], ["R", "Right"]].map(([k, n]) => `<button type="button" role="tab" aria-selected="${this.side === k}" data-side="${k}">${n}</button>`).join("")}<button type="button" id="cmpBtn" class="cmp">⇆ Bias comparison</button></div>
           <ul class="sumlist" id="sumList">${sumFor(this.side).map(x => `<li>${esc(x)}</li>`).join("")}</ul>
           <div id="cmpBox" hidden class="cmpbox"><div style="--g:${BIAS.L[1]}"><span class="eyebrow">Left headline</span><b>${esc(s.hl.L)}</b></div><div style="--g:${BIAS.C[1]}"><span class="eyebrow">Centre headline</span><b>${esc(s.hl.C)}</b></div><div style="--g:${BIAS.R[1]}"><span class="eyebrow">Right headline</span><b>${esc(s.hl.R)}</b></div></div>
-          <div class="insight"><span>✦ Summary by ${AI} from ${p.total} articles</span><button class="linkish" type="button" id="wrongBtn">Does this summary seem wrong?</button></div>
+          <div class="insight"><span>✦ Summary by ${AI} from ${s.live ? countLine(s) : p.total + " articles"}</span><button class="linkish" type="button" id="wrongBtn">Does this summary seem wrong?</button></div>
           <div class="cta-row"><button class="btn k" type="button" data-go="investigate" data-arg="${s.id}|dossier">Investigate this story</button><button class="btn y" type="button" data-go="investigate" data-arg="${s.id}||ask">Ask ${AI}</button><button class="btn" type="button" data-go="investigate" data-arg="${s.id}|notes">Write about it</button></div>
-          <div class="arts-head"><h2 class="display">${p.total} Articles</h2><div class="tabs" id="artTabs"></div></div>
+          <div class="arts-head"><h2 class="display">${s.live ? plural(s.articleCount || arts.length, "Article") + ` <small class="mono muted" style="font-size:13px">from ${plural(s.outletCount, "outlet")}</small>` : p.total + " Articles"}</h2><div class="tabs" id="artTabs"></div></div>
           <div class="arts" id="arts"></div>
           <p class="mono muted" style="font-size:12px">${s.live ? `Real headlines from Indian outlets' public news feeds, collected ${esc(window.LIVE_UPDATED || "")}. Each links to the outlet. Left/centre/right labels are provisional estimates, not yet reviewed.` : `Showing a sample of ${arts.length} of ${p.total} articles. Outlets and headlines are invented for this demo.`}</p>
         </div>
         <aside class="story-side">
-          <div class="sidecard"><h3>Coverage details</h3><dl class="covdl"><dt>Total news sources</dt><dd>${p.total}</dd><dt>Leaning left</dt><dd>${p.L}</dd><dt>Leaning right</dt><dd>${p.R}</dd><dt>Centre</dt><dd>${p.C}</dd><dt>Untracked bias</dt><dd>${s.cov.U}</dd><dt>Bias distribution</dt><dd>${p.l >= p.r && p.l >= p.c ? p.l + "% Left" : p.r >= p.c ? p.r + "% Right" : p.c + "% Centre"}</dd></dl></div>
-          <div class="sidecard"><h3>Bias distribution</h3><p style="font-size:13.5px">• ${Math.max(p.l, p.c, p.r)}% of the sources ${p.l >= p.c && p.l >= p.r ? "lean left" : p.r >= p.c ? "lean right" : "are centre"}</p>${biasBar(s, true)}${biasColumns(s)}
+          <div class="sidecard"><h3>Coverage details</h3><dl class="covdl">${s.live ? `<dt>Outlets on this story</dt><dd>${s.outletCount}</dd><dt>Articles</dt><dd>${s.articleCount || arts.length}</dd>` : `<dt>Total news sources</dt><dd>${p.total}</dd>`}<dt>Leaning left</dt><dd>${p.L}</dd><dt>Leaning right</dt><dd>${p.R}</dd><dt>Centre</dt><dd>${p.C}</dd><dt>${s.live ? "Not yet rated" : "Untracked bias"}</dt><dd>${s.cov.U}</dd><dt>Bias distribution</dt><dd>${p.l >= p.r && p.l >= p.c ? p.l + "% Left" : p.r >= p.c ? p.r + "% Right" : p.c + "% Centre"}</dd></dl></div>
+          <div class="sidecard"><h3>Bias distribution</h3><p style="font-size:13.5px">• ${Math.max(p.l, p.c, p.r)}% of the ${s.live ? "rated outlets" : "sources"} ${p.l >= p.c && p.l >= p.r ? "lean left" : p.r >= p.c ? "lean right" : "are centre"}</p>${biasBar(s, true)}${biasColumns(s)}
             <h4 class="eyebrow" style="margin-top:12px">Untracked bias</h4><div class="untracked">${s.live ? (liveOutlets(s).filter(o => o.b === "U").map(o => logo(o)).join("") || `<span class="mono muted" style="font-size:12px">None: every outlet on this story has a (provisional) lean rating.</span>`) : `${OUTLETS.filter(o => o.b === "U").map(o => logo(o)).join("")}<span class="logo more">+${Math.max(0, s.cov.U - 4)}</span>`}</div></div>
           <div class="sidecard"><h3>Factuality &amp; ownership</h3>${s.live ? `<p class="mono muted" style="font-size:12px">Factuality and ownership ratings for real outlets aren't published yet. They need a reviewed method first.</p>` : ""}${(s.live ? [] : arts).slice(0, 5).map(a => `<div class="fo"><span>${logo(a.o)} ${esc(a.o.name)}</span><span class="mono">${esc(a.o.fact)} factuality</span></div>`).join("")}${s.live ? "" : `<p class="mono muted" style="font-size:11px">Ratings are sample values for this demo.</p>`}</div>
           <div class="sidecard"><h3>More stories like this</h3>${STORIES.filter(x => x.id !== s.id && (x.cat === s.cat || x.hide)).slice(0, 3).map(x => `<button type="button" class="linkish" style="display:block;text-align:left;margin-bottom:8px" data-go="story" data-arg="${x.id}">${esc(x.title)}</button>`).join("")}</div>
@@ -420,7 +422,7 @@
   /* ---- public API ---- */
   window.RS = {
     $, $$, esc, store, st, cite, cites, md, toast, sig, signals, level, LEVELS, SIGNALS, renderChip, show, V,
-    openSource, closeDrawer, saved, isSaved, toggleSave, allPosts, pubOf, story, share, biasBar, biasColumns, logo, outlet, art, leaderboardHTML,
+    openSource, closeDrawer, saved, isSaved, toggleSave, allPosts, pubOf, story, share, countLine, biasBar, biasColumns, logo, outlet, art, leaderboardHTML,
     ai: () => ai, aiReady: () => aiReady, onAi: f => { aiSubs.push(f); if (aiReady) f(); }, aiErr, aiFatal, killAi: () => { ai = null; aiSubs.forEach(f => f()); },
     caseContext, EVIDENCE_RULES, AI,
     myPub: () => store.get("mypub", { id: "mine", name: "Gen Z Dispatch", by: "You", desc: "My notes and investigations on the stories shaping India.", color: "#FF4D6D" }),

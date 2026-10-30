@@ -1,101 +1,557 @@
 {
-  "_note": "Lean ratings are PROVISIONAL editorial estimates based on how these outlets are commonly characterised in public media-bias discussions. They have not been reviewed by a Red Thread panel. Edit 'lean' here (L, LL, C, LR, R, or U for unrated); the site shows them as provisional.",
+  "_note": "Lean ratings are PROVISIONAL editorial estimates based on how these outlets are commonly characterised in public media-bias discussions. They have not been reviewed by a Red Thread panel. Edit 'lean' here (L, LL, C, LR, R, or U for unrated); the site shows them as provisional. Outlets with lean \"U\" are unrated: their \"proposedLean\" and \"why\" are a first estimate for the owner to approve, not live. \"domain\" is used to match GDELT articles to an outlet; \"extraFeeds\" are more section feeds counted as the same outlet.",
   "outlets": [
     {
       "id": "hindu",
       "name": "The Hindu",
       "lean": "LL",
-      "feed": "https://www.thehindu.com/news/national/feeder/default.rss"
+      "feed": "https://www.thehindu.com/news/national/feeder/default.rss",
+      "lang": "en",
+      "domain": "thehindu.com"
     },
     {
       "id": "express",
       "name": "The Indian Express",
       "lean": "C",
-      "feed": "https://indianexpress.com/section/india/feed/"
+      "feed": "https://indianexpress.com/section/india/feed/",
+      "lang": "en",
+      "domain": "indianexpress.com",
+      "extraFeeds": [
+        "https://indianexpress.com/section/political-pulse/feed/",
+        "https://indianexpress.com/section/business/feed/"
+      ]
     },
     {
       "id": "ndtv",
       "name": "NDTV",
       "lean": "LL",
-      "feed": "https://feeds.feedburner.com/ndtvnews-india-news"
+      "feed": "https://feeds.feedburner.com/ndtvnews-india-news",
+      "lang": "en",
+      "domain": "ndtv.com"
     },
     {
       "id": "ht",
       "name": "Hindustan Times",
       "lean": "C",
-      "feed": "https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml"
+      "feed": "https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml",
+      "lang": "en",
+      "domain": "hindustantimes.com"
     },
     {
       "id": "toi",
       "name": "The Times of India",
       "lean": "C",
-      "feed": "https://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms"
+      "feed": "https://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms",
+      "lang": "en",
+      "domain": "timesofindia.indiatimes.com"
     },
     {
       "id": "scroll",
       "name": "Scroll",
       "lean": "L",
-      "feed": "https://feeds.feedburner.com/ScrollinArticles.rss"
+      "feed": "https://feeds.feedburner.com/ScrollinArticles.rss",
+      "lang": "en",
+      "domain": "scroll.in"
     },
     {
       "id": "print",
       "name": "ThePrint",
       "lean": "C",
-      "feed": "https://theprint.in/category/india/feed/"
+      "feed": "https://theprint.in/category/india/feed/",
+      "lang": "en",
+      "domain": "theprint.in"
     },
     {
       "id": "opindia",
       "name": "OpIndia",
       "lean": "R",
-      "feed": "https://www.opindia.com/feed/"
+      "feed": "https://www.opindia.com/feed/",
+      "lang": "en",
+      "domain": "opindia.com"
     },
     {
       "id": "republic",
       "name": "Republic",
       "lean": "R",
-      "feed": "https://www.republicworld.com/rss/india.xml"
+      "feed": "https://www.republicworld.com/rss/india.xml",
+      "lang": "en",
+      "domain": "republicworld.com"
     },
     {
       "id": "mint",
       "name": "Mint",
       "lean": "C",
-      "feed": "https://www.livemint.com/rss/news"
+      "feed": "https://www.livemint.com/rss/news",
+      "lang": "en",
+      "domain": "livemint.com"
     },
     {
       "id": "indiatoday",
       "name": "India Today",
       "lean": "C",
-      "feed": "https://www.indiatoday.in/rss/1206578"
+      "feed": "https://www.indiatoday.in/rss/1206578",
+      "lang": "en",
+      "domain": "indiatoday.in"
     },
     {
       "id": "quint",
       "name": "The Quint",
       "lean": "LL",
-      "feed": "https://www.thequint.com/stories.rss"
+      "feed": "https://www.thequint.com/stories.rss?time-period=last-24-hours",
+      "lang": "en",
+      "domain": "thequint.com"
     },
     {
       "id": "zee",
       "name": "Zee News",
       "lean": "LR",
-      "feed": "https://zeenews.india.com/rss/india-national-news.xml"
+      "feed": "https://zeenews.india.com/rss/india-national-news.xml",
+      "lang": "en",
+      "domain": "zeenews.india.com"
     },
     {
       "id": "bbc",
       "name": "BBC News (India)",
       "lean": "C",
-      "feed": "https://feeds.bbci.co.uk/news/world/asia/india/rss.xml"
+      "feed": "https://feeds.bbci.co.uk/news/world/asia/india/rss.xml",
+      "lang": "en",
+      "domain": ""
     },
     {
       "id": "herald",
       "name": "National Herald",
       "lean": "L",
-      "feed": "https://www.nationalheraldindia.com/stories.rss"
+      "feed": "https://www.nationalheraldindia.com/stories.rss?time-period=last-24-hours",
+      "lang": "en",
+      "domain": "nationalheraldindia.com"
     },
     {
       "id": "organiser",
       "name": "Organiser",
       "lean": "R",
-      "feed": "https://www.organiser.org/feed/"
+      "feed": "https://www.organiser.org/feed/",
+      "lang": "en",
+      "domain": "organiser.org"
+    },
+    {
+      "id": "et",
+      "name": "The Economic Times",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Times Group business daily; mainstream, pro-market, rarely partisan",
+      "lang": "en",
+      "domain": "economictimes.indiatimes.com",
+      "feed": "https://economictimes.indiatimes.com/news/india/rssfeeds/81582957.cms"
+    },
+    {
+      "id": "businessline",
+      "name": "BusinessLine",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "The Hindu group's business paper; sober, data-led coverage",
+      "lang": "en",
+      "domain": "thehindubusinessline.com",
+      "feed": "https://www.thehindubusinessline.com/feeder/default.rss"
+    },
+    {
+      "id": "businesstoday",
+      "name": "Business Today",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "India Today group business title; matches India Today's centre rating",
+      "lang": "en",
+      "domain": "businesstoday.in",
+      "feed": "https://www.businesstoday.in/rss/home"
+    },
+    {
+      "id": "cnbctv18",
+      "name": "CNBC-TV18",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Network18 (Reliance) business channel; market-focused, rarely political",
+      "lang": "en",
+      "domain": "cnbctv18.com",
+      "feed": "https://www.cnbctv18.com/commonfeeds/v1/cne/rss/latest.xml"
+    },
+    {
+      "id": "zeebiz",
+      "name": "Zee Business",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Zee group business channel; group leans right but business desk is largely market news",
+      "lang": "en",
+      "domain": "zeebiz.com",
+      "feed": "https://www.zeebiz.com/latest.xml"
+    },
+    {
+      "id": "timesnow",
+      "name": "Times Now",
+      "lean": "U",
+      "proposedLean": "LR",
+      "why": "Times Group TV news; widely characterised as government-friendly",
+      "lang": "en",
+      "domain": "timesnownews.com",
+      "feed": "https://www.timesnownews.com/feeds/gns-en-latest.xml"
+    },
+    {
+      "id": "swarajya",
+      "name": "Swarajya",
+      "lean": "U",
+      "proposedLean": "R",
+      "why": "Openly right-of-centre magazine; nationalist and pro-market",
+      "lang": "en",
+      "domain": "swarajyamag.com",
+      "feed": "https://swarajyamag.com/stories.rss?time-period=last-7-days"
+    },
+    {
+      "id": "dna",
+      "name": "DNA",
+      "lean": "U",
+      "proposedLean": "LR",
+      "why": "Zee group digital title; follows the group's right-of-centre line",
+      "lang": "en",
+      "domain": "dnaindia.com",
+      "feed": "https://www.dnaindia.com/feeds/india.xml"
+    },
+    {
+      "id": "tfipost",
+      "name": "TFI Post",
+      "lean": "U",
+      "proposedLean": "R",
+      "why": "Self-described nationalist digital outlet; strongly pro-BJP commentary",
+      "lang": "en",
+      "domain": "tfipost.com",
+      "feed": "https://tfipost.com/feed/"
+    },
+    {
+      "id": "sundayguardian",
+      "name": "The Sunday Guardian",
+      "lean": "U",
+      "proposedLean": "LR",
+      "why": "iTV group weekly; commonly seen as right-of-centre",
+      "lang": "en",
+      "domain": "sundayguardianlive.com",
+      "feed": "https://sundayguardianlive.com/feed"
+    },
+    {
+      "id": "indiatv",
+      "name": "India TV",
+      "lean": "U",
+      "proposedLean": "LR",
+      "why": "Rajat Sharma's channel; widely characterised as government-friendly",
+      "lang": "en",
+      "domain": "indiatvnews.com",
+      "feed": "https://www.indiatvnews.com/rssnews/topstory.xml"
+    },
+    {
+      "id": "newsable",
+      "name": "Asianet Newsable",
+      "lean": "U",
+      "proposedLean": "LR",
+      "why": "Asianet group (Jupiter Capital, historically linked to BJP's Rajeev Chandrasekhar)",
+      "lang": "en",
+      "domain": "asianetnews.com",
+      "feed": "https://newsable.asianetnews.com/rss/india"
+    },
+    {
+      "id": "bhaskar",
+      "name": "Dainik Bhaskar",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Largest Hindi daily; mainstream, has run government-critical investigations",
+      "lang": "hi",
+      "domain": "bhaskar.com",
+      "feed": "https://www.bhaskar.com/rss-v1--category-1061.xml"
+    },
+    {
+      "id": "amarujala",
+      "name": "Amar Ujala",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Major Hindi daily; mainstream, no strong partisan profile",
+      "lang": "hi",
+      "domain": "amarujala.com",
+      "feed": "https://www.amarujala.com/rss/india-news.xml"
+    },
+    {
+      "id": "bbchindi",
+      "name": "BBC Hindi",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Same rating as BBC News (India); public broadcaster, impartiality rules",
+      "lang": "hi",
+      "domain": "",
+      "feed": "https://feeds.bbci.co.uk/hindi/rss.xml"
+    },
+    {
+      "id": "ndtvindia",
+      "name": "NDTV India",
+      "lean": "U",
+      "proposedLean": "LL",
+      "why": "Matches NDTV's current rating; post-2022 Adani ownership may move it toward centre",
+      "lang": "hi",
+      "domain": "ndtv.in",
+      "feed": "https://feeds.feedburner.com/ndtvkhabar-latest"
+    },
+    {
+      "id": "aajtak",
+      "name": "Aaj Tak",
+      "lean": "U",
+      "proposedLean": "LR",
+      "why": "India Today group Hindi channel; often seen as more government-friendly than its English sibling",
+      "lang": "hi",
+      "domain": "aajtak.in",
+      "feed": "https://www.aajtak.in/rssfeeds/?id=home"
+    },
+    {
+      "id": "jagran",
+      "name": "Dainik Jagran",
+      "lean": "U",
+      "proposedLean": "LR",
+      "why": "Large Hindi daily; frequently characterised as BJP/Hindutva-sympathetic",
+      "lang": "hi",
+      "domain": "jagran.com",
+      "feed": "https://rss.jagran.com/rss/news/national.xml"
+    },
+    {
+      "id": "abphindi",
+      "name": "ABP Live (Hindi)",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "ABP group; mainstream TV/digital news with a broadly centrist profile",
+      "lang": "hi",
+      "domain": "abplive.com",
+      "feed": "https://www.abplive.com/news/india/feed"
+    },
+    {
+      "id": "tv9hindi",
+      "name": "TV9 Bharatvarsh",
+      "lean": "U",
+      "proposedLean": "LR",
+      "why": "Hindi TV news; commonly seen as government-friendly",
+      "lang": "hi",
+      "domain": "tv9hindi.com",
+      "feed": "https://www.tv9hindi.com/feed"
+    },
+    {
+      "id": "indiatvhindi",
+      "name": "India TV (Hindi)",
+      "lean": "U",
+      "proposedLean": "LR",
+      "why": "Hindi site of India TV; same proposed lean as India TV",
+      "lang": "hi",
+      "domain": "indiatv.in",
+      "feed": "https://www.indiatv.in/rssnews/topstory.xml"
+    },
+    {
+      "id": "zeehindi",
+      "name": "Zee News (Hindi)",
+      "lean": "U",
+      "proposedLean": "LR",
+      "why": "Hindi site of Zee News; matches Zee News' current rating",
+      "lang": "hi",
+      "domain": "",
+      "feed": "https://zeenews.india.com/hindi/india.xml"
+    },
+    {
+      "id": "newsnation",
+      "name": "News Nation",
+      "lean": "U",
+      "proposedLean": "LR",
+      "why": "Hindi TV news; commonly seen as government-friendly",
+      "lang": "hi",
+      "domain": "newsnationtv.com",
+      "feed": "https://www.newsnationtv.com/rss"
+    },
+    {
+      "id": "abplive",
+      "name": "ABP Live",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "ABP group English site; broadly centrist",
+      "lang": "en",
+      "domain": "news.abplive.com",
+      "feed": "https://news.abplive.com/news/india/feed"
+    },
+    {
+      "id": "deccanherald",
+      "name": "Deccan Herald",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Bengaluru daily (Printers Mysore); centrist, mildly liberal editorials",
+      "lang": "en",
+      "domain": "deccanherald.com",
+      "feed": "https://www.deccanherald.com/stories.rss?time-period=last-24-hours"
+    },
+    {
+      "id": "nie",
+      "name": "The New Indian Express",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Chennai-based national daily; mainstream, centrist",
+      "lang": "en",
+      "domain": "newindianexpress.com",
+      "feed": "https://www.newindianexpress.com/stories.rss"
+    },
+    {
+      "id": "outlook",
+      "name": "Outlook",
+      "lean": "U",
+      "proposedLean": "LL",
+      "why": "News magazine historically seen as liberal / left-of-centre",
+      "lang": "en",
+      "domain": "outlookindia.com",
+      "feed": "https://www.outlookindia.com/stories.rss?time-period=last-24-hours"
+    },
+    {
+      "id": "tnm",
+      "name": "The News Minute",
+      "lean": "U",
+      "proposedLean": "LL",
+      "why": "South India digital outlet; liberal, rights-focused reporting",
+      "lang": "en",
+      "domain": "thenewsminute.com",
+      "feed": "https://www.thenewsminute.com/stories.rss?time-period=last-24-hours"
+    },
+    {
+      "id": "newslaundry",
+      "name": "Newslaundry",
+      "lean": "U",
+      "proposedLean": "L",
+      "why": "Reader-funded media critic; consistently critical of the government and TV news",
+      "lang": "en",
+      "domain": "newslaundry.com",
+      "feed": "https://www.newslaundry.com/stories.rss?time-period=last-7-days"
+    },
+    {
+      "id": "frontline",
+      "name": "Frontline",
+      "lean": "U",
+      "proposedLean": "L",
+      "why": "The Hindu group magazine; left-of-centre analysis",
+      "lang": "en",
+      "domain": "frontline.thehindu.com",
+      "feed": "https://frontline.thehindu.com/feeder/default.rss"
+    },
+    {
+      "id": "freepressjournal",
+      "name": "Free Press Journal",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Mumbai daily; mainstream, no strong partisan profile",
+      "lang": "en",
+      "domain": "freepressjournal.in",
+      "feed": "https://www.freepressjournal.in/stories.rss?time-period=last-24-hours"
+    },
+    {
+      "id": "oneindia",
+      "name": "Oneindia",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Aggregator-style digital news; mostly wire-based",
+      "lang": "en",
+      "domain": "oneindia.com",
+      "feed": "https://www.oneindia.com/rss/news-india-fb.xml"
+    },
+    {
+      "id": "siasat",
+      "name": "Siasat",
+      "lean": "U",
+      "proposedLean": "LL",
+      "why": "Hyderabad Urdu/English daily; minority-rights focus, critical of BJP",
+      "lang": "en",
+      "domain": "siasat.com",
+      "feed": "https://www.siasat.com/feed/"
+    },
+    {
+      "id": "mathrubhumi",
+      "name": "Mathrubhumi English",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Kerala's Mathrubhumi group; mainstream regional",
+      "lang": "en",
+      "domain": "mathrubhumi.com",
+      "feed": "https://english.mathrubhumi.com/rss/news"
+    },
+    {
+      "id": "onmanorama",
+      "name": "Onmanorama",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Malayala Manorama's English site; mainstream, centrist",
+      "lang": "en",
+      "domain": "onmanorama.com",
+      "feed": "https://www.onmanorama.com/news/india.feeds.onmrss.xml"
+    },
+    {
+      "id": "southfirst",
+      "name": "South First",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Digital outlet covering the southern states; no strong partisan profile",
+      "lang": "en",
+      "domain": "thesouthfirst.com",
+      "feed": "https://thesouthfirst.com/feed/"
+    },
+    {
+      "id": "eastmojo",
+      "name": "EastMojo",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Northeast-focused digital outlet; regional, centrist",
+      "lang": "en",
+      "domain": "eastmojo.com",
+      "feed": "https://www.eastmojo.com/feed/"
+    },
+    {
+      "id": "nenow",
+      "name": "Northeast Now",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Guwahati-based digital outlet; regional, centrist",
+      "lang": "en",
+      "domain": "nenow.in",
+      "feed": "https://nenow.in/feed"
+    },
+    {
+      "id": "nagalandpost",
+      "name": "Nagaland Post",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Dimapur daily; regional, no strong partisan profile",
+      "lang": "en",
+      "domain": "nagalandpost.com",
+      "feed": "https://nagalandpost.com/feed/"
+    },
+    {
+      "id": "greaterkashmir",
+      "name": "Greater Kashmir",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Srinagar daily; regional, cautious editorial line",
+      "lang": "en",
+      "domain": "greaterkashmir.com",
+      "feed": "https://www.greaterkashmir.com/feed/"
+    },
+    {
+      "id": "kashmirobserver",
+      "name": "Kashmir Observer",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Srinagar daily; regional, centrist",
+      "lang": "en",
+      "domain": "kashmirobserver.net",
+      "feed": "https://kashmirobserver.net/feed/"
+    },
+    {
+      "id": "navhindtimes",
+      "name": "The Navhind Times",
+      "lean": "U",
+      "proposedLean": "C",
+      "why": "Goa daily; regional, centrist",
+      "lang": "en",
+      "domain": "navhindtimes.in",
+      "feed": "https://www.navhindtimes.in/feed/"
     }
   ],
   "factcheckers": [

@@ -146,7 +146,7 @@
     if (s.dossier) return TEMPLATES.story[1]();
     const ox = originX(), p = RS.share(s), tot = Object.values(s.cov).reduce((a, b) => a + b, 0);
     addObj({ type: "heading", x: ox, y: 30, title: s.title, mine: false }, true);
-    addObj({ type: "sticky", x: ox, y: 120, w: 520, title: `${s.place} · ${s.cat} · ${s.time}`, text: s.live ? `Live: ${s.outletCount} outlets, ${tot} articles · Left ${p.l}% · Centre ${p.c}% · Right ${p.r}%. Left/right labels are provisional.` : `Coverage: ${tot} articles · Left ${p.l}% · Centre ${p.c}% · Right ${p.r}%. Story from The Red Thread (illustrative).`, mine: false }, true);
+    addObj({ type: "sticky", x: ox, y: 120, w: 520, title: `${s.place} · ${s.cat} · ${s.time}`, text: s.live ? `Live: ${RS.countLine(s)} · Left ${p.l}% · Centre ${p.c}% · Right ${p.r}%. Left/right labels are provisional.` : `Coverage: ${tot} articles · Left ${p.l}% · Centre ${p.c}% · Right ${p.r}%. Story from The Red Thread (illustrative).`, mine: false }, true);
     let y = 300;
     y = rowOf("What we know", s.sum.map(t => ({ title: t, type: "event" })), "event", ox, y);
     const L = rowOf("How the left frames it", [{ title: s.hl.L, text: "Left-leaning headline", type: "claim" }, ...s.L.map(t => ({ title: t, type: "note" }))], "note", ox, y);
