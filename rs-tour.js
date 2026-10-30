@@ -9,13 +9,14 @@
   const top = () => (STORIES.filter(s => s.live && s.outletCount > 2).sort((a, b) => b.outletCount - a.outletCount)[0] || STORIES[0] || {}).id;
   const btn = (view, re) => () => $$(`#v-${view} button`).find(b => re.test(b.textContent) && b.getBoundingClientRect().width > 0);
   const STEPS = [
-    { view: "home", title: "Welcome to The Red Thread", text: "Today's Indian news from 16 outlets in one place, and how left, centre and right each cover it. Let's walk through what you can do here." },
+    { view: "home", title: "Welcome to The Red Thread", text: "A news platform and a social network for news. Read today's stories from 16 Indian outlets and see how left, centre and right each cover them, then research them yourself, write and publish your own articles and reels, and discuss them with friends." },
     { view: "home", sel: "#today summary", title: "Every pin is a live story", text: "The map shows today's stories where they happened. Tap a pin, or open this list, to read one." },
     { view: "home", sel: "#stepper", title: "Scroll through the day", text: "Scroll, or use these arrows, to go story by story across India. It ends by zooming into today's biggest story." },
     { view: "discover", sel: ".gn-feat", title: "Discover", text: "Today's stories as a feed. Each one shows how much of its coverage came from the left, centre and right, and Blindspot shows what one side is ignoring." },
     { view: "story", arg: top, sel: "#cmpBtn", title: "Read all sides", text: "Every story page lists each outlet's own headline with a link to it. Bias comparison puts the left, centre and right versions next to each other." },
     { view: "investigate", arg: () => top() + "|map", sel: ".inv-bar-in", title: "Investigate", text: "Pick any story from this list and open it as a mind map: who said what, the timeline, and what's still missing. Add your own notes." },
     { view: "board", sel: "#wbStory", title: "Research board", text: "Choose a story here and it lays the whole thing out on a whiteboard for you: what each side says, open questions, sources. Or paste any news link." },
+    { view: "board", sel: "#wbPublish", title: "Turn your board into an article", text: "Add your own notes, evidence and connections to the board, then press \"Publish as a story\". Dhaga turns the board into an article draft you can edit and publish to Publications for others to read." },
     { view: "shame", sel: ".fcfeed", title: "Media watch", text: "Live fact-checks from India's fact-checkers, and how outlets handle their corrections." },
     { view: "reels", sel: ".reel-frame", title: "Reels", text: "Short news videos you swipe through. Every reel links to the full article behind it." },
     { view: "publications", sel: ".pc-body", title: "Publications", text: "Articles by independent writers. Hit \"New article\" to write your own: Dhaga can draft it with you from the sources, and you can record a reel to go with it." },
