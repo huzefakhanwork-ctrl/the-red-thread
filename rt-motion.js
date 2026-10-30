@@ -62,7 +62,7 @@
     });
     iv.addEventListener("ended", endIntro);
     iv.addEventListener("error", endIntro);
-    $("#skipBtn").onclick = () => { if (!introDone) endIntro(); if (outro) outro.progress(1); };
+    $("#skipBtn").onclick = () => introDone ? outro && outro.progress(1) : endIntro();
     $("#soundBtn").onclick = e => { iv.muted = !iv.muted; e.currentTarget.setAttribute("aria-pressed", !iv.muted); e.currentTarget.textContent = iv.muted ? "SOUND ON" : "SOUND OFF"; if (iv.paused && !introDone) iv.play().catch(() => {}); };
     if (RM) endIntro();
     else iv.play().catch(() => { $("#soundBtn").textContent = "PLAY INTRO"; });
