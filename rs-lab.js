@@ -221,12 +221,12 @@
     mount(el) {
       el.innerHTML = `<div class="inv-bar"><div class="inv-bar-in">
           <select id="invStory" aria-label="Choose a story">${[...STORIES, ...(window.SAMPLE_STORIES || [])].map(s => `<option value="${s.id}">${esc(s.title)}${s.dossier ? " · example case study" : s.live ? "" : " · sample"}</option>`).join("")}</select>
-          <div class="itabs" role="tablist">${[["dossier", "Dossier"], ["map", "Mind map"], ["timeline", "Timeline"], ["notes", "My notes"]].map(([k, n]) => `<button type="button" role="tab" data-itab="${k}">${n}<span class="cnt" data-cnt="${k}"></span></button>`).join("")}</div>
-          <span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap"><button class="tool" type="button" data-go="board" data-arg="import">Whiteboard</button><button class="btn r sm" type="button" data-write="1">✍ Write my article</button></span></div></div>
+          <div class="itabs" role="tablist">${[["dossier", "Dossier"], ["map", "Mind map"], ["timeline", "Timeline"], ["notes", "My notes"]].map(([k, n]) => `<button type="button" role="tab" data-itab="${k}">${n}<span class="cnt" data-cnt="${k}"></span></button>`).join("")}<button type="button" role="tab" data-itab="board">Research board</button></div>
+          <span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap"><button class="tool" type="button" data-go="board" data-arg="import">Send to my board</button><button class="btn r sm" type="button" data-write="1">✍ Write my article</button></span></div></div>
         <div class="inv-grid"><div class="inv-center" id="invCenter"></div><aside class="pane-right" id="assistant" aria-label="${AI}"></aside></div>`;
       $("#invStory").onchange = e => show("investigate", e.target.value + "|" + TAB);
       el.addEventListener("click", e => {
-        const t = e.target.closest("[data-itab]"); if (t) { TAB = t.dataset.itab; renderTab(); return; }
+        const t = e.target.closest("[data-itab]"); if (t) { if (t.dataset.itab === "board") { (window.RT_GO || show)("board"); return; } TAB = t.dataset.itab; renderTab(); return; }
         const w = e.target.closest("[data-write]"); if (w) { openWizard(); return; }
         const a = e.target.closest("[data-addnote]"); if (a) { const n = JSON.parse(a.dataset.addnote); RS.addNote(SID, n); a.textContent = "✓ noted"; a.disabled = true; toast("Added to your notes", "Open notes", () => { TAB = "notes"; renderTab(); }); return; }
         const sc = e.target.closest("[data-sec]"); if (sc) { $("#s-" + sc.dataset.sec)?.scrollIntoView({ behavior: "smooth" }); return; }

@@ -1,5 +1,5 @@
 /* THE RED THREAD — first-visit guided tour. After the intro, a first-time visitor is walked through the real features:
-   each step opens the page itself (including the ones tucked under More, like Creator Studio and the Clip maker) and
+   each step opens the page itself (including the ones tucked under More, like Creator Studio and Media Watch) and
    puts a spotlight on the thing to use there, with one line on what it does. Shown once (remembered in this browser);
    "Take the tour" under More replays it. If a step's target isn't on screen, the card just sits in the middle. */
 (function () {
@@ -16,15 +16,14 @@
     { view: "discover", sel: ".gn-feat", title: "Discover", text: "Today's stories as a feed. Each one shows how much of its coverage came from the left, centre and right, and Blindspot shows what one side is ignoring." },
     { view: "story", arg: top, sel: "#cmpBtn", title: "Read all sides", text: "Every story page lists each outlet's own headline with a link to it. Bias comparison puts the left, centre and right versions next to each other." },
     { view: "investigate", arg: () => top() + "|map", sel: ".inv-bar-in", title: "Investigate", text: "Pick any story from this list and open it as a mind map: who said what, the timeline, and what's still missing. Add your own notes." },
-    { view: "board", sel: "#wbStory", title: "Research board", text: "Choose a story here and it lays the whole thing out on a whiteboard for you: what each side says, open questions, sources. Or paste any news link." },
+    { view: "board", sel: "#wbStory", title: "Research board", text: "Inside Investigate, next to Dossier and My notes. Choose a story here and it lays the whole thing out on a whiteboard for you: what each side says, open questions, sources. Or paste any news link." },
     { view: "board", sel: "#wbPublish", title: "Turn your board into an article", text: "Add your own notes, evidence and connections to the board, then press \"Publish as a story\". Dhaga turns the board into an article draft you can edit and publish to Publications for others to read." },
-    { view: "shame", sel: ".fcfeed", title: "Media watch", text: "Live fact-checks from India's fact-checkers, and how outlets handle their corrections." },
+    { view: "shame", sel: ".fcfeed", title: "Media watch", text: "Under More: live fact-checks from India's fact-checkers, and how outlets handle their corrections." },
     { view: "reels", sel: ".reel-frame", title: "Reels", text: "Short news videos you swipe through. Every reel links to the full article behind it." },
     { view: "publications", sel: ".pc-body", title: "Publications", text: "Articles by independent writers. Hit \"New article\" to write your own: Dhaga can draft it with you from the sources, and you can record a reel to go with it." },
-    { view: "studio", find: btn("studio", /Generate/), title: "Creator Studio", text: "Hidden under More, and made for creators: turn any story into a ready research brief for a YouTube video or reel, with the script, angles and sources." },
-    { view: "clip", title: "Clip maker", text: "Also under More: turn an article you've published into a 60-second news clip with captions and pop-ups, record yourself on camera, then trim and download it." },
+    { view: "studio", sel: ".cs-steps", title: "Creator Studio", text: "Under More, made for creators. Step 1: pull facts and headlines from any story or your Research Board into a notes doc of pointers. Step 2: record yourself while each pointer pops up on screen when you press Next." },
     { view: "home", sel: "#aiBtn", title: "Ask AI", text: "Ask Dhaga, our AI assistant, anything about a story, on any page. It answers from the sources and shows them." },
-    { view: "home", sel: "#tmore summary", title: "Find it all under More", text: "How it works (our sources, and how left and right are decided), Creator Studio, Clip maker, Chat, My Library and more. Enjoy exploring." }
+    { view: "home", sel: "#tmore summary", title: "Find it all under More", text: "How it works (our sources, and how left and right are decided), Creator Studio, Media Watch, My Library and more. Enjoy exploring." }
   ];
   let i = 0, open = false, el = null, busy = false;
   const target = s => { const t = s.find ? s.find() : s.sel ? $(`#v-${s.view} ${s.sel}`) || $(s.sel) : null; if (!t) return null; const r = t.getBoundingClientRect(); return r.width > 0 && r.height > 0 ? t : null; };

@@ -1,4 +1,4 @@
-/* THE RED THREAD — Publications (Substack-style), editor, post reader, chat, clip maker, Studio, Shameboard, Mastery, Kids, Magazine, Library. */
+/* THE RED THREAD — Publications (Substack-style), editor, post reader, chat, clip drawing, reel studio, Shameboard, Mastery, Kids, Magazine, Library. */
 (function () {
   const { $, $$, esc, store, st, cite, cites, toast, sig, show, AI } = RS;
   const C = CASE;
@@ -379,13 +379,13 @@
       ctx.fillStyle = "rgba(0,0,0,.74)"; ctx.fillRect(30, y0, 660, bh); ctx.fillStyle = acc; ctx.fillRect(30, y0, 10, bh);
       ctx.fillStyle = sc.outro ? "#F5E500" : "#fff"; ls.forEach((l, k) => ctx.fillText(l, 62, y0 + 54 + k * 54));
       if (!sc.hook && !sc.outro) { ctx.fillStyle = acc; ctx.font = "800 30px Inter, Arial, sans-serif"; ctx.fillText(String(i).padStart(2, "0") + " / " + String(scenes.length - 2).padStart(2, "0"), 40, y0 - 16); }
-      if (sc.tag && C.sources[sc.tag]) { ctx.fillStyle = "#F5E500"; ctx.fillRect(470, y0 - 52, 220, 40); ctx.fillStyle = "#111"; ctx.font = "700 20px Inter, Arial, sans-serif"; ctx.fillText("SOURCE " + sc.tag, 486, y0 - 25); }
+      const sl = sc.src ? "SOURCE · " + String(sc.src).toUpperCase().slice(0, 28) : sc.tag && C.sources[sc.tag] ? "SOURCE " + sc.tag : ""; if (sl) { ctx.font = "700 20px Inter, Arial, sans-serif"; const sw = Math.min(660, ctx.measureText(sl).width + 32); ctx.fillStyle = "#F5E500"; ctx.fillRect(690 - sw, y0 - 52, sw, 40); ctx.fillStyle = "#111"; ctx.fillText(sl, 706 - sw, y0 - 25); }
       if (sc.outro) { ctx.fillStyle = "#fff"; ctx.font = "700 34px Inter, Arial, sans-serif"; ctx.fillText(c.handle, 40, y0 - 18); }
     }
     else if (sc.hook) { ctx.fillStyle = "#fff"; ctx.font = "400 92px 'Instrument Serif', Georgia, serif"; const ls = wrapCanvas(ctx, sc.line, 640).slice(0, 6); ls.forEach((l, k) => ctx.fillText(l, 40, 420 + k * 96)); }
     else if (sc.outro) { ctx.fillStyle = "#F5E500"; ctx.font = "400 80px 'Instrument Serif', Georgia, serif"; wrapCanvas(ctx, sc.line, 640).slice(0, 5).forEach((l, k) => ctx.fillText(l, 40, 440 + k * 86)); ctx.fillStyle = "#fff"; ctx.font = "700 44px 'Hanken Grotesk', Arial, sans-serif"; ctx.fillText(c.handle, 40, 940); }
     else { ctx.fillStyle = acc; ctx.font = "800 120px 'Hanken Grotesk', Arial, sans-serif"; ctx.fillText(String(i).padStart(2, "0"), 40, 400); ctx.fillStyle = "#fff"; ctx.font = "700 56px 'Hanken Grotesk', Arial, sans-serif"; const ls = wrapCanvas(ctx, sc.line, 640).slice(0, 7); ls.forEach((l, k) => ctx.fillText(l, 40, 500 + k * 66));
-      if (sc.tag && C.sources[sc.tag]) { const y = 520 + ls.length * 66; ctx.fillStyle = "#F5E500"; ctx.fillRect(40, y, 620, 54); ctx.fillStyle = "#111"; ctx.font = "600 24px 'IBM Plex Mono', monospace"; ctx.fillText(("SOURCE " + sc.tag + " · " + C.sources[sc.tag].title).slice(0, 44), 54, y + 36); } }
+      if (sc.src || (sc.tag && C.sources[sc.tag])) { const y = 520 + ls.length * 66; ctx.fillStyle = "#F5E500"; ctx.fillRect(40, y, 620, 54); ctx.fillStyle = "#111"; ctx.font = "600 24px 'IBM Plex Mono', monospace"; ctx.fillText((sc.src ? "SOURCE · " + sc.src : "SOURCE " + sc.tag + " · " + C.sources[sc.tag].title).slice(0, 44), 54, y + 36); } }
     ctx.restore();
     ctx.fillStyle = "#F5F1E8"; ctx.fillRect(0, 1060, W, 92); ctx.fillStyle = acc; ctx.fillRect(0, 1060, 18, 92); ctx.fillStyle = "#111"; ctx.font = "700 30px 'Hanken Grotesk', Arial, sans-serif"; ctx.fillText((c.hook.length > 40 ? c.hook.slice(0, 39) + "…" : c.hook), 40, 1117);
     ctx.fillStyle = "#FF2D55"; ctx.fillRect(0, 1152, W, 70); ctx.fillStyle = "#fff"; ctx.font = "600 28px 'IBM Plex Mono', monospace";
@@ -393,100 +393,6 @@
     ctx.fillStyle = "#111"; ctx.fillRect(0, 1222, W, 58); ctx.fillStyle = "#aaa"; ctx.font = "500 22px 'IBM Plex Mono', monospace"; ctx.fillText(`${c.handle} · made with ${BRAND.name} · sources in caption`, 40, 1258);
     return total;
   }
-  RS.V.clip = {
-    show(id, el) {
-      const p = RS.allPosts().find(x => x.id === id) || RS.allPosts().find(x => x.mine);
-      if (!p) { el.innerHTML = `<div class="wrap section"><div class="empty">Publish an article first, then make a clip from it. <button class="linkish" type="button" data-go="investigate" data-arg="|notes">Go to your notes</button></div></div>`; return; }
-      if (!clip || clip.postId !== p.id) clip = clipFromPost(p);
-      el.innerHTML = `<div class="wrap"><div class="page-head"><span class="eyebrow">News clip maker · from “${esc(p.title)}”</span><h1>Turn your article into a news clip</h1><p>A vertical 9:16 clip in news-channel style: breaking banner, lower-third, ticker and a source tag on every claim. Save it, then post it as a Reel.</p></div>
-        <div class="clipgrid"><aside class="clipset">
-          <div class="field"><label>Style</label><div class="tabs" id="cStyle">${Object.entries(CLIP_STYLES).map(([k, [n]]) => `<button type="button" data-cs="${k}" aria-pressed="${k === clip.style}">${n}</button>`).join("")}</div></div>
-          <div class="field"><label for="cHook">Headline</label><input id="cHook" value="${esc(clip.hook)}"></div>
-          ${clip.scenes.map((s, i) => `<div class="field"><label for="cS${i}">Scene ${i + 1} ${s.tag ? `<span class="mono muted">source ${s.tag}</span>` : `<span class="mono" style="color:var(--pink)">no source tag</span>`}</label><textarea id="cS${i}" data-sc="${i}">${esc(s.line)}</textarea></div>`).join("")}
-          <div class="field"><label for="cOut">Closing line</label><input id="cOut" value="${esc(clip.outro)}"></div>
-          <div class="grid2"><div class="field"><label for="cHandle">Your handle</label><input id="cHandle" value="${esc(clip.handle)}"></div><div class="field"><label for="cDur">Seconds per scene</label><input id="cDur" type="number" min="2" max="6" step=".5" value="${clip.dur}"></div></div>
-          <button class="btn y" type="button" id="cAI">✦ Punch it up with ${AI}</button><p class="status muted" id="cAIs" style="font-size:13px"></p></aside>
-        <div class="clipstage"><canvas id="clipCv" width="720" height="1280" aria-label="Clip preview"></canvas>
-          <div class="cbtns" id="cBtns"><button class="btn" type="button" id="cPlay">▶ Play preview</button><button class="btn r" type="button" id="cRec">● Record video</button></div>
-          <button class="btn y camgo" type="button" id="cCam">◉ Record with camera</button>
-          <div class="cbtns" id="cCamBar" hidden><button class="btn r" type="button" id="cCamRec">● Start recording</button><button class="btn" type="button" id="cNext" hidden>Next pop-up →</button><button class="btn" type="button" id="cCamX">✕ Close camera</button></div>
-          <label class="chk camopt" id="cTapW" hidden><input type="checkbox" id="cTap"> I'll move the pop-ups myself (tap “Next pop-up” or press →)</label>
-          <div class="camupl" id="cUplW" hidden><label class="btn sm" for="cUpl">⇪ Upload a selfie video instead</label><input type="file" id="cUpl" accept="video/*" hidden></div>
-          <p class="mono muted" id="cRecS" style="text-align:center;font-size:12px"></p><div id="cOutBox"></div></div>
-        <aside class="clipset"><div class="field"><label for="cCap">Instagram caption</label><textarea id="cCap" style="min-height:180px">${esc(clip.caption)}</textarea></div>
-          <button class="btn" type="button" id="cCopy">Copy caption</button>
-          <div class="method"><b>Posting to Instagram</b><span>1. Record and save the video.</span><span>2. In Instagram, tap + then Reel and pick the saved video.</span><span>3. Paste the caption. Keep the sources line in.</span><span class="muted">Instagram doesn't let other apps post for you, so the last step is yours.</span></div></aside></div></div>`;
-      const cv = $("#clipCv"), ctx = cv.getContext("2d");
-      const sync = () => { clip.hook = $("#cHook").value; clip.outro = $("#cOut").value; clip.handle = $("#cHandle").value; clip.dur = Math.max(2, Math.min(6, +$("#cDur").value || 3.5)); clip.caption = $("#cCap").value; $$("[data-sc]").forEach(x => clip.scenes[+x.dataset.sc].line = x.value); if (!playing) drawClip(ctx, 0.6); };
-      $$("input,textarea", el).forEach(x => x.addEventListener("input", sync));
-      $$("[data-cs]").forEach(b => b.onclick = () => { clip.style = b.dataset.cs; $$("[data-cs]").forEach(x => x.setAttribute("aria-pressed", x === b)); sync(); });
-      document.fonts?.ready.then(() => drawClip(ctx, .6)); drawClip(ctx, .6);
-      let cam = null, camStream = null, liveRaf = 0, tap = { on: false, i: 0, at: 0 }, untilStop = false;
-      const nScenes = () => clip.scenes.length + 2;
-      const tAt = now => tap.on ? tap.i * clip.dur + Math.min(clip.dur * .98, (now - tap.at) / 1000) : (now - t0) / 1000;
-      const play = (onEnd) => { cancelAnimationFrame(raf); cancelAnimationFrame(liveRaf); playing = true; t0 = performance.now(); tap.i = 0; tap.at = t0;
-        const loop = now => { const t = tAt(now), total = drawClip(ctx, t, cam); if (t < total || untilStop) raf = requestAnimationFrame(loop); else { playing = false; onEnd && onEnd(); } }; raf = requestAnimationFrame(loop); };
-      const live = () => { if (!cam || playing) return; drawClip(ctx, .6, cam); liveRaf = requestAnimationFrame(live); };
-      const pickMime = () => ["video/mp4;codecs=avc1,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"].find(m => MediaRecorder.isTypeSupported(m)) || "";
-      const record = (audioTracks, onStop) => { const mime = pickMime(), chunks = [], r = new MediaRecorder(new MediaStream([...cv.captureStream(30).getVideoTracks(), ...audioTracks]), mime ? { mimeType: mime, videoBitsPerSecond: 6e6 } : undefined);
-        r.ondataavailable = e => e.data.size && chunks.push(e.data); r.onstop = () => onStop(new Blob(chunks, { type: r.mimeType || mime || "video/webm" })); r.start(250); return r; };
-      const toEditor = (blob, kind) => { const clips = store.get("clips", []); clips.unshift({ postId: p.id, at: today(), style: clip.style, kind }); store.set("clips", clips.slice(0, 50)); $("#cRecS").textContent = "Done. Trim and crop it in the editor, then download."; RS.openVideoEditor(blob, { name: "red-thread-" + kind + "-" + p.id, aspect: "9:16", ...(p.mine ? { useLabel: "📲 Post to Reels with this story", onUse: async b => { if (await RS.attachReel(p, b)) show("reels", p.id); } } : {}) }); };
-      const stopCam = () => { cancelAnimationFrame(liveRaf); if (camStream) camStream.getTracks().forEach(tr => tr.stop()); camStream = null; if (cam) { cam.pause(); cam.removeAttribute("src"); cam.srcObject = null; } cam = null;
-        $("#cCamBar").hidden = true; $("#cTapW").hidden = true; $("#cCam").hidden = false; $("#cBtns").hidden = false; drawClip(ctx, .6); };
-      const camMode = () => { $("#cCam").hidden = true; $("#cBtns").hidden = true; $("#cCamBar").hidden = false; $("#cTapW").hidden = false; $("#cUplW").hidden = true; live(); };
-      $("#cCam").onclick = async () => {
-        if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) { $("#cRecS").textContent = "This browser can't use the camera here. Upload a selfie video instead."; $("#cUplW").hidden = false; return; }
-        $("#cRecS").textContent = "Asking for your camera and microphone…";
-        try { camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }, audio: { echoCancellation: true, noiseSuppression: true } }); }
-        catch (e) { $("#cRecS").textContent = RS.camHelp(e) + " Or upload a selfie video."; $("#cUplW").hidden = false; return; }
-        cam = document.createElement("video"); cam.muted = true; cam.playsInline = true; cam.mirror = true; cam.srcObject = camStream; await cam.play().catch(() => { });
-        $("#cRecS").textContent = "You're on. The pop-ups will appear over you, just like the preview. Read the story, then stop."; camMode();
-      };
-      $("#cUpl").onchange = async e => {
-        const file = e.target.files[0]; e.target.value = ""; if (!file) return;
-        cam = document.createElement("video"); cam.playsInline = true; cam.mirror = false; cam.src = URL.createObjectURL(file); cam.preload = "auto";
-        await new Promise(r => cam.addEventListener("loadeddata", r, { once: true })); cam.uploaded = true;
-        $("#cRecS").textContent = "Video loaded. Press Start: it plays once with the pop-ups on top and records the result."; camMode();
-      };
-      $("#cTap").onchange = e => { tap.on = e.target.checked; $("#cNext").hidden = !tap.on; };
-      const next = () => { if (tap.on && playing) { tap.i = Math.min(nScenes() - 1, tap.i + 1); tap.at = performance.now(); } };
-      $("#cNext").onclick = next; el.addEventListener("keydown", e => { if (e.key === "ArrowRight" && playing && tap.on) { e.preventDefault(); next(); } });
-      $("#cCamX").onclick = () => { if (rec && rec.state === "recording") return; stopCam(); $("#cRecS").textContent = ""; };
-      $("#cCamRec").onclick = async () => {
-        if (rec && rec.state === "recording") { untilStop = false; rec.stop(); return; }
-        if (!cam) return;
-        let audioTracks = [];
-        if (cam.uploaded) { try { const ac = new AudioContext(), src = ac.createMediaElementSource(cam), dest = ac.createMediaStreamDestination(); src.connect(dest); src.connect(ac.destination); audioTracks = dest.stream.getAudioTracks(); cam._ac = ac; } catch { } }
-        else audioTracks = camStream.getAudioTracks();
-        $("#cCamX").disabled = true;
-        for (const n of [3, 2, 1]) { drawClip(ctx, .6, cam); ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.fillRect(0, 0, 720, 1280); ctx.fillStyle = "#fff"; ctx.font = "800 260px Inter, Arial, sans-serif"; ctx.textAlign = "center"; ctx.fillText(n, 360, 720); ctx.textAlign = "start"; $("#cRecS").textContent = "Recording in " + n + "…"; await new Promise(r => setTimeout(r, 1000)); }
-        cancelAnimationFrame(liveRaf);
-        rec = record(audioTracks, blob => { $("#cCamRec").textContent = "● Start recording"; $("#cCamX").disabled = false; playing = false; cancelAnimationFrame(raf); if (cam && cam.uploaded) { cam.pause(); cam.currentTime = 0; } live(); toEditor(blob, "camera"); });
-        $("#cCamRec").textContent = "■ Stop recording";
-        if (cam.uploaded) { cam.currentTime = 0; await cam.play().catch(() => { }); untilStop = true; cam.onended = () => { untilStop = false; if (rec.state === "recording") rec.stop(); }; $("#cRecS").textContent = "Recording your video with the pop-ups…"; }
-        else { untilStop = true; $("#cRecS").textContent = "Recording. Pop-ups run on their own" + (tap.on ? " when you tap Next" : "") + "; press Stop when you've finished the story."; }
-        play();
-      };
-      $("#cPlay").onclick = () => play();
-      $("#cCopy").onclick = () => navigator.clipboard.writeText($("#cCap").value).then(() => toast("Caption copied"), () => toast("Your browser blocked copying"));
-      $("#cRec").onclick = () => {
-        if (!cv.captureStream || !window.MediaRecorder) { $("#cRecS").textContent = "This browser can't record video. Try Chrome or Edge on a computer."; return; }
-        rec = record([], blob => { $("#cRec").disabled = false; toEditor(blob, "clip"); });
-        $("#cRec").disabled = true; $("#cRecS").textContent = "Recording… let it play to the end."; play(() => setTimeout(() => rec.state !== "inactive" && rec.stop(), 150));
-      };
-      $("#cAI").disabled = !RS.ai(); if (!RS.ai()) $("#cAIs").textContent = `${AI} is off here (works when opened in Claude).`;
-      $("#cAI").onclick = async () => {
-        const ai = RS.ai(); if (!ai) return; $("#cAI").disabled = true; $("#cAIs").textContent = "Writing punchier lines…";
-        try { const r = await ai.json(`Rewrite this article into a ${clip.scenes.length + 2}-scene vertical news clip script. Style: ${CLIP_STYLES[clip.style][0]}. Hook max 10 words; each scene line max 18 words; closing line max 12 words. Keep every claim accurate to the article; never add facts. Keep each scene's source tag exactly.
-Article title: ${p.title}\nScenes: ${JSON.stringify(clip.scenes)}\nAlso write an Instagram caption (max 60 words, plain, with 4 hashtags, ending with "Sources on ${BRAND.name}").
-Reply with only JSON: {"hook":"","scenes":[{"line":"","tag":""}],"outro":"","caption":""}`, { modelTier: "quick", cache: false });
-          if (r?.hook && Array.isArray(r.scenes)) { clip.hook = r.hook; clip.scenes = r.scenes.slice(0, 5).map((s, i) => ({ line: String(s.line || ""), tag: clip.scenes[i]?.tag || (C.sources[s.tag] ? s.tag : "") })); clip.outro = r.outro || clip.outro; clip.caption = r.caption || clip.caption; this.show(p.id, el); toast("Script updated. Check it before recording."); }
-          else throw { code: "invalid_json" };
-        } catch (e) { $("#cAIs").textContent = RS.aiErr(e.code); $("#cAI").disabled = !RS.ai(); }
-      };
-    }
-  };
-
   RS.drawClip = drawClip; RS.clipFromPost = clipFromPost;
 
   /* ---- Reel studio: the news-clip look built from whatever you've written, three ways to make the reel ---- */
@@ -586,73 +492,6 @@ Reply with only JSON: {"hook":"","scenes":[{"line":"","tag":""}],"outro":"","cap
     still(); document.fonts?.ready.then(() => { if (!busy) still(); });
   };
 
-
-  /* ================= CREATOR STUDIO ================= */
-  const DEMO_BRIEF = {
-    title: "The exam leak protest, explained without the noise", question: "Did the NCET paper leak widely enough to justify a full re-test?",
-    why: "1.8 million candidates are waiting on one decision, and viral clips are filling the gap faster than facts [S1].",
-    overview: "Screenshots said to show exam questions spread two days after the exam [S3]. Police arrested four people at two centres [S4]. The agency says only two centres were breached [S8]; students want a full re-test.",
-    timeline: [["12 Sep", "Exam held [S1]"], ["14 Sep", "Telegram screenshots circulate (unverified) [S3]"], ["19 Sep", "Four arrests at two centres [S4]"], ["21 Sep", "Jantar Mantar protest; crowd size disputed [S5]"], ["30 Sep", "Court asks for a status report [S7]"], ["20 Oct", "Agency: two centres, ~2,400 candidates [S8]"]],
-    stakeholders: [["Exam Nyay Manch", "Full re-test [S5]"], ["Testing agency", "Targeted re-test [S8]"], ["High scorers", "Keep current results [S5]"]],
-    stats: [["1.8 million candidates", "Registered, not necessarily appeared [S1]"], ["~2,400 affected", "The agency's own count; not independently audited [S8]"], ["5,000 vs 1,200 protesters", "Organisers vs police [S5]"]],
-    perspectives: [["Students", "Screenshots suggest early access beyond two centres.", "Screenshots [S3]", "Timestamps unverified"], ["Agency", "Lock logs show breach at two centres only.", "Status report [S8]", "Self-audit"]],
-    uncertain: ["How far the questions spread before the exam", "Who took the photographs", "What the expert committee will recommend [S10]"],
-    misconceptions: ["The viral lathi-charge video is from 2019, not this protest [S6]", "The court hasn't ruled on a re-test; it asked for a report [S7]"],
-    angles: ["Rural candidates and the cost of a re-test", "How digital-lock boxes are supposed to work [S1]", "Challenge your assumption: what if the two-centre finding holds up?"],
-    hooks: ["\"1.8 million students. Two exam centres. One question nobody can answer yet.\"", "\"This viral video isn't what you think it is.\"", "\"Should everyone retake an exam because of a leak at two centres?\""],
-    structure: [["0:00", "Hook + the question"], ["0:45", "What happened, in 6 dates"], ["3:00", "The two biggest claims, side by side"], ["6:00", "The viral video, debunked [S6]"], ["7:30", "What the court actually ordered [S7]"], ["9:00", "Who pays for a re-test?"], ["10:30", "What's still unknown"], ["11:30", "Ask viewers: what would convince you?"]],
-    visuals: ["Animated timeline of the 6 dates", "Side-by-side: screenshots claim vs agency report", "Screen-record of a reverse image search"],
-    interview: ["Ask the agency how the other centres were cleared", "Ask organisers what evidence they have beyond the screenshots", "Ask a rural candidate about the cost of a re-test"],
-    verify: ["Screenshot timestamps [S3]", "The ~2,400 figure: is there an independent check? [S8]", "Any quote you use from social media"]
-  };
-  const ANGLES = ["Historical explanation", "Policy breakdown", "Economic impact", "Human impact", "Myth vs evidence", "Timeline of events", "How it's being covered", "Unanswered questions"];
-  let brief = store.get("brief", null), briefKind = store.get("briefKind", "demo"), angle = "Myth vs evidence";
-  RS.V.studio = {
-    mount(el) {
-      el.innerHTML = `<div class="wrap"><div class="page-head"><span class="eyebrow">Creator Studio</span><h1>From investigation to production brief</h1><p>Pick a format and an angle. ${AI} builds a brief from the story file, with every factual line linked to its source and a list of what to verify. You stay the editor.</p></div>
-        <div class="studio"><aside class="side">
-          <div class="field"><label for="stTopic">What are you making?</label><textarea id="stTopic">A 12-minute Hindi YouTube video explaining the Delhi Gen Z protest and the exam-leak dispute</textarea></div>
-          <div class="field"><label for="stFmt">Format</label><select id="stFmt"><option>YouTube video (8–15 min)</option><option>Instagram reel (30–60 s)</option><option>Instagram carousel</option><option>Podcast episode</option><option>Written article</option></select></div>
-          <div class="field"><label>Angle (a direction, not a conclusion)</label><div class="tabs" id="stAngles"></div></div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn y" type="button" id="stGen">Generate with ${AI}</button><button class="btn" type="button" id="stDemo">Load demo brief</button></div>
-          <p class="status muted" id="stStatus" style="font-size:13.5px"></p></aside><div id="stOut"></div></div></div>`;
-      const angles = () => { $("#stAngles").innerHTML = ANGLES.map(a => `<button type="button" aria-pressed="${a === angle}">${a}</button>`).join(""); $$("#stAngles button").forEach(b => b.onclick = () => { angle = b.textContent; angles(); }); };
-      angles();
-      $("#stDemo").onclick = () => { brief = DEMO_BRIEF; briefKind = "demo"; persist(); renderBrief(); };
-      $("#stGen").onclick = gen;
-      RS.onAi(() => { $("#stGen").disabled = !RS.ai(); $("#stStatus").textContent = !RS.aiReady() ? "Connecting to Claude…" : RS.ai() ? "" : `${AI} works when this page is opened in Claude. The demo brief shows the format.`; });
-    },
-    show() { if (!brief) { brief = DEMO_BRIEF; briefKind = "demo"; } renderBrief(); }
-  };
-  function persist() { store.set("brief", brief); store.set("briefKind", briefKind); store.set("briefDone", true); }
-  async function gen() {
-    const ai = RS.ai(); if (!ai) return; $("#stGen").disabled = true; $("#stStatus").textContent = "Building your brief… this can take a minute.";
-    try {
-      const r = await ai.json(`You are a research producer for Indian news creators. Build a production research brief.
-Request: "${$("#stTopic").value.trim()}". Format: ${$("#stFmt").value}. Angle: ${angle} (a direction, not a conclusion).
-${RS.EVIDENCE_RULES}
-Case file: ${RS.caseContext()}
-Reply with only JSON: {"title":"","question":"","why":"","overview":"","timeline":[["date","event [S#]"]],"stakeholders":[["name","position [S#]"]],"stats":[["figure","limitation [S#]"]],"perspectives":[["who","argument","strongest evidence","weakness"]],"uncertain":[""],"misconceptions":[""],"angles":["include one that challenges the creator's assumption"],"hooks":["3 hooks"],"structure":[["timestamp","segment"]],"visuals":[""],"interview":[""],"verify":[""]}
-Keep each string under 30 words.`, { modelTier: "default" });
-      if (!r || !r.title) throw { code: "invalid_json" };
-      const arr = v => Array.isArray(v) ? v : [];
-      brief = { ...r, ...Object.fromEntries(["timeline", "stakeholders", "stats", "perspectives", "uncertain", "misconceptions", "angles", "hooks", "structure", "visuals", "interview", "verify"].map(k => [k, arr(r[k])])) };
-      briefKind = "ai"; persist(); renderBrief(); $("#stStatus").textContent = "Done. Every line is editable.";
-    } catch (e) { $("#stStatus").textContent = RS.aiErr(e.code); if (RS.aiFatal(e.code)) RS.killAi(); }
-    $("#stGen").disabled = !RS.ai();
-  }
-  function renderBrief() {
-    const b = brief, li = a => (a || []).map(x => `<li>${ct(Array.isArray(x) ? x.join(": ") : x)}</li>`).join("");
-    $("#stOut").innerHTML = `<div class="brief" id="briefDoc"><div class="brief-head"><span class="demo-tag">${briefKind === "ai" ? "AI-generated draft · verify every claim" : "Demo brief · written for this prototype"}</span><h2 contenteditable="true">${esc(b.title)}</h2><p contenteditable="true"><b>Central question:</b> ${ct(b.question)}</p></div>
-      ${[["Why it matters", `<p contenteditable="true">${ct(b.why)}</p>`], ["Overview", `<p contenteditable="true">${ct(b.overview)}</p>`], ["Timeline", `<ul contenteditable="true">${li(b.timeline)}</ul>`], ["Stakeholders", `<ul contenteditable="true">${li(b.stakeholders)}</ul>`], ["Key figures and their limits", `<ul contenteditable="true">${li(b.stats)}</ul>`],
-        ["Perspectives", `<div class="compare" style="border-width:1.5px"><table style="min-width:600px"><thead><tr><th>Who</th><th>Argument</th><th>Strongest evidence</th><th>Weakness</th></tr></thead><tbody>${(b.perspectives || []).map(p => `<tr>${[0, 1, 2, 3].map(i => `<td contenteditable="true">${ct(p[i] || "")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`],
-        ["Still uncertain", `<ul contenteditable="true">${li(b.uncertain)}</ul>`], ["Misconceptions to avoid", `<ul contenteditable="true">${li(b.misconceptions)}</ul>`], ["Underexplored angles", `<ul contenteditable="true">${li(b.angles)}</ul>`], ["Hook options", `<ul contenteditable="true">${li(b.hooks)}</ul>`],
-        ["Structure", `<div class="chapters" contenteditable="true">${(b.structure || []).map(s => `<div><span class="mono">${esc(s[0])}</span><span>${ct(s[1] || "")}</span></div>`).join("")}</div>`], ["Visuals", `<ul contenteditable="true">${li(b.visuals)}</ul>`], ["Interview questions", `<ul contenteditable="true">${li(b.interview)}</ul>`]].map(([h, x]) => `<div class="bsec"><h3>${h}</h3>${x}</div>`).join("")}
-      <div class="verify"><h3 class="mono" style="font-size:12px;letter-spacing:.12em;text-transform:uppercase">Verify before you publish</h3><ul contenteditable="true">${li(b.verify)}</ul></div></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn" type="button" id="bCopy">Copy brief as text</button><button class="btn" type="button" data-go="investigate" data-arg="genz||ask">Ask ${AI} follow-ups</button></div>`;
-    store.set("briefDone", true);
-    $("#bCopy").onclick = () => navigator.clipboard.writeText($("#briefDoc").innerText).then(() => toast("Brief copied"), () => toast("Your browser blocked copying"));
-  }
 
   /* ================= SHAMEBOARD ================= */
   let org = "alpha", fOut = "";

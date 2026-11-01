@@ -266,7 +266,7 @@ Reply with only JSON: {"headline":"","summary":"","claims":[{"text":"","by":""}]
   /* ---------- view ---------- */
   RS.V.board = {
     mount(el) {
-      el.innerHTML = `<div class="board-grid">
+      el.innerHTML = `<div class="inv-bar wb-invbar"><div class="inv-bar-in"><span class="wb-invlbl">Investigate</span><div class="itabs" role="tablist">${[["dossier", "Dossier"], ["map", "Mind map"], ["timeline", "Timeline"], ["notes", "My notes"]].map(([k, n]) => `<button type="button" role="tab" data-go="investigate" data-arg="|${k}" aria-selected="false">${n}</button>`).join("")}<button type="button" role="tab" aria-selected="true">Research board</button></div></div></div><div class="board-grid">
         <div class="board-main">
           <div class="wb-tools" role="toolbar" aria-label="Whiteboard tools">
             <button class="tool" type="button" data-tool="select" aria-pressed="true">Select</button><button class="tool" type="button" data-tool="pan" aria-pressed="false">Hand</button><button class="tool" type="button" data-tool="pen" aria-pressed="false">Pen</button><button class="tool" type="button" data-tool="connect" aria-pressed="false">Connect</button>

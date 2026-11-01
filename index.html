@@ -1417,6 +1417,73 @@ html.touring { overflow: hidden; }
 .daily-unrated, .daily-note { font-size: 13px; }
 @media (max-width: 760px) { .daily-sides, .daily-more-list { grid-template-columns: minmax(0, 1fr); } }
 
+/* Creator Studio: research + notes doc, then record with a Next-pointer prompter */
+.cs .page-head h1 { font-size: clamp(30px, 4.6vw, 48px); }
+.cs-steps { list-style: none; display: flex; gap: 8px; padding: 0; margin: 18px 0 20px; flex-wrap: wrap; }
+.cs-steps button { font: 800 12px var(--f); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); background: rgba(255,255,255,.04); border: 1px solid var(--edge); border-radius: 999px; padding: 10px 16px; cursor: pointer; }
+.cs-steps button[aria-current="step"] { background: var(--teal); color: #fff; border-color: transparent; }
+.cs-split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+.cs-res, .cs-doc { border: 1px solid var(--edge); border-radius: 16px; background: rgba(255,255,255,.025); padding: 16px; min-width: 0; }
+.cs-res { position: sticky; top: 90px; max-height: calc(100vh - 110px); overflow: auto; }
+.cs-rtabs { margin-bottom: 12px; }
+.cs-rbody { display: grid; gap: 10px; }
+.cs-h { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--teal-3); margin-top: 8px; }
+.cs-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 10px 0; border-top: 1px solid var(--edge); }
+.cs-item p { font-size: 14px; line-height: 1.45; color: var(--ink-2); margin: 0; }
+.cs-item p b { color: var(--ink); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; margin-right: 4px; }
+.cs-item a { color: var(--ink); }
+.cs-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+.cs-dochead { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.cs-dochead select { flex: 1; min-width: 160px; background: rgba(255,255,255,.05); color: var(--ink); border: 1px solid var(--edge); border-radius: 8px; padding: 8px 10px; }
+.cs-title { width: 100%; background: none; border: 0; color: var(--ink); font: 800 clamp(24px, 3vw, 32px)/1.2 var(--f); letter-spacing: -.02em; padding: 4px 0; outline: none; }
+.cs-title:focus, .cs-in:focus, .cs-line:focus, .cs-note:focus { box-shadow: 0 0 0 2px rgba(45,212,191,.35); border-radius: 6px; }
+.cs-lab { display: block; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 14px 0 6px; }
+.cs-lab .muted { text-transform: none; letter-spacing: 0; font-weight: 500; }
+.cs-in { width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--edge); color: var(--ink); border-radius: 8px; padding: 9px 11px; font-size: 15px; }
+.cs-points { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.cs-pt { display: grid; grid-template-columns: 16px 24px minmax(0, 1fr) auto; gap: 6px; align-items: start; padding: 8px 6px; border-radius: 10px; }
+.cs-pt:hover, .cs-pt:focus-within { background: rgba(255,255,255,.04); }
+.cs-pt.drag { opacity: .4; }
+.cs-grip { color: var(--ink-3); cursor: grab; padding-top: 9px; font-size: 12px; letter-spacing: -2px; opacity: 0; }
+.cs-pt:hover .cs-grip { opacity: 1; }
+.cs-num { font: 800 13px var(--f); color: var(--teal-3); padding-top: 9px; text-align: right; }
+.cs-ptbody { display: grid; gap: 4px; min-width: 0; }
+.cs-line { background: none; border: 0; color: var(--ink); font: 700 16px/1.4 var(--f); padding: 6px 4px; width: 100%; outline: none; }
+.cs-note { background: none; border: 0; color: var(--ink-2); font: 14px/1.5 var(--f); padding: 2px 4px; width: 100%; resize: vertical; outline: none; }
+.cs-src { font-size: 12px; color: var(--ink-3); padding-left: 4px; } .cs-src a { color: var(--teal-3); }
+.cs-ptacts { display: flex; gap: 2px; opacity: 0; } .cs-pt:hover .cs-ptacts, .cs-pt:focus-within .cs-ptacts { opacity: 1; }
+.cs-ptacts button { background: none; border: 0; color: var(--ink-3); cursor: pointer; font-size: 14px; padding: 6px; border-radius: 6px; } .cs-ptacts button:hover { background: rgba(255,255,255,.08); color: #fff; }
+.cs-add { background: none; border: 1px dashed var(--edge); color: var(--ink-3); border-radius: 10px; padding: 10px; width: 100%; text-align: left; cursor: pointer; font: 600 14px var(--f); margin-top: 6px; } .cs-add:hover { color: #fff; border-color: var(--teal-3); }
+.cs-docfoot { margin-top: 18px; } .cs-next { margin-left: auto; }
+.cs-rec { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 24px; align-items: start; }
+.cs-stage { display: grid; gap: 10px; position: sticky; top: 90px; }
+.cs-cvw { position: relative; }
+.cs-cvw canvas { width: 100%; aspect-ratio: 9 / 16; border-radius: 14px; background: #111; display: block; }
+.cs-count { position: absolute; inset: 0; display: grid; place-items: center; font: 800 120px var(--f); color: #fff; background: rgba(0,0,0,.45); border-radius: 14px; }
+.cs-count[hidden] { display: none; }
+.cs-ctl { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; } .cs-ctl label.btn { cursor: pointer; }
+.cs-msg { text-align: center; font-size: 12px; min-height: 1em; }
+.cs-side { display: grid; gap: 14px; }
+.cs-prompt { border: 1px solid var(--edge); border-radius: 16px; padding: 20px; background: rgba(255,255,255,.03); display: grid; gap: 10px; }
+.cs-now { font: 800 clamp(24px, 3.2vw, 36px)/1.25 var(--f); letter-spacing: -.01em; color: #fff; margin: 0; }
+.cs-pnote { width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--edge); color: var(--ink); border-radius: 10px; padding: 12px; font: 18px/1.55 var(--f); resize: vertical; }
+.cs-upnext { color: var(--ink-3); font-size: 14px; margin: 0; } .cs-upnext b { color: var(--ink-2); }
+.cs-dots { display: flex; gap: 6px; flex-wrap: wrap; } .cs-dots i { width: 22px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.12); } .cs-dots i.done { background: rgba(45,212,191,.45); } .cs-dots i.on { background: var(--teal-3); }
+.cs-nav { display: grid; grid-template-columns: auto 1fr; gap: 10px; }
+.cs-big { font-size: 16px !important; padding: 18px !important; }
+.cs-tip { font-size: 12.5px; margin: -6px 0 0; }
+.cs-set { display: grid; gap: 12px; border-top: 1px solid var(--edge); padding-top: 14px; }
+@media (max-width: 860px) {
+  .cs-split, .cs-rec { grid-template-columns: minmax(0, 1fr); }
+  .cs-res, .cs-stage { position: static; max-height: none; }
+  .cs-stage { max-width: 360px; width: 100%; justify-self: center; }
+  .cs-grip, .cs-ptacts { opacity: 1; }
+}
+.wb-invlbl { font: 800 11px var(--f); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); margin-right: 6px; }
+.wb-invbar + .board-grid { height: calc(100vh - 160px - env(safe-area-inset-top, 0px)); }
+@media (max-width: 860px) { .wb-invbar + .board-grid { height: auto; } }
+.cs-line, .cs-note { resize: none; overflow: hidden; display: block; }
+
 </style>
 
 <div class="intro" id="intro" aria-label="Intro video">
@@ -1436,19 +1503,17 @@ html.touring { overflow: hidden; }
     <button type="button" data-go="daily">DAILY</button>
     <button type="button" data-go="discover">DISCOVER</button>
     <button type="button" data-go="investigate">INVESTIGATE</button>
-    <button type="button" data-go="board">RESEARCH BOARD</button>
-    <button type="button" data-go="shame">MEDIA WATCH</button>
     <button type="button" data-go="reels">REELS</button>
     <button type="button" data-go="publications">PUBLICATIONS</button>
+    <button type="button" data-go="chat">CHAT</button>
     <details class="tmore" id="tmore">
       <summary>MORE ▾</summary>
       <div class="tmenu">
         <button type="button" data-tour="1">Take the tour<small>A walk through every feature</small></button>
+        <button type="button" data-go="studio">Creator Studio<small>Research, notes, then record your reel</small></button>
+        <button type="button" data-go="shame">Media Watch<small>Live fact-checks and corrections</small></button>
         <button type="button" data-go="how">How it works<small>Our sources, and how left and right are decided</small></button>
-        <button type="button" data-go="studio">Creator Studio<small>Video and reel research briefs</small></button>
-        <button type="button" data-go="chat">Chat<small>Talk about stories with friends</small></button>
         <button type="button" data-go="act">Take action<small>Example fundraisers and petitions (prototype)</small></button>
-        <button type="button" data-go="clip">Clip maker<small>Turn an article into a news clip</small></button>
         <button type="button" data-go="magazine">Magazine<small>Weekly print edition, delivered</small></button>
         <button type="button" data-go="kids">Kids comic &amp; quiz<small>Win goodies every week</small></button>
         <button type="button" data-go="mastery">News Mastery<small>Knowledge checks and story cards</small></button>
@@ -1513,7 +1578,6 @@ html.touring { overflow: hidden; }
   <section class="view" id="v-write" hidden></section>
   <section class="view" id="v-post" hidden style="padding-top:0"></section>
   <section class="view" id="v-chat" hidden style="padding-bottom:0"></section>
-  <section class="view" id="v-clip" hidden></section>
   <section class="view" id="v-kids" hidden style="padding-top:0"></section>
   <section class="view" id="v-magazine" hidden></section>
   <section class="view" id="v-library" hidden></section>
@@ -1547,22 +1611,23 @@ html.touring { overflow: hidden; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="rs-data.js?v=1793535412"></script>
-<script src="rs-news.js?v=1793535412"></script>
-<script src="rs-today.js?v=1793535412"></script>
-<script src="live/news.js?v=1793535412"></script>
-<script src="rs-art.js?v=1793535412"></script>
-<script src="rs-core.js?v=1793535412"></script>
-<script src="rs-lab.js?v=1793535412"></script>
-<script src="rs-board.js?v=1793535412"></script>
-<script src="rs-more.js?v=1793535412"></script>
-<script src="rs-video.js?v=1793535412"></script>
-<script src="rs-reels.js?v=1793535412"></script>
-<script src="rs-act.js?v=1793535412"></script>
-<script src="rs-live.js?v=1793535412"></script>
-<script src="rs-how.js?v=1793535412"></script>
-<script src="rs-daily.js?v=1793535412"></script>
-<script src="rs-tour.js?v=1793535412"></script>
-<script src="rt-motion.js?v=1793535412"></script>
+<script src="rs-data.js?v=1793576070"></script>
+<script src="rs-news.js?v=1793576070"></script>
+<script src="rs-today.js?v=1793576070"></script>
+<script src="live/news.js?v=1793576070"></script>
+<script src="rs-art.js?v=1793576070"></script>
+<script src="rs-core.js?v=1793576070"></script>
+<script src="rs-lab.js?v=1793576070"></script>
+<script src="rs-board.js?v=1793576070"></script>
+<script src="rs-more.js?v=1793576070"></script>
+<script src="rs-video.js?v=1793576070"></script>
+<script src="rs-reels.js?v=1793576070"></script>
+<script src="rs-act.js?v=1793576070"></script>
+<script src="rs-live.js?v=1793576070"></script>
+<script src="rs-how.js?v=1793576070"></script>
+<script src="rs-studio.js?v=1793576070"></script>
+<script src="rs-daily.js?v=1793576070"></script>
+<script src="rs-tour.js?v=1793576070"></script>
+<script src="rt-motion.js?v=1793576070"></script>
 <script>RS.boot();</script>
 </body></html>

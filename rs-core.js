@@ -192,9 +192,10 @@
   const ALIAS = {
     inv: a => ["investigate", `${String(a || "genz").split(":")[0]}|dossier|${String(a || "").split(":")[1] || ""}`],
     lab: a => ["investigate", a === "ask" ? "||ask" : `genz|map|${a || ""}`],
-    investigations: () => ["investigate", ""]
+    investigations: () => ["investigate", ""],
+    clip: a => ["studio", a ? "post:" + a : ""]
   };
-  const NAV_OF = { story: "discover", post: "publications", write: "publications", chat: "chat", clip: "publications", shame: "shame" };
+  const NAV_OF = { board: "investigate", story: "discover", post: "publications", write: "publications", chat: "chat", shame: "shame" };
   function show(name, arg) {
     if (ALIAS[name]) [name, arg] = ALIAS[name](arg);
     if (!V[name]) name = "home";
