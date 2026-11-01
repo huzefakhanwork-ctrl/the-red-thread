@@ -1390,6 +1390,33 @@ html.touring { overflow: hidden; }
 .tour-dots i { width: 14px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.15); }
 .tour-dots i.done { background: rgba(45,212,191,.5); } .tour-dots i.on { background: var(--teal-3); }
 
+/* The Red Thread Daily */
+.daily { max-width: 980px; margin: 0 auto; padding: 32px 16px 120px; display: grid; gap: 28px; }
+.daily-head h1 { font-size: clamp(36px, 6vw, 60px); font-weight: 800; letter-spacing: -.03em; line-height: 1.05; margin: 6px 0 8px; }
+.daily-story { display: grid; gap: 24px; background: rgba(255,255,255,.03); border: 1px solid var(--edge); border-radius: 20px; padding: clamp(18px, 3vw, 32px); }
+.daily-story h2 { font-size: clamp(26px, 3.6vw, 38px); font-weight: 800; line-height: 1.15; letter-spacing: -.02em; }
+.daily-story h3 { font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--teal-3); margin-bottom: 10px; }
+.daily-photo { height: clamp(180px, 32vw, 340px); border-radius: 14px; }
+.daily-facts { padding-left: 20px; display: grid; gap: 6px; color: var(--ink-2); line-height: 1.5; }
+.daily-sides { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+.daily-side { border: 1px solid var(--edge); border-radius: 14px; padding: 14px; display: grid; gap: 10px; align-content: start; }
+.daily-side h4 { font-size: 14px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.daily-left h4 { color: #FDA4AF; } .daily-centre h4 { color: #CBD5E1; } .daily-right h4 { color: #93C5FD; }
+.daily-side ul { list-style: none; display: grid; gap: 10px; padding: 0; }
+.daily-side a { display: grid; gap: 3px; color: var(--ink); text-decoration: none; font-size: 14.5px; line-height: 1.4; }
+.daily-side a b { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.daily-side a:hover span { text-decoration: underline; }
+.daily-blind { border-left: 3px solid #C8243F; padding: 4px 0 4px 16px; }
+.daily-blind p, .daily-take p { color: var(--ink-2); line-height: 1.6; font-size: 16px; }
+.daily-take { background: rgba(45,212,191,.06); border-radius: 14px; padding: 16px 18px; }
+.daily-acts { display: flex; flex-wrap: wrap; gap: 10px; }
+.daily-acts a.mbtn { text-decoration: none; display: inline-flex; align-items: center; }
+.daily-more-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.daily-more-list button { text-align: left; background: rgba(255,255,255,.03); border: 1px solid var(--edge); border-radius: 14px; padding: 14px; color: var(--ink); cursor: pointer; display: grid; gap: 6px; font: inherit; }
+.daily-more-list button b { font-size: 15px; line-height: 1.35; }
+.daily-unrated, .daily-note { font-size: 13px; }
+@media (max-width: 760px) { .daily-sides, .daily-more-list { grid-template-columns: minmax(0, 1fr); } }
+
 </style>
 
 <div class="intro" id="intro" aria-label="Intro video">
@@ -1406,6 +1433,7 @@ html.touring { overflow: hidden; }
 <header class="top">
   <button class="tlogo" type="button" data-go="home" aria-label="The Red Thread, home">THE <b>RED THREAD</b></button>
   <nav class="tnav" aria-label="Main">
+    <button type="button" data-go="daily">DAILY</button>
     <button type="button" data-go="discover">DISCOVER</button>
     <button type="button" data-go="investigate">INVESTIGATE</button>
     <button type="button" data-go="board">RESEARCH BOARD</button>
@@ -1474,6 +1502,7 @@ html.touring { overflow: hidden; }
     </div>
   </section>
   <section class="view" id="v-how" hidden></section>
+  <section class="view" id="v-daily" hidden></section>
   <section class="view" id="v-story" hidden></section>
   <section class="view lab" id="v-investigate" hidden style="padding-bottom:0"></section>
   <section class="view lab" id="v-board" hidden style="padding-bottom:0"></section>
@@ -1518,21 +1547,22 @@ html.touring { overflow: hidden; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="rs-data.js?v=1793392848"></script>
-<script src="rs-news.js?v=1793392848"></script>
-<script src="rs-today.js?v=1793392848"></script>
-<script src="live/news.js?v=1793392848"></script>
-<script src="rs-art.js?v=1793392848"></script>
-<script src="rs-core.js?v=1793392848"></script>
-<script src="rs-lab.js?v=1793392848"></script>
-<script src="rs-board.js?v=1793392848"></script>
-<script src="rs-more.js?v=1793392848"></script>
-<script src="rs-video.js?v=1793392848"></script>
-<script src="rs-reels.js?v=1793392848"></script>
-<script src="rs-act.js?v=1793392848"></script>
-<script src="rs-live.js?v=1793392848"></script>
-<script src="rs-how.js?v=1793392848"></script>
-<script src="rs-tour.js?v=1793392848"></script>
-<script src="rt-motion.js?v=1793392848"></script>
+<script src="rs-data.js?v=1793535412"></script>
+<script src="rs-news.js?v=1793535412"></script>
+<script src="rs-today.js?v=1793535412"></script>
+<script src="live/news.js?v=1793535412"></script>
+<script src="rs-art.js?v=1793535412"></script>
+<script src="rs-core.js?v=1793535412"></script>
+<script src="rs-lab.js?v=1793535412"></script>
+<script src="rs-board.js?v=1793535412"></script>
+<script src="rs-more.js?v=1793535412"></script>
+<script src="rs-video.js?v=1793535412"></script>
+<script src="rs-reels.js?v=1793535412"></script>
+<script src="rs-act.js?v=1793535412"></script>
+<script src="rs-live.js?v=1793535412"></script>
+<script src="rs-how.js?v=1793535412"></script>
+<script src="rs-daily.js?v=1793535412"></script>
+<script src="rs-tour.js?v=1793535412"></script>
+<script src="rt-motion.js?v=1793535412"></script>
 <script>RS.boot();</script>
 </body></html>
