@@ -1483,6 +1483,14 @@ html.touring { overflow: hidden; }
 .wb-invbar + .board-grid { height: calc(100vh - 160px - env(safe-area-inset-top, 0px)); }
 @media (max-width: 860px) { .wb-invbar + .board-grid { height: auto; } }
 .cs-line, .cs-note { resize: none; overflow: hidden; display: block; }
+.cs-final { width: 100%; aspect-ratio: 9 / 16; border-radius: 14px; background: #111; display: block; object-fit: contain; }
+.cs-share textarea { width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--edge); color: var(--ink); border-radius: 10px; padding: 12px; font: 14.5px/1.5 var(--f); resize: vertical; }
+.cs-dest { display: grid; gap: 10px; border: 1px solid var(--edge); border-radius: 14px; padding: 14px 16px; background: rgba(255,255,255,.03); }
+.cs-dest > div:first-child { display: grid; gap: 3px; } .cs-dest b { font-size: 16px; } .cs-dest span { color: var(--ink-3); font-size: 13.5px; line-height: 1.45; }
+.cs-dest select { background: rgba(255,255,255,.05); color: var(--ink); border: 1px solid var(--edge); border-radius: 8px; padding: 8px 10px; }
+.cs-warn { font-size: 13px; color: var(--amber); margin: 0; }
+.cs-share .cs-msg { text-align: left; font-size: 13px; }
+.cs-share .cs-msg a { color: var(--teal-3); }
 
 </style>
 
@@ -1611,23 +1619,23 @@ html.touring { overflow: hidden; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="rs-data.js?v=1793576879"></script>
-<script src="rs-news.js?v=1793576879"></script>
-<script src="rs-today.js?v=1793576879"></script>
-<script src="live/news.js?v=1793576879"></script>
-<script src="rs-art.js?v=1793576879"></script>
-<script src="rs-core.js?v=1793576879"></script>
-<script src="rs-lab.js?v=1793576879"></script>
-<script src="rs-board.js?v=1793576879"></script>
-<script src="rs-more.js?v=1793576879"></script>
-<script src="rs-video.js?v=1793576879"></script>
-<script src="rs-reels.js?v=1793576879"></script>
-<script src="rs-act.js?v=1793576879"></script>
-<script src="rs-live.js?v=1793576879"></script>
-<script src="rs-how.js?v=1793576879"></script>
-<script src="rs-studio.js?v=1793576879"></script>
-<script src="rs-daily.js?v=1793576879"></script>
-<script src="rs-tour.js?v=1793576879"></script>
-<script src="rt-motion.js?v=1793576879"></script>
+<script src="rs-data.js?v=1793577471"></script>
+<script src="rs-news.js?v=1793577471"></script>
+<script src="rs-today.js?v=1793577471"></script>
+<script src="live/news.js?v=1793577471"></script>
+<script src="rs-art.js?v=1793577471"></script>
+<script src="rs-core.js?v=1793577471"></script>
+<script src="rs-lab.js?v=1793577471"></script>
+<script src="rs-board.js?v=1793577471"></script>
+<script src="rs-more.js?v=1793577471"></script>
+<script src="rs-video.js?v=1793577471"></script>
+<script src="rs-reels.js?v=1793577471"></script>
+<script src="rs-act.js?v=1793577471"></script>
+<script src="rs-live.js?v=1793577471"></script>
+<script src="rs-how.js?v=1793577471"></script>
+<script src="rs-studio.js?v=1793577471"></script>
+<script src="rs-daily.js?v=1793577471"></script>
+<script src="rs-tour.js?v=1793577471"></script>
+<script src="rt-motion.js?v=1793577471"></script>
 <script>RS.boot();</script>
 </body></html>

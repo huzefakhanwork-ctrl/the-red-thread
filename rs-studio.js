@@ -195,9 +195,8 @@
   function setBusy(on) { $$("#csSet input, #csSet button, #csBack, #csCamOff, #csUpl").forEach(b => b.disabled = on); }
   function done(blob) {
     const d = doc(), clips = store.get("clips", []); clips.unshift({ postId: d.postId || "", at: new Date().toLocaleDateString("en-IN"), style: d.style, kind: cam ? "camera" : "clip" }); store.set("clips", clips.slice(0, 50));
-    msg("Done. Trim it, then download it or post it."); setIdx(0);
-    const p = d.postId && RS.allPosts().find(x => x.id === d.postId && x.mine);
-    RS.openVideoEditor(blob, { name: "red-thread-" + (d.title || "video").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40), aspect: "9:16", ...(p ? { useLabel: "📲 Post to Reels with my article", onUse: async b => { if (await RS.attachReel(p, b)) RS.show("reels", p.id); } } : {}) });
+    msg("Done. Trim it, then press “Next: post & share”."); setIdx(0);
+    RS.openVideoEditor(blob, { name: fileBase(d), aspect: "9:16", useLabel: "✓ Next: post & share", onUse: b => { lastBlob = b; go(3); } });
   }
   function recordView() {
     const d = doc(), el = $("#csBody");
@@ -242,19 +241,105 @@
     else if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); setIdx(idx - 1); }
   });
 
+  /* ---------- step 3: post & share ----------
+     The Red Thread Reels: posted here directly. Instagram (Reel or Story) and YouTube Shorts: Instagram has no way for a
+     website to post for a personal account, so on a phone we hand the finished file to the share menu (pick Instagram or
+     YouTube there) with the caption already copied; on a computer we download it and open the upload page. YouTube can
+     also upload directly once RT_CONFIG.youtubeClientId is set (a public Google OAuth client ID; never a secret). */
+  let lastBlob = null;
+  const fileBase = d => "red-thread-" + (d.title || "video").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+  const fileOf = (b, d) => new File([b], fileBase(d) + (/mp4/.test(b.type) ? ".mp4" : ".webm"), { type: b.type || "video/webm" });
+  const tags = "#news #india #genz #theredthread";
+  const captionOf = d => `${d.hook || d.title}\n\n${d.points.filter(p => p.line.trim()).slice(0, 4).map(p => "• " + p.line).join("\n")}\n\nFull story, with every side and the sources, on ${BRAND.name}.\n${tags}`;
+  const ytTitleOf = d => { const t = (d.title || d.hook || "News in 60 seconds").replace(/\s+/g, " ").trim(); return (t.length > 88 ? t.slice(0, 85) + "…" : t) + " #Shorts"; };
+  const isPhone = () => matchMedia("(pointer: coarse)").matches;
+  const copy = t => navigator.clipboard ? navigator.clipboard.writeText(t).then(() => true, () => false) : Promise.resolve(false);
+  async function handOff(where, d) {
+    const f = fileOf(lastBlob, d), text = where === "yt" ? ytTitleOf(d) + "\n\n" + $("#csCap").value : $("#csCap").value, copied = await copy(text);
+    if (isPhone() && navigator.canShare && navigator.canShare({ files: [f] })) {
+      try { await navigator.share({ files: [f] }); shareMsg(where === "yt" ? `Pick YouTube, then “Create a Short”. ${copied ? "The title and description are copied: paste them in." : ""}` : `Pick Instagram, then ${where === "story" ? "“Story”" : "“Reel”"}. ${copied ? "Your caption is copied: paste it in." : ""}`); }
+      catch (e) { if (e.name !== "AbortError") shareMsg("Sharing didn’t open. Use Download, then post it from the app."); }
+      return;
+    }
+    await RS.saveBlob(f, f.name);
+    if (where === "story") { shareMsg(`Downloaded. Instagram Stories can only be posted from the phone app: send the video to your phone, then in Instagram tap + → Story.${copied ? " Caption copied." : ""}`); return; }
+    window.open(where === "yt" ? "https://studio.youtube.com/" : "https://www.instagram.com/", "_blank", "noopener");
+    shareMsg(where === "yt" ? `Downloaded. In YouTube Studio press Create → Upload video and pick the file. Vertical and under 3 minutes means it becomes a Short.${copied ? " Title and description copied." : ""}` : `Downloaded. On Instagram press + Create → Reel and pick the file.${copied ? " Caption copied: paste it in." : ""}`);
+  }
+  const shareMsg = t => { const m = $("#csShareMsg"); if (m) m.textContent = t; };
+  async function postHere(d) {
+    let p = d.postId && RS.allPosts().find(x => x.id === d.postId && x.mine);
+    if (!p) {
+      const pts = d.points.filter(x => x.line.trim());
+      p = { id: "u" + Date.now().toString(36), pub: "mine", title: d.title || d.hook || "My news reel", dek: d.hook && d.hook !== d.title ? d.hook : (pts[0] || {}).line || "", date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }), format: "Reel", srcCount: pts.filter(x => x.src).length, sources: [], storyId: d.story || "",
+        body: pts.map(x => `<p><b>${esc(x.line)}</b>${x.note ? " " + esc(x.note) : ""}${x.src ? ` <span class="muted">(${x.link ? `<a href="${esc(x.link)}" target="_blank" rel="noopener noreferrer">${esc(x.src)}</a>` : esc(x.src)})</span>` : ""}</p>`).join("") };
+      store.set("posts", [p, ...store.get("posts", [])]); store.set("published", true);
+      await RS.publishShared(p); d.postId = p.id; touch();
+    }
+    if (await RS.attachReel(p, lastBlob)) { $("#csHere").textContent = "✓ Posted"; $("#csHere").disabled = true; $("#csHereGo").hidden = false; $("#csHereGo").dataset.arg = p.id; }
+  }
+  // direct YouTube upload with the creator's own Google sign-in (Google Identity Services token flow, no server)
+  const ytId = () => (window.RT_CONFIG || {}).youtubeClientId || "";
+  const loadGis = () => window.google?.accounts?.oauth2 ? Promise.resolve() : new Promise((res, rej) => { const s = document.createElement("script"); s.src = "https://accounts.google.com/gsi/client"; s.onload = res; s.onerror = rej; document.head.append(s); });
+  async function ytUpload(d) {
+    const btn = $("#csYtUp"); btn.disabled = true; shareMsg("Opening Google sign-in…");
+    try {
+      await loadGis();
+      const token = await new Promise((res, rej) => google.accounts.oauth2.initTokenClient({ client_id: ytId(), scope: "https://www.googleapis.com/auth/youtube.upload", callback: r => r.access_token ? res(r.access_token) : rej(r), error_callback: rej }).requestAccessToken());
+      shareMsg("Uploading to YouTube…");
+      const meta = { snippet: { title: ytTitleOf(d), description: $("#csCap").value, categoryId: "25" }, status: { privacyStatus: $("#csYtPriv").value, selfDeclaredMadeForKids: false } };
+      const bd = "rt" + Date.now(), body = new Blob([`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${bd}\r\nContent-Type: ${lastBlob.type || "video/webm"}\r\n\r\n`, lastBlob, `\r\n--${bd}--`]);
+      const r = await fetch("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status", { method: "POST", headers: { Authorization: "Bearer " + token, "Content-Type": "multipart/related; boundary=" + bd }, body });
+      const j = await r.json();
+      if (!r.ok) throw new Error((j.error && j.error.message) || "Upload failed");
+      const url = "https://youtube.com/shorts/" + j.id;
+      $("#csShareMsg").innerHTML = `Uploaded. <a href="${url}" target="_blank" rel="noopener noreferrer">Open your Short ↗</a> (it can take a few minutes to process).`;
+    } catch (e) { shareMsg("YouTube upload didn’t finish: " + ((e && (e.message || e.type || e.error)) || "sign-in was closed") + ". You can still use “Share to YouTube”."); }
+    btn.disabled = false;
+  }
+  function shareView() {
+    const d = doc(), el = $("#csBody"), url = URL.createObjectURL(lastBlob), webm = !/mp4/.test(lastBlob.type);
+    el.innerHTML = `<div class="cs-rec cs-share">
+      <div class="cs-stage"><video class="cs-final" src="${url}" controls playsinline loop></video>
+        <div class="cs-ctl"><button class="btn" type="button" id="csDl">⬇ Download</button><button class="btn" type="button" id="csRe">↺ Record again</button></div></div>
+      <div class="cs-side">
+        <div class="field"><label for="csCap">Caption (copied for you when you share)</label><textarea id="csCap" rows="7">${esc(captionOf(d))}</textarea></div>
+        ${webm ? `<p class="cs-warn">This browser saved the video as WebM. Instagram and YouTube work best with MP4: if an app refuses it, record again in the latest Chrome, Edge or Safari.</p>` : ""}
+        <div class="cs-dest"><div><b>The Red Thread Reels</b><span>${d.postId ? "Posted with your article." : "Posted as its own story, with your pointers and sources as the text."}</span></div>
+          <div class="cs-row"><button class="btn y" type="button" id="csHere">Post to Reels</button><button class="btn sm" type="button" id="csHereGo" data-go="reels" hidden>Watch it →</button></div></div>
+        <div class="cs-dest"><div><b>Instagram</b><span>${isPhone() ? "Opens your share menu with the video: pick Instagram, then Reel or Story." : "Downloads the video and opens Instagram. Stories can only be posted from the phone app."}</span></div>
+          <div class="cs-row"><button class="btn" type="button" data-share="reel">Instagram Reel</button><button class="btn" type="button" data-share="story">Instagram Story</button></div></div>
+        <div class="cs-dest"><div><b>YouTube Shorts</b><span>${ytId() ? "Upload straight to your channel after signing in with Google, or share it yourself." : isPhone() ? "Opens your share menu: pick YouTube, then Create a Short." : "Downloads the video and opens YouTube Studio to upload it."}</span></div>
+          <div class="cs-row">${ytId() ? `<select id="csYtPriv" aria-label="Who can see it"><option value="public">Public</option><option value="unlisted">Unlisted</option><option value="private">Private</option></select><button class="btn y" type="button" id="csYtUp">Upload to YouTube</button>` : ""}<button class="btn" type="button" data-share="yt">Share to YouTube</button></div></div>
+        <p class="mono muted cs-msg" id="csShareMsg" aria-live="polite"></p>
+        <button class="btn" type="button" id="csBack3">← Edit my notes</button>
+      </div></div>`;
+    $("#csDl").onclick = () => { const f = fileOf(lastBlob, d); RS.saveBlob(f, f.name); };
+    $("#csRe").onclick = () => go(2);
+    $("#csBack3").onclick = () => go(1);
+    $("#csHere").onclick = () => postHere(d);
+    $$("[data-share]").forEach(b => b.onclick = () => handOff(b.dataset.share, d));
+    if ($("#csYtUp")) $("#csYtUp").onclick = () => ytUpload(d);
+  }
+
+  // open Post & share for a finished video from anywhere
+  RS.studioShare = blob => { lastBlob = blob; RS.show("studio"); go(3); };
+
   /* ---------- the page ---------- */
   function go(n) {
     if (recording) return;
-    step = n; if (n === 1) { stopCam(); cancelAnimationFrame(rafId); rafId = 0; }
+    if (n === 3 && !lastBlob) { toast("Record a video first"); return; }
+    step = n; if (n !== 2) { stopCam(); cancelAnimationFrame(rafId); rafId = 0; }
     $$("[data-step]").forEach(b => b.setAttribute("aria-current", +b.dataset.step === n ? "step" : "false"));
     if (n === 1) { $("#csBody").innerHTML = `<div class="cs-split"><section class="cs-res" id="csRes" aria-label="Research"></section><section class="cs-doc" id="csDoc" aria-label="Your notes"></section></div>`; research(); renderDoc(); }
+    else if (n === 3) shareView();
     else { persist(); recordView(); }
     window.scrollTo({ top: 0 });
   }
   RS.V.studio = {
     mount(el) {
-      el.innerHTML = `<div class="wrap cs"><div class="page-head"><span class="eyebrow">Creator Studio</span><h1>Research it. Note it. Record it.</h1><p>Pull facts and headlines from any story or your Research Board into your notes, then record yourself while your pointers pop up on screen, one press of Next at a time.</p></div>
-        <ol class="cs-steps"><li><button type="button" data-step="1">1 · Research &amp; notes</button></li><li><button type="button" data-step="2">2 · Record</button></li></ol>
+      el.innerHTML = `<div class="wrap cs"><div class="page-head"><span class="eyebrow">Creator Studio</span><h1>Research it. Note it. Record it. Share it.</h1><p>Pull facts and headlines from any story or your Research Board into your notes, record yourself while your pointers pop up on screen one press of Next at a time, then post it to Reels, Instagram and YouTube Shorts.</p></div>
+        <ol class="cs-steps"><li><button type="button" data-step="1">1 · Research &amp; notes</button></li><li><button type="button" data-step="2">2 · Record</button></li><li><button type="button" data-step="3">3 · Post &amp; share</button></li></ol>
         <div id="csBody"></div></div>`;
       $$("[data-step]", el).forEach(b => b.onclick = () => { if (+b.dataset.step === 2 && !doc().points.some(p => p.line.trim())) { toast("Add at least one pointer first"); return; } go(+b.dataset.step); });
     },
@@ -264,7 +349,7 @@
       if (k === "post" && id && importPost(id)) return go(2);
       if (k === "story" && id) { storyId = id; tab = "story"; }
       if (!docs.length) newDoc();
-      go(step === 2 && doc().points.some(p => p.line.trim()) ? 2 : 1);
+      go(step === 3 && lastBlob ? 3 : step === 2 && doc().points.some(p => p.line.trim()) ? 2 : 1);
     }
   };
 })();

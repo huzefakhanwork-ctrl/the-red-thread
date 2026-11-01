@@ -2,6 +2,8 @@
    Everything here is ILLUSTRATIVE: hypothetical events, invented outlets, invented documents.
    Nothing in this file describes a real news event, publisher or person. */
 
+// Public settings. youtubeClientId: a Google OAuth *client ID* (public, not a secret) that switches on direct YouTube Shorts uploads in Creator Studio.
+window.RT_CONFIG = { youtubeClientId: "" };
 window.BRAND = { name: "The Red Thread", short: "Red Thread", ai: "Dhaga", tagline: "Pull the thread. Find the story." };
 
 window.CASE = {
