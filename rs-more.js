@@ -371,7 +371,7 @@
     ctx.strokeStyle = "#FF2D55"; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(0, 200); ctx.bezierCurveTo(240, 120 + Math.sin(t * 2) * 30, 480, 320, 720, 180); ctx.stroke();
     ctx.fillStyle = "#ffffff30"; ctx.fillRect(0, 0, W, 10); ctx.fillStyle = acc; ctx.fillRect(0, 0, W * Math.min(1, t / total), 10);
     ctx.fillStyle = "#F5F1E8"; ctx.fillRect(36, 44, 300, 64); ctx.fillStyle = "#111"; ctx.font = "italic 38px 'Instrument Serif', Georgia, serif"; ctx.fillText(BRAND.name, 52, 89);
-    const blink = c.style === "breaking" ? (Math.floor(t * 2) % 2 ? 1 : .75) : 1; ctx.globalAlpha = blink; ctx.fillStyle = acc; ctx.fillRect(360, 44, 230, 64); ctx.globalAlpha = 1; ctx.fillStyle = c.style === "myth" ? "#111" : "#fff"; ctx.font = "800 30px 'Hanken Grotesk', Arial, sans-serif"; ctx.fillText(CLIP_STYLES[c.style][0].toUpperCase(), 380, 88);
+    const blink = c.style === "breaking" ? (Math.floor(t * 2) % 2 ? 1 : .75) : 1; const badge = CLIP_STYLES[c.style][0].toUpperCase(); ctx.font = "800 30px 'Hanken Grotesk', Arial, sans-serif"; const bw = Math.min(W - 396, ctx.measureText(badge).width + 40); ctx.globalAlpha = blink; ctx.fillStyle = acc; ctx.fillRect(360, 44, bw, 64); ctx.globalAlpha = 1; ctx.fillStyle = c.style === "myth" ? "#111" : "#fff"; ctx.fillText(badge, 380, 88, bw - 40);
     const ease = x => 1 - Math.pow(1 - Math.min(1, x), 3), a = ease(lt * 4);
     ctx.save(); ctx.globalAlpha = a; ctx.translate(0, (1 - a) * 60);
     if (cam) {
