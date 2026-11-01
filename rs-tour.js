@@ -21,9 +21,9 @@
     { view: "shame", sel: ".fcfeed", title: "Media watch", text: "Under More: live fact-checks from India's fact-checkers, and how outlets handle their corrections." },
     { view: "reels", sel: ".reel-frame", title: "Reels", text: "Short news videos you swipe through. Every reel links to the full article behind it." },
     { view: "publications", sel: ".pc-body", title: "Publications", text: "Articles by independent writers. Hit \"New article\" to write your own: Dhaga can draft it with you from the sources, and you can record a reel to go with it." },
-    { view: "studio", sel: ".cs-steps", title: "Creator Studio", text: "Under More, made for creators. Step 1: pull facts and headlines from any story or your Research Board into a notes doc of pointers. Step 2: record yourself while each pointer pops up on screen when you press Next." },
+    { view: "studio", sel: ".cs-steps", title: "Creator Studio", text: "Made for creators. Step 1: pull facts and headlines from any story or your Research Board into a notes doc of pointers. Step 2: record yourself while each pointer pops up on screen when you press Next." },
     { view: "home", sel: "#aiBtn", title: "Ask AI", text: "Ask Dhaga, our AI assistant, anything about a story, on any page. It answers from the sources and shows them." },
-    { view: "home", sel: "#tmore summary", title: "Find it all under More", text: "How it works (our sources, and how left and right are decided), Creator Studio, Media Watch, My Library and more. Enjoy exploring." }
+    { view: "home", sel: "#tmore summary", title: "Find it all under More", text: "How it works (our sources, and how left and right are decided), Media Watch, How it works, My Library and more. Enjoy exploring." }
   ];
   let i = 0, open = false, el = null, busy = false;
   const target = s => { const t = s.find ? s.find() : s.sel ? $(`#v-${s.view} ${s.sel}`) || $(s.sel) : null; if (!t) return null; const r = t.getBoundingClientRect(); return r.width > 0 && r.height > 0 ? t : null; };

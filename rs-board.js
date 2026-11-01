@@ -241,7 +241,7 @@ Reply with only JSON: {"headline":"","summary":"","claims":[{"text":"","by":""}]
     $("#wObjs").innerHTML = [...zones, ...rest].map(objHtml).join("");
     drawLinks();
     $("#wbEmpty").hidden = B.objs.length > 0;
-    $("#wbDel").disabled = !sel.size;
+    $("#wbDel").disabled = !sel.size; $("#wbStudio").disabled = !B.objs.some(o => sel.has(o.id) && o.title && !["zone", "heading"].includes(o.type));
     $("#wbCount").textContent = `${B.objs.length} items · ${B.links.length} links`;
   }
   function drawLinks() {
@@ -277,7 +277,7 @@ Reply with only JSON: {"headline":"","summary":"","claims":[{"text":"","by":""}]
             <button class="tool linktool" type="button" id="wbLink">🔗 Paste a link</button>
             <select id="wbTpl" aria-label="Add a template"><option value="">Templates</option>${Object.entries(TEMPLATES).map(([k, [l]]) => `<option value="${k}">${l}</option>`).join("")}</select>
             <span class="tsep"></span>
-            <button class="tool" type="button" id="wbUndo" disabled title="Undo (Ctrl+Z)">Undo</button><button class="tool" type="button" id="wbRedo" disabled title="Redo (Ctrl+Y)">Redo</button><button class="tool" type="button" id="wbDel" disabled title="Delete (Del)">Delete</button>
+            <button class="tool" type="button" id="wbUndo" disabled title="Undo (Ctrl+Z)">Undo</button><button class="tool" type="button" id="wbRedo" disabled title="Redo (Ctrl+Y)">Redo</button><button class="tool" type="button" id="wbDel" disabled title="Delete (Del)">Delete</button><button class="tool" type="button" id="wbStudio" disabled title="Add the selected cards to your Creator Studio notes">+ Creator Studio</button>
             <span class="tsep"></span>
             <button class="tool" type="button" id="wbOut" aria-label="Zoom out">−</button><button class="tool" type="button" id="wbFit">Fit</button><button class="tool" type="button" id="wbIn" aria-label="Zoom in">+</button>
             <span class="tsep"></span>
@@ -335,6 +335,7 @@ Reply with only JSON: {"headline":"","summary":"","claims":[{"text":"","by":""}]
       document.addEventListener("paste", e => { if ($("#v-board").hidden || e.target.closest("input, textarea, [contenteditable=true]")) return; const t = (e.clipboardData && e.clipboardData.getData("text")) || ""; if (/^\s*https?:\/\/\S+\s*$/.test(t)) { e.preventDefault(); openLink(t.trim()); toast("Link pasted: build a board from it?"); } });
       $("#wbTpl").onchange = e => { const t = e.target.value; e.target.value = ""; if (t) applyTemplate(t); };
       $("#wbUndo").onclick = undo; $("#wbRedo").onclick = redo; $("#wbDel").onclick = delSel;
+      $("#wbStudio").onclick = () => { const picked = B.objs.filter(o => sel.has(o.id) && o.title && !["zone", "heading"].includes(o.type)).sort((a, b) => a.y - b.y || a.x - b.x); if (picked.length) RS.studioAdd(picked.map(o => ({ line: o.title, note: o.text || "" })), "Research Board"); };
       $("#wbIn").onclick = () => zoom(1.2); $("#wbOut").onclick = () => zoom(1 / 1.2); $("#wbFit").onclick = fitBoard;
       $("#wbPublish").onclick = () => { if (B.objs.filter(o => o.type !== "zone" && o.type !== "heading").length < 3) { toast("Add at least 3 items to the board before publishing"); return; } fmt = "article"; editMode = false; const dr = draft(); RS.openEditor({ storyId: "genz", title: dr.title, subtitle: dr.dek, html: renderDraft(dr).replace(/^<div class="body">/, "").replace(/<\/div>$/, "") }); };
       const toWorld = e => { const r = wb.getBoundingClientRect(); return [(e.clientX - r.left - B.view.x) / B.view.k, (e.clientY - r.top - B.view.y) / B.view.k]; };

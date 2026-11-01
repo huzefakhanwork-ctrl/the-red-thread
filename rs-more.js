@@ -108,16 +108,16 @@
         <div class="field"><label>Audience</label><div class="tabs"><button type="button" aria-pressed="true">Everyone</button></div></div>
         <label class="chk"><input type="checkbox" id="ppEmail" checked> Email it to my subscribers (demo: nothing is sent)</label>
         <div class="field ppreel"><label>Add a reel <span class="muted" style="font-weight:500">(optional)</span></label>
-          <p class="muted" style="font-size:13px;margin:0">Turn what you wrote into a news-style reel: use the animation, record yourself with the pop-ups on screen, or add them to a video you shot. It shows up in Reels with a button to read the full story.</p>
-          <div class="ppvid" id="ppVidBtns"><button class="btn y" type="button" id="ppStudio">🎬 Open the reel studio</button></div>
+          <p class="muted" style="font-size:13px;margin:0">We publish your article, then open Creator Studio with your article’s points as pointers. Record yourself, press Next as you talk, and the reel is posted with your article in Reels.</p>
+          <div class="ppvid" id="ppVidBtns"><button class="btn y" type="button" id="ppStudio">🎬 Publish and make my reel in Creator Studio</button></div>
           <div id="ppVidPrev"></div></div>
-        <label class="chk"><input type="checkbox" id="ppClip"> Open the news clip maker straight after</label>
         <div style="display:flex;gap:8px"><button class="btn" type="button" id="ppBack">Keep editing</button><button class="btn r" type="button" id="ppGo">Publish now</button></div>`;
       let reel = null;
       const showReel = () => { const box = $("#ppVidPrev"); if (!reel) { box.innerHTML = ""; $("#ppVidBtns").hidden = false; $("#ppGo").textContent = "Publish now"; return; }
         box.innerHTML = `<div class="ppvidprev"><video src="${URL.createObjectURL(reel)}" muted playsinline loop autoplay></video><div><b>Reel attached</b><span class="muted">${(reel.size / 1048576).toFixed(1)} MB</span><button class="linkish" type="button" id="ppVidX">Remove</button></div></div>`;
         $("#ppVidBtns").hidden = true; $("#ppGo").textContent = "Publish article + reel"; $("#ppVidX").onclick = () => { reel = null; showReel(); }; };
-      $("#ppStudio").onclick = () => RS.reelStudio({ title, dek: $("#edSub").innerText.trim(), html: $("#edBody").innerHTML.replace(/ contenteditable="(true|false)"/g, ""), onDone: b => { reel = b; showReel(); } });
+      let toStudio = false;
+      $("#ppStudio").onclick = () => { toStudio = true; $("#ppGo").click(); };
       const close = () => { p.hidden = true; $("#scrim").hidden = true; };
       $("#ppBack").onclick = close;
       $("#ppGo").onclick = async () => {
@@ -126,7 +126,7 @@
         const post = { id: draft.editing || "u" + Date.now().toString(36), pub: "mine", title, dek: $("#edSub").innerText.trim(), date: today(), format: "Article", srcCount: srcs.length, sources: srcs, mastery: L.lvl ? RS.LEVELS[L.lvl - 1] : "", body: html, storyId: draft.storyId };
         let posts = store.get("posts", []).filter(x => x.id !== post.id); posts.unshift(post); store.set("posts", posts); store.set("published", true);
         draft = null; store.set("draft", null);
-        const clipNext = $("#ppClip").checked;
+        const clipNext = toStudio;
         await RS.publishShared(post);
         if (reel) await RS.attachReel(post, reel);
         RS.published(post, clipNext);
@@ -222,6 +222,7 @@
     catch { toast("Published here, but it couldn't be shared with friends. Try publishing again."); return false; }
   };
   RS.published = (post, clipNext) => {
+    if (clipNext) { show("studio", "post:" + post.id); sig("published"); toast("Your story is live. Now record its reel: press Next as you talk."); return; }
     const pub = RS.myPub(), link = RS.shareLink(post.id), live = !!db, p = $("#pubOk") || document.body.appendChild(Object.assign(document.createElement("div"), { className: "pubpanel", id: "pubOk", role: "dialog" }));
     p.hidden = false; $("#scrim").hidden = false;
     p.innerHTML = `<button class="pubx" type="button" id="ppX" aria-label="Close">×</button><div class="pubok"><span class="pubok-i" aria-hidden="true">✓</span><h2 class="display" style="font-size:32px">Your story is live</h2>
@@ -238,7 +239,7 @@
     if ($("#ppNative")) $("#ppNative").onclick = () => navigator.share({ title: post.title, text: post.dek || post.title, url: link }).catch(() => { });
     ["#ppView", "#ppClipGo", "#ppReelGo"].forEach(s => $(s) && $(s).addEventListener("click", close));
     $("#scrim").addEventListener("click", close, { once: true });
-    show(clipNext ? "clip" : "post", post.id);
+    clipNext ? show("studio", "post:" + post.id) : show("post", post.id);
     sig("published");
   };
   RS.V.chat = {

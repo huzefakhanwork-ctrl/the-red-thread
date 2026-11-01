@@ -18,12 +18,19 @@
   function persist() { store.set("sdocs", docs.slice(0, 30)); store.set("sdocCur", cur); }
   const touch = () => { doc().updated = Date.now(); clearTimeout(saveT); saveT = setTimeout(persist, 300); };
   const addPoint = (p, quiet) => { const d = doc(); d.points.push({ line: "", note: "", src: "", link: "", ...p }); touch(); if (step === 1) renderDoc(); if (!quiet) toast("Added to your notes"); };
+  // add pointers to the open Creator Studio doc from anywhere (mind map, Research Board, notes)
+  RS.studioAdd = (pts, from) => {
+    const d = docs.find(x => x.id === cur) || newDoc();
+    pts.filter(p => p && p.line).forEach(p => d.points.push({ line: String(p.line).slice(0, 220), note: p.note || "", src: p.src || "", link: p.link || "" }));
+    touch(); persist(); if (step === 1 && !$("#v-studio").hidden) renderDoc();
+    toast(`${pts.length > 1 ? pts.length + " pointers" : "Pointer"} added to Creator Studio${from ? " from your " + from : ""}`, "Open Studio", () => RS.show("studio"));
+  };
   const liveStories = () => STORIES.filter(s => (s.articles || []).length || s.sum).sort((a, b) => (b.outletCount || 0) - (a.outletCount || 0)).slice(0, 60);
 
   /* ---------- step 1: research ---------- */
   function research() {
     const box = $("#csRes"); if (!box) return;
-    const tabs = [["story", "News stories"], ["board", "My Research Board"], ["posts", "My articles"]];
+    const tabs = [["story", "News stories"], ["board", "My Research Board"], ["notes", "Mind map & notes"], ["posts", "My articles"]];
     let body = "";
     if (tab === "story") {
       const list = liveStories(), s = list.find(x => x.id === storyId) || list[0];
@@ -43,6 +50,11 @@
       body = `<p class="muted">Everything you’ve pinned on your Research Board. Add any card to your notes.</p>
         ${cards.length ? cards.slice(0, 40).map(o => `<div class="cs-item"><p><b>${esc(o.title)}</b>${o.text ? `<br><span class="muted">${esc(String(o.text).slice(0, 160))}</span>` : ""}</p><button class="btn sm" type="button" data-addp="${esc(JSON.stringify({ line: o.title, note: o.text || "" }))}">+ Pointer</button></div>`).join("") : `<p class="muted">Your board is empty.</p>`}
         <div class="cs-row"><button class="btn sm y" type="button" data-go="board">Open my Research Board</button></div>`;
+    } else if (tab === "notes") {
+      const all = [...STORIES, ...(window.SAMPLE_STORIES || [])].flatMap(x => store.get("notes:" + x.id, []).map(n => ({ ...n, story: x.title })));
+      body = `<p class="muted">Notes you saved in Investigate, including thoughts pinned to a mind map.</p>
+        ${all.length ? all.slice().reverse().slice(0, 50).map(n => `<div class="cs-item"><p>${esc(n.text)}<br><span class="muted">${esc(n.story.slice(0, 70))}</span></p><button class="btn sm" type="button" data-addp="${esc(JSON.stringify({ line: n.text }))}">+ Pointer</button></div>`).join("") : `<p class="muted">No notes yet. In Investigate, use “+ note” or “Add to my notes”.</p>`}
+        <div class="cs-row"><button class="btn sm y" type="button" data-go="investigate" data-arg="|map">Open the mind map</button></div>`;
     } else {
       const posts = RS.allPosts().filter(p => p.mine);
       body = posts.length ? posts.map(p => `<div class="cs-item"><p><b>${esc(p.title)}</b><br><span class="muted">${esc(p.dek || "")}</span></p><button class="btn sm" type="button" data-imp="${esc(p.id)}">Use its points</button></div>`).join("")
