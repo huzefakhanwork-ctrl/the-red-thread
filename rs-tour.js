@@ -87,7 +87,7 @@
   window.RT_TOUR = {
     start,
     // after the intro: first-time visitors on the home page get the tour
-    auto() { if (seen || open) return; const home = $("#v-home"); if (!home || home.hidden || window.scrollY > 40) return; start(); }
+    auto() { if (seen || open || window.RT_DEEP) return; const home = $("#v-home"); if (!home || home.hidden || window.scrollY > 40) return; start(); }
   };
   document.addEventListener("click", e => { if (e.target.closest("[data-tour]")) { e.preventDefault(); $("#tmore") && ($("#tmore").open = false); start(); } });
 })();

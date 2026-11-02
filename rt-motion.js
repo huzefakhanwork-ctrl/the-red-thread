@@ -33,11 +33,11 @@
   function endIntro() {
     if (introDone) return; introDone = true;
     try { iv.pause(); } catch {}
-    if (!hasG || RM) { unlock(); introEl.remove(); return; }
+    if (!hasG || RM) { unlock(); introEl.remove(); openDeep(); return; }
     snapshotHalves(); $("#halves").hidden = false; $("#iknot").hidden = false; iv.style.visibility = "hidden"; introEl.style.background = "transparent"; $("#soundBtn").hidden = true;
     const ks = { d: 0, u: 0 }, dk = () => drawKnot(ks.d, ks.u); dk();
     gsap.set("#mstage", { scale: 1.18, transformOrigin: "50% 50%" });
-    outro = gsap.timeline({ onComplete: () => { introEl.remove(); gsap.set("#mstage", { clearProps: "transform" }); ScrollTrigger.refresh(); } })
+    outro = gsap.timeline({ onComplete: () => { introEl.remove(); gsap.set("#mstage", { clearProps: "transform" }); ScrollTrigger.refresh(); openDeep(); } })
       .to(".ibar", { opacity: 0, duration: .25 }, 0)
       .fromTo("#seam", { scaleX: 0 }, { scaleX: 1, duration: .35, ease: "power2.out" }, 0)
       .to("#halfTop", { yPercent: -100, duration: 1.1, ease: "power4.inOut" }, .3)
@@ -53,8 +53,13 @@
       .to("#mstage", { scale: 1, duration: 1.4, ease: "power3.out" }, 3.55)
       .from("#headline > *", { y: 40, opacity: 0, stagger: .12, duration: .9, ease: "power3.out" }, 3.9);
   }
-  // only the home page gets the intro; a deep link (#story-…, #chat) skips it
-  if ((location.hash || "").length > 1) { introDone = true; unlock(); introEl.remove(); }
+  // every visit plays the intro and lands on the hero. A shared link (#story-…, #club-…, #daily) opens its page right after.
+  // Sign-in links from emails (#access_token=…) skip the intro so the sign-in can finish.
+  const AUTH = /access_token=|error_description=/.test(location.hash);
+  const DEEP = !AUTH && (location.hash || "").length > 1 ? location.hash.slice(1) : "";
+  if (DEEP) { window.RT_DEEP = DEEP; history.replaceState(null, "", location.pathname + location.search); }
+  const openDeep = () => { if (!DEEP) return; const go = () => { const mm = DEEP.match(/^(story|post|club)-(.+)$/); (window.RT_GO || RS.show)(mm ? mm[1] : DEEP, mm ? mm[2] : undefined); }; setTimeout(go, 1600); };
+  if (AUTH) { introDone = true; unlock(); introEl.remove(); }
   else {
     iv.addEventListener("timeupdate", () => {
       if (iv.duration && $("#ibar")) $("#ibar").style.width = Math.min(100, iv.currentTime / SPLIT_AT * 100) + "%";
