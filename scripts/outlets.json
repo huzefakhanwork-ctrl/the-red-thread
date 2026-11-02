@@ -1,5 +1,5 @@
 {
-  "_note": "Lean ratings are PROVISIONAL editorial estimates based on how these outlets are commonly characterised in public media-bias discussions. They have not been reviewed by a Red Thread panel. Edit 'lean' here (L, LL, C, LR, R, or U for unrated); the site shows them as provisional. Outlets with lean \"U\" are unrated: their \"proposedLean\" and \"why\" are a first estimate for the owner to approve, not live. \"domain\" is used to match GDELT articles to an outlet; \"extraFeeds\" are more section feeds counted as the same outlet.",
+  "_note": "Lean ratings are PROVISIONAL editorial estimates based on how these outlets are commonly characterised in public media-bias discussions. They have not been reviewed by a Red Thread panel. Edit 'lean' here (L, LL, C, LR, R, or U for unrated); the site shows them as provisional. Outlets with lean \"U\" are unrated: their \"proposedLean\" is a first estimate for the owner to approve, not live. \"why\" is the public basis for each label, shown on How it works. \"domain\" is used to match GDELT articles to an outlet; \"extraFeeds\" are more section feeds counted as the same outlet.",
   "outlets": [
     {
       "id": "hindu",
@@ -7,7 +7,8 @@
       "lean": "LL",
       "feed": "https://www.thehindu.com/news/national/feeder/default.rss",
       "lang": "en",
-      "domain": "thehindu.com"
+      "domain": "thehindu.com",
+      "why": "Chennai-based national daily; liberal editorial pages, often critical of the central government"
     },
     {
       "id": "express",
@@ -19,7 +20,8 @@
       "extraFeeds": [
         "https://indianexpress.com/section/political-pulse/feed/",
         "https://indianexpress.com/section/business/feed/"
-      ]
+      ],
+      "why": "Known for investigative reporting critical of governments of every party; editorials broadly centrist"
     },
     {
       "id": "ndtv",
@@ -27,7 +29,8 @@
       "lean": "LL",
       "feed": "https://feeds.feedburner.com/ndtvnews-india-news",
       "lang": "en",
-      "domain": "ndtv.com"
+      "domain": "ndtv.com",
+      "why": "Long seen as liberal and government-critical; Adani group took control in 2022, which may move it toward centre"
     },
     {
       "id": "ht",
@@ -35,7 +38,8 @@
       "lean": "C",
       "feed": "https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml",
       "lang": "en",
-      "domain": "hindustantimes.com"
+      "domain": "hindustantimes.com",
+      "why": "Mainstream national daily (HT Media); mixed editorial line, no strong partisan profile"
     },
     {
       "id": "toi",
@@ -43,7 +47,8 @@
       "lean": "C",
       "feed": "https://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms",
       "lang": "en",
-      "domain": "timesofindia.indiatimes.com"
+      "domain": "timesofindia.indiatimes.com",
+      "why": "Largest English daily (Times Group); mainstream, broad coverage, no consistent partisan line"
     },
     {
       "id": "scroll",
@@ -51,7 +56,8 @@
       "lean": "L",
       "feed": "https://feeds.feedburner.com/ScrollinArticles.rss",
       "lang": "en",
-      "domain": "scroll.in"
+      "domain": "scroll.in",
+      "why": "Digital outlet with liberal, rights-focused reporting and commentary, consistently critical of the government"
     },
     {
       "id": "print",
@@ -59,7 +65,8 @@
       "lean": "C",
       "feed": "https://theprint.in/category/india/feed/",
       "lang": "en",
-      "domain": "theprint.in"
+      "domain": "theprint.in",
+      "why": "Digital outlet founded by Shekhar Gupta; mixes reporters and columnists from across the spectrum"
     },
     {
       "id": "opindia",
@@ -67,7 +74,8 @@
       "lean": "R",
       "feed": "https://www.opindia.com/feed/",
       "lang": "en",
-      "domain": "opindia.com"
+      "domain": "opindia.com",
+      "why": "Openly right-wing digital outlet; describes itself as countering 'left-liberal' media, strongly pro-BJP"
     },
     {
       "id": "republic",
@@ -75,7 +83,8 @@
       "lean": "R",
       "feed": "https://www.republicworld.com/rss/india.xml",
       "lang": "en",
-      "domain": "republicworld.com"
+      "domain": "republicworld.com",
+      "why": "Arnab Goswami's network; widely characterised as strongly pro-government and nationalist"
     },
     {
       "id": "mint",
@@ -83,7 +92,8 @@
       "lean": "C",
       "feed": "https://www.livemint.com/rss/news",
       "lang": "en",
-      "domain": "livemint.com"
+      "domain": "livemint.com",
+      "why": "HT Media business daily; data-led, pro-market, rarely partisan"
     },
     {
       "id": "indiatoday",
@@ -91,7 +101,8 @@
       "lean": "C",
       "feed": "https://www.indiatoday.in/rss/1206578",
       "lang": "en",
-      "domain": "indiatoday.in"
+      "domain": "indiatoday.in",
+      "why": "India Today group (Living Media); mainstream magazine and TV news, broadly centrist"
     },
     {
       "id": "quint",
@@ -99,7 +110,8 @@
       "lean": "LL",
       "feed": "https://www.thequint.com/stories.rss?time-period=last-24-hours",
       "lang": "en",
-      "domain": "thequint.com"
+      "domain": "thequint.com",
+      "why": "Digital outlet with liberal-leaning explainers and commentary; runs its own fact-check desk"
     },
     {
       "id": "zee",
@@ -107,7 +119,8 @@
       "lean": "LR",
       "feed": "https://zeenews.india.com/rss/india-national-news.xml",
       "lang": "en",
-      "domain": "zeenews.india.com"
+      "domain": "zeenews.india.com",
+      "why": "Essel/Zee group channel; widely characterised as government-friendly and nationalist"
     },
     {
       "id": "bbc",
@@ -115,7 +128,8 @@
       "lean": "C",
       "feed": "https://feeds.bbci.co.uk/news/world/asia/india/rss.xml",
       "lang": "en",
-      "domain": ""
+      "domain": "",
+      "why": "UK public broadcaster bound by impartiality rules; seen by some in India as government-critical"
     },
     {
       "id": "herald",
@@ -123,7 +137,8 @@
       "lean": "L",
       "feed": "https://www.nationalheraldindia.com/stories.rss?time-period=last-24-hours",
       "lang": "en",
-      "domain": "nationalheraldindia.com"
+      "domain": "nationalheraldindia.com",
+      "why": "Founded by Jawaharlal Nehru; owned by Associated Journals, linked to Congress party leaders"
     },
     {
       "id": "organiser",
@@ -131,7 +146,8 @@
       "lean": "R",
       "feed": "https://www.organiser.org/feed/",
       "lang": "en",
-      "domain": "organiser.org"
+      "domain": "organiser.org",
+      "why": "Weekly closely associated with the RSS; openly Hindu-nationalist"
     },
     {
       "id": "et",

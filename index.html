@@ -1589,6 +1589,50 @@ html.touring { overflow: hidden; }
 .qc-err { color: #12040A; background: var(--rose); border-radius: 8px; padding: 8px 12px; font-size: 14px; font-weight: 600; margin: 0; }
 .qc-cnt { display: block; text-align: right; font-size: 11.5px; color: var(--ink-3); margin-top: 3px; } .qc-cnt.near { color: var(--amber); }
 
+/* How it works: the labels' method, every outlet's reason, rating disputes */
+.how h3 { font-size: 16px; font-weight: 800; margin: 18px 0 8px; }
+.rd-small { font-size: 13px; }
+.rd-toc { display: flex; flex-wrap: wrap; gap: 8px; }
+.rd-toc a { font-size: 13px; padding: 6px 12px; border: 1px solid var(--edge); border-radius: 999px; color: var(--ink-2); text-decoration: none; }
+.rd-toc a:hover { color: var(--ink); border-color: var(--teal-3); }
+.rd-chip { justify-self: start; display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); background: color-mix(in srgb, var(--c) 12%, transparent); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+.rd-defs { display: grid; gap: 10px; }
+.rd-defs > div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; align-items: start; border: 1px solid var(--edge); border-radius: 12px; padding: 12px 14px; background: rgba(255,255,255,.03); }
+.rd-defs p { margin: 0; font-size: 14.5px; }
+.rd-signals { padding-left: 22px; display: grid; gap: 8px; }
+.rd-signals li { color: var(--ink-2); line-height: 1.55; }
+.rd-filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+.rd-f { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--edge); background: transparent; color: var(--ink-2); cursor: pointer; }
+.rd-f.on { background: rgba(45,212,191,.16); color: var(--teal-3); border-color: var(--teal-3); }
+.rd-table { display: grid; border-top: 1px solid var(--rule); }
+.rd-row { display: grid; grid-template-columns: minmax(130px, 190px) 118px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--rule); }
+.rd-name { font-size: 14.5px; }
+.rd-why { font-size: 13.5px; color: var(--ink-2); line-height: 1.45; }
+.rd-open { display: inline-block; font-size: 11.5px; color: var(--orange-l); margin-left: 4px; }
+.rd-log { display: grid; gap: 12px; margin-top: 14px; }
+.rd-item { border: 1px solid var(--edge); border-radius: 14px; padding: 14px 16px; background: rgba(255,255,255,.03); display: grid; gap: 8px; }
+.rd-item p { margin: 0; }
+.rd-itemhead { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.rd-status { margin-left: auto; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,.07); color: var(--ink-2); }
+.rd-status.rd-open, .rd-status.rd-reviewing { color: var(--orange-l); }
+.rd-status.rd-changed { color: var(--teal-3); }
+.rd-decision { border-left: 3px solid var(--teal-3); padding: 8px 12px; background: rgba(45,212,191,.06); border-radius: 0 10px 10px 0; }
+.rd-decision p { font-size: 14px; color: var(--ink-2); }
+.rd-decide { display: grid; gap: 8px; border-top: 1px dashed var(--rule); padding-top: 10px; }
+.rd-decide textarea, .rd-decide select { width: 100%; background: rgba(255,255,255,.05); border: 1px solid var(--edge); color: var(--ink); border-radius: 10px; padding: 8px 10px; font: inherit; }
+.rd-decrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.rd-decrow select { width: auto; }
+.rd-ev { border: 0; padding: 0; margin: 0; display: grid; gap: 6px; }
+.rd-ev legend { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+.rd-storylink { font-size: 12.5px; color: var(--ink-3); margin: 12px 0 0; }
+@media (max-width: 640px) {
+  .rd-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .rd-row .rd-why { grid-column: 1 / -1; }
+  .rd-row .btn { grid-row: 1; grid-column: 2; }
+  .rd-row .rd-chip { grid-row: 2; grid-column: 1; justify-self: start; }
+  .rd-defs > div { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+}
+
 </style>
 
 <div class="intro" id="intro" aria-label="Intro video">
@@ -1718,24 +1762,24 @@ html.touring { overflow: hidden; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="rs-data.js?v=1793619772"></script>
-<script src="rs-news.js?v=1793619772"></script>
-<script src="rs-today.js?v=1793619772"></script>
-<script src="live/news.js?v=1793619772"></script>
-<script src="rs-art.js?v=1793619772"></script>
-<script src="rs-core.js?v=1793619772"></script>
-<script src="rs-lab.js?v=1793619772"></script>
-<script src="rs-board.js?v=1793619772"></script>
-<script src="rs-more.js?v=1793619772"></script>
-<script src="rs-video.js?v=1793619772"></script>
-<script src="rs-reels.js?v=1793619772"></script>
-<script src="rs-act.js?v=1793619772"></script>
-<script src="rs-live.js?v=1793619772"></script>
-<script src="rs-how.js?v=1793619772"></script>
-<script src="rs-studio.js?v=1793619772"></script>
-<script src="rs-club.js?v=1793619772"></script>
-<script src="rs-daily.js?v=1793619772"></script>
-<script src="rs-tour.js?v=1793619772"></script>
-<script src="rt-motion.js?v=1793619772"></script>
+<script src="rs-data.js?v=1793636858"></script>
+<script src="rs-news.js?v=1793636858"></script>
+<script src="rs-today.js?v=1793636858"></script>
+<script src="live/news.js?v=1793636858"></script>
+<script src="rs-art.js?v=1793636858"></script>
+<script src="rs-core.js?v=1793636858"></script>
+<script src="rs-lab.js?v=1793636858"></script>
+<script src="rs-board.js?v=1793636858"></script>
+<script src="rs-more.js?v=1793636858"></script>
+<script src="rs-video.js?v=1793636858"></script>
+<script src="rs-reels.js?v=1793636858"></script>
+<script src="rs-act.js?v=1793636858"></script>
+<script src="rs-live.js?v=1793636858"></script>
+<script src="rs-how.js?v=1793636858"></script>
+<script src="rs-studio.js?v=1793636858"></script>
+<script src="rs-club.js?v=1793636858"></script>
+<script src="rs-daily.js?v=1793636858"></script>
+<script src="rs-tour.js?v=1793636858"></script>
+<script src="rt-motion.js?v=1793636858"></script>
 <script>RS.boot();</script>
 </body></html>

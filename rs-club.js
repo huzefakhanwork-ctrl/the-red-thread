@@ -575,6 +575,13 @@
     save(); render();
   }
 
+  // shared with other pages that need the Club's accounts (the rating disputes on How it works)
+  RS.club = {
+    ready: () => boot || (boot = connect().then(ok => ok ? reload() : null)),
+    remote: () => remote, sb: () => sb, uid: () => uidNow, me, isEditor: () => ["editor", "admin"].includes(role()),
+    signIn: () => remote ? authModal("signin") : RS.show("club"), modal, close, rw
+  };
+
   /* ---------- view ---------- */
   RS.V.club = {
     mount(root) {

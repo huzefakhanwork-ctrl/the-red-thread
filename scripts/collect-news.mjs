@@ -380,7 +380,7 @@ if (top) {
 
 // outlets list: every configured outlet, plus the GDELT-only sites that appear in a kept story
 const usedG = new Set(keep.flatMap(s => s.articles.map(a => a.outlet)).filter(id => id.startsWith("g-")));
-const outList = [...cfg.outlets.map(({ id, name, lean, lang }) => ({ id, name, lean, lang: lang || "" })), ...Object.values(gOutlets).filter(o => usedG.has(o.id)).map(({ id, name, lean, domain }) => ({ id, name, lean, lang: "", via: "gdelt", domain }))];
+const outList = [...cfg.outlets.map(({ id, name, lean, lang, why }) => ({ id, name, lean, lang: lang || "", why: why || "" })), ...Object.values(gOutlets).filter(o => usedG.has(o.id)).map(({ id, name, lean, domain }) => ({ id, name, lean, lang: "", via: "gdelt", domain }))];
 const reporting = new Set(articles.map(a => a.outlet));
 const out = { city, updated: new Date().toISOString(), windowHours: WINDOW_H, note: cfg._note, outlets: outList, counts: { articles: articles.length, rss: rssCount, gdelt: gdeltCount, outlets: reporting.size, stories: keep.length, multiOutlet: multi.length }, stories: keep, factchecks };
 await mkdir(OUT, { recursive: true });
