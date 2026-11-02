@@ -2,8 +2,10 @@
    Everything here is ILLUSTRATIVE: hypothetical events, invented outlets, invented documents.
    Nothing in this file describes a real news event, publisher or person. */
 
-// Public settings. youtubeClientId: a Google OAuth *client ID* (public, not a secret) that switches on direct YouTube Shorts uploads in Creator Studio.
-window.RT_CONFIG = { youtubeClientId: "" };
+// Public settings (safe in a website). youtubeClientId: a Google OAuth *client ID* that switches on direct YouTube Shorts uploads.
+// supabaseUrl / supabaseKey: the community backend and its *publishable* key; row-level security protects the data.
+// Never put the secret (service_role) key or the database password here.
+window.RT_CONFIG = { youtubeClientId: "", supabaseUrl: "https://lmqrqvcuxglkkbheaczm.supabase.co", supabaseKey: "sb_publishable_fdGlHDyuZA6nHXJMJUxEsQ_8ePmqHsA" };
 window.BRAND = { name: "The Red Thread", short: "Red Thread", ai: "Dhaga", tagline: "Pull the thread. Find the story." };
 
 window.CASE = {

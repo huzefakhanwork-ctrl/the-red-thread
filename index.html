@@ -1581,6 +1581,10 @@ html.touring { overflow: hidden; }
 .qc-topics input:checked + span { background: var(--teal); color: #fff; border-color: transparent; } .qc-topics input:focus-visible + span { outline: 2px solid var(--teal-3); }
 .qc-createlist { display: grid; gap: 8px; } .qc-createlist button { text-align: left; border: 1px solid var(--edge); background: rgba(255,255,255,.03); border-radius: 12px; padding: 12px 14px; display: grid; gap: 2px; color: var(--ink); cursor: pointer; font: inherit; } .qc-createlist button:hover { border-color: var(--teal-3); } .qc-createlist span { font-size: 13px; color: var(--ink-3); }
 @media (max-width: 760px) { .qc-grid2, .qc-grid3, .qc-f2, .qc-f3 { grid-template-columns: minmax(0, 1fr); } .qc-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.qc-bell { position: relative; background: rgba(255,255,255,.05); border: 1px solid var(--edge); border-radius: 999px; padding: 7px 12px; cursor: pointer; font-size: 15px; color: #fff; }
+.qc-bell .qc-count { position: absolute; top: -6px; right: -6px; }
+.qc-unread button { font-weight: 800; color: #fff; }
+.qc-empty { border: 1px dashed var(--edge); border-radius: 14px; padding: 18px; }
 
 </style>
 
@@ -1711,24 +1715,24 @@ html.touring { overflow: hidden; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="rs-data.js?v=1793615953"></script>
-<script src="rs-news.js?v=1793615953"></script>
-<script src="rs-today.js?v=1793615953"></script>
-<script src="live/news.js?v=1793615953"></script>
-<script src="rs-art.js?v=1793615953"></script>
-<script src="rs-core.js?v=1793615953"></script>
-<script src="rs-lab.js?v=1793615953"></script>
-<script src="rs-board.js?v=1793615953"></script>
-<script src="rs-more.js?v=1793615953"></script>
-<script src="rs-video.js?v=1793615953"></script>
-<script src="rs-reels.js?v=1793615953"></script>
-<script src="rs-act.js?v=1793615953"></script>
-<script src="rs-live.js?v=1793615953"></script>
-<script src="rs-how.js?v=1793615953"></script>
-<script src="rs-studio.js?v=1793615953"></script>
-<script src="rs-club.js?v=1793615953"></script>
-<script src="rs-daily.js?v=1793615953"></script>
-<script src="rs-tour.js?v=1793615953"></script>
-<script src="rt-motion.js?v=1793615953"></script>
+<script src="rs-data.js?v=1793618299"></script>
+<script src="rs-news.js?v=1793618299"></script>
+<script src="rs-today.js?v=1793618299"></script>
+<script src="live/news.js?v=1793618299"></script>
+<script src="rs-art.js?v=1793618299"></script>
+<script src="rs-core.js?v=1793618299"></script>
+<script src="rs-lab.js?v=1793618299"></script>
+<script src="rs-board.js?v=1793618299"></script>
+<script src="rs-more.js?v=1793618299"></script>
+<script src="rs-video.js?v=1793618299"></script>
+<script src="rs-reels.js?v=1793618299"></script>
+<script src="rs-act.js?v=1793618299"></script>
+<script src="rs-live.js?v=1793618299"></script>
+<script src="rs-how.js?v=1793618299"></script>
+<script src="rs-studio.js?v=1793618299"></script>
+<script src="rs-club.js?v=1793618299"></script>
+<script src="rs-daily.js?v=1793618299"></script>
+<script src="rs-tour.js?v=1793618299"></script>
+<script src="rt-motion.js?v=1793618299"></script>
 <script>RS.boot();</script>
 </body></html>
