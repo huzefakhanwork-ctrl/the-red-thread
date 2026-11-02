@@ -207,6 +207,8 @@
     if (!v.mounted) { v.mount && v.mount(el); v.mounted = true; }
     const keepScroll = v.show && v.show(arg, el);
     current = name;
+    // a Club link (#club-…) only belongs in the address bar while the Club is open
+    if (name !== "club" && /^#club-/.test(location.hash)) history.replaceState(null, "", location.pathname + location.search);
     if (!keepScroll) window.scrollTo({ top: 0 });
     document.body.classList.toggle("at-home", name === "home");
     if (window.RT_SHOWN) window.RT_SHOWN(name, arg);

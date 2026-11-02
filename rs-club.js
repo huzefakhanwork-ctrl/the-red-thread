@@ -206,7 +206,7 @@
       : tab === "investigations" ? invList() : tab === "discussions" ? discList() : tab === "missing" ? missingPage() : tab === "members" ? membersPage() : tab === "events" ? eventsPage() : tab === "mod" ? modPage() : home();
     el.innerHTML = frame(body);
     const hash = "#club-" + (sub ? sub.t + ":" + sub.id : tab);
-    if (location.hash !== hash) history.replaceState(null, "", hash);
+    if (!el.hidden && location.hash !== hash) history.replaceState(null, "", hash);
   }
 
   /* ---------- cards ---------- */
