@@ -22,6 +22,7 @@
     { view: "reels", sel: ".reel-frame", title: "Reels", text: "Short news videos you swipe through. Every reel links to the full article behind it." },
     { view: "publications", sel: ".pc-body", title: "Publications", text: "Articles by independent writers. Hit \"New article\" to write your own: Dhaga can draft it with you from the sources, and you can record a reel to go with it." },
     { view: "studio", sel: ".cs-steps", title: "Creator Studio", text: "Made for creators. Step 1: pull facts and headlines from any story or your Research Board into a notes doc of pointers. Step 2: record yourself while each pointer pops up on screen when you press Next." },
+    { view: "club", sel: ".qc-hero", title: "The Questioners’ Club", text: "Our open research community. Ask a question, start an investigation, add sources, challenge specific claims with evidence, and publish what you find together." },
     { view: "home", sel: "#aiBtn", title: "Ask AI", text: "Ask Dhaga, our AI assistant, anything about a story, on any page. It answers from the sources and shows them." },
     { view: "home", sel: "#tmore summary", title: "Find it all under More", text: "How it works (our sources, and how left and right are decided), Media Watch, How it works, My Library and more. Enjoy exploring." }
   ];

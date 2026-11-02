@@ -385,7 +385,7 @@
           <ul class="sumlist" id="sumList">${sumFor(this.side).map(x => `<li>${esc(x)}</li>`).join("")}</ul>
           <div id="cmpBox" hidden class="cmpbox"><div style="--g:${BIAS.L[1]}"><span class="eyebrow">Left headline</span><b>${esc(s.hl.L)}</b></div><div style="--g:${BIAS.C[1]}"><span class="eyebrow">Centre headline</span><b>${esc(s.hl.C)}</b></div><div style="--g:${BIAS.R[1]}"><span class="eyebrow">Right headline</span><b>${esc(s.hl.R)}</b></div></div>
           <div class="insight"><span>✦ Summary by ${AI} from ${s.live ? countLine(s) : p.total + " articles"}</span><button class="linkish" type="button" id="wrongBtn">Does this summary seem wrong?</button></div>
-          <div class="cta-row"><button class="btn k" type="button" data-go="investigate" data-arg="${s.id}|dossier">Investigate this story</button><button class="btn y" type="button" data-go="investigate" data-arg="${s.id}||ask">Ask ${AI}</button><button class="btn" type="button" data-go="investigate" data-arg="${s.id}|notes">Write about it</button></div>
+          <div class="cta-row"><button class="btn k" type="button" data-go="investigate" data-arg="${s.id}|dossier">Investigate this story</button><button class="btn y" type="button" data-go="investigate" data-arg="${s.id}||ask">Ask ${AI}</button><button class="btn" type="button" data-go="investigate" data-arg="${s.id}|notes">Write about it</button><button class="btn" type="button" data-go="club" data-arg="new:${s.id}">Investigate it with the Club</button></div>
           <div class="arts-head"><h2 class="display">${s.live ? plural(s.articleCount || arts.length, "Article") + ` <small class="mono muted" style="font-size:13px">from ${plural(s.outletCount, "outlet")}</small>` : p.total + " Articles"}</h2><div class="tabs" id="artTabs"></div></div>
           <div class="arts" id="arts"></div>
           <p class="mono muted" style="font-size:12px">${s.live ? `Real headlines from Indian outlets' public news feeds, collected ${esc(window.LIVE_UPDATED || "")}. Each links to the outlet. Left/centre/right labels are provisional estimates, not yet reviewed.` : `Showing a sample of ${arts.length} of ${p.total} articles. Outlets and headlines are invented for this demo.`}</p>
@@ -433,7 +433,7 @@
       $("#footBrand").textContent = `${BRAND.name}: ${BRAND.tagline}`;
       $$("[data-ai-name]").forEach(e => e.textContent = AI);
       document.title = BRAND.name; renderChip();
-      const h = (location.hash || "").slice(1), m = h.match(/^(story|post)-(.+)$/);
+      const h = (location.hash || "").slice(1), m = h.match(/^(story|post|club)-(.+)$/);
       if (m) show(m[1], m[2]); else show(V[h] || ALIAS[h] ? h : "home");
       document.fonts && document.fonts.ready.then(drawThreads);
     }
