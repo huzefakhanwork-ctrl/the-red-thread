@@ -70,11 +70,17 @@
     if (!CFG.supabaseUrl || !CFG.supabaseKey) return false;
     try {
       await loadLib();
-      sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey);
+      // implicit flow: an email confirmation link works in whichever browser opens it, not only the one that signed up
+      sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseKey, { auth: { flowType: "implicit", detectSessionInUrl: true, persistSession: true } });
+      const err = /error_description=([^&]+)/.exec(location.hash + location.search);
+      if (err) toast(decodeURIComponent(err[1].replace(/\+/g, " ")) + ". Try signing in, or ask for a new link.");
       const { data, error } = await sb.from("events").select("id").limit(1);
       if (error) throw error;
       const s = (await sb.auth.getSession()).data.session; uidNow = s ? s.user.id : null;
-      sb.auth.onAuthStateChange((ev, ses) => { const n = ses ? ses.user.id : null; if (n !== uidNow) { uidNow = n; reload(); } });
+      sb.auth.onAuthStateChange((ev, ses) => {
+        if (ev === "PASSWORD_RECOVERY") setTimeout(newPassword, 0);
+        const n = ses ? ses.user.id : null; if (n !== uidNow) { uidNow = n; reload(); }
+      });
       remote = true; return true;
     } catch (e) { sb = null; return false; }
   }
@@ -144,6 +150,10 @@
       if (mode === "signup" && !r.data.session) { modal(`<span class="eyebrow">Almost there</span><h2>Check your email</h2><p>We sent a confirmation link to <b>${esc(email)}</b>. Open it, and you’ll come back here signed in to pick your username.</p>`); return; }
       toast("Signed in");
     };
+  }
+  function newPassword() {
+    const ov = modal(`<form><span class="eyebrow">Reset your password</span><h2>Choose a new password</h2><div class="field"><label for="qaN">New password</label><input id="qaN" name="password" type="password" minlength="8" required autocomplete="new-password"></div><button class="btn y" type="submit">Save password</button></form>`);
+    ov.querySelector("form").onsubmit = async e => { e.preventDefault(); if (await rw(sb.auth.updateUser({ password: new FormData(e.target).get("password") }))) { close(ov); toast("Password updated. You’re signed in."); } };
   }
   function notifPanel() {
     const ov = modal(`<span class="eyebrow">Notifications</span><h2>What’s new for you</h2>${(C.notifs || []).length ? `<ul class="qc-act">${C.notifs.map(n => `<li class="${n.read ? "" : "qc-unread"}"><button type="button" class="linkish" data-link="${esc(n.link || "")}">${esc(n.text)}</button><span class="muted">${ago(n.at)}</span></li>`).join("")}</ul>` : `<p class="muted">Nothing yet. Replies, mentions and updates on things you follow show here.</p>`}`);
@@ -594,4 +604,6 @@
       render();
     }
   };
+  // arriving from a confirmation or password-reset email: open the Club so the sign-in can finish
+  if (/access_token=|error_description=/.test(location.hash)) addEventListener("load", () => RS.show("club"));
 })();
