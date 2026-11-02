@@ -86,7 +86,17 @@
   }
   const T = t => Date.parse(t) || 0;
   const friendly = e => /row-level security/i.test(e.message) ? "You don’t have permission to do that." : /duplicate key.*username/i.test(e.message) ? "That username is taken. Try another." : /duplicate key/i.test(e.message) ? "Already done." : e.message;
-  async function rw(q) { const r = await q; if (r.error) { toast(friendly(r.error)); return null; } return r; }
+  // errors show inside the open pop-up (a toast would sit behind it) and as a toast otherwise
+  async function rw(q) {
+    const r = await q;
+    const box = [...document.querySelectorAll(".qc-modal")].pop();
+    if (box) box.querySelectorAll(".qc-err").forEach(x => x.remove());
+    if (!r.error) return r;
+    const msg = /check constraint/i.test(r.error.message) ? "Something is too long or too short. Shorten the longest box and try again." : friendly(r.error);
+    if (box) { const p = document.createElement("p"); p.className = "qc-err"; p.setAttribute("role", "alert"); p.textContent = msg; (box.querySelector("form") || box.querySelector(".qc-modalin")).append(p); p.scrollIntoView({ block: "nearest" }); }
+    else toast(msg);
+    return null;
+  }
   async function reload() {
     if (!sb) return;
     const NAMES = ["profiles", "investigations", "sources", "claims", "claim_responses", "perspectives", "open_questions", "findings", "discussions", "comments", "reactions", "missing_stories", "missing_notes", "events", "event_interest", "context_notes"];
@@ -249,18 +259,18 @@
       ${i.story ? `<p><button class="btn sm" type="button" data-go="story" data-arg="${esc(i.story)}">Open the news story this came from</button> <button class="btn sm" type="button" data-go="board">Map it on my Research Board</button></p>` : ""}
       <h4>Activity history</h4><ul class="qc-hist">${i.history.slice(0, 12).map(h => `<li><b>@${esc(h.by)}</b> ${esc(h.what)} <span class="muted">· ${ago(h.at)}</span></li>`).join("")}</ul>`;
     else if (sec === "research") body = `<div class="qc-srcs">${i.sources.length ? i.sources.map(s => `<div class="qc-src"><div><b>${s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>` : esc(s.title)}</b><span class="muted">${esc(s.publisher || "Unknown publisher")} · ${esc(s.date || "date unknown")} · ${esc(s.type)}</span><span class="muted">Added by @${esc(s.by)} · ${ago(s.at)} · ${s.ver === "verified" ? "checked by editors" : "not yet checked"}</span></div>${rep("src", i.id + "/" + s.id)}</div>`).join("") : `<p class="muted">No sources yet. Add the first one.</p>`}</div>
-      <form class="qc-form" data-form="source"><h4>Add a source</h4><div class="qc-f2"><input name="title" required placeholder="Title of the report, article or document"><input name="url" type="url" placeholder="Link (https://…)"></div><div class="qc-f3"><input name="publisher" placeholder="Publisher or author"><input name="date" placeholder="Date published"><select name="type">${["News report", "Government report", "Research paper", "Court record", "Data set", "Analysis", "Social media (unverified)", "Other"].map(o => `<option>${o}</option>`).join("")}</select></div><button class="btn y sm" type="submit">Add source</button></form>`;
+      <form class="qc-form" data-form="source"><h4>Add a source</h4><div class="qc-f2"><input name="title" required maxlength="300" placeholder="Title of the report, article or document"><input name="url" type="url" placeholder="Link (https://…)"></div><div class="qc-f3"><input name="publisher" placeholder="Publisher or author"><input name="date" placeholder="Date published"><select name="type">${["News report", "Government report", "Research paper", "Court record", "Data set", "Analysis", "Social media (unverified)", "Other"].map(o => `<option>${o}</option>`).join("")}</select></div><button class="btn y sm" type="submit">Add source</button></form>`;
     else if (sec === "claims") body = `<p class="muted qc-small">Challenge specific claims, not people. Each claim carries its own evidence status.</p>${i.claims.map(c => claimBox(i, c)).join("") || `<p class="muted">No claims yet.</p>`}
-      <form class="qc-form" data-form="claim"><h4>Add a claim to examine</h4><input name="text" required placeholder="One specific, checkable statement"><button class="btn y sm" type="submit">Add claim</button></form>`;
+      <form class="qc-form" data-form="claim"><h4>Add a claim to examine</h4><input name="text" required maxlength="400" placeholder="One specific, checkable statement"><button class="btn y sm" type="submit">Add claim</button></form>`;
     else if (sec === "perspectives") body = `${i.perspectives.map(p => `<div class="qc-persp"><b>${esc(p.who)}</b><p>${esc(p.view)}</p><span class="muted">added by @${esc(p.by)}</span></div>`).join("") || `<p class="muted">No perspectives yet. Who sees this differently, and why?</p>`}
-      <form class="qc-form" data-form="persp"><h4>Add a perspective</h4><div class="qc-f2"><input name="who" required placeholder="Whose view (a group, not a person to attack)"><input name="view" required placeholder="Their strongest argument, fairly put"></div><button class="btn y sm" type="submit">Add perspective</button></form>`;
+      <form class="qc-form" data-form="persp"><h4>Add a perspective</h4><div class="qc-f2"><input name="who" required placeholder="Whose view (a group, not a person to attack)"><input name="view" required maxlength="1000" placeholder="Their strongest argument, fairly put"></div><button class="btn y sm" type="submit">Add perspective</button></form>`;
     else if (sec === "discussion") body = thread(i.comments, "inv:" + i.id);
     else if (sec === "questions") body = `<ul class="qc-qs">${i.questions.map((q, k) => `<li class="${q.resolved ? "done" : ""}">${esc(q.text)} <span class="muted">· @${esc(q.by)}</span>${q.resolved ? " <b>answered</b>" : me() ? ` <button class="linkish" type="button" data-act="resolve" data-k="${k}">Mark answered</button>` : ""}</li>`).join("") || `<li class="muted">Nothing open yet.</li>`}</ul>
-      <form class="qc-form" data-form="question"><input name="text" required placeholder="What remains unanswered?"><button class="btn y sm" type="submit">Add question</button></form>`;
+      <form class="qc-form" data-form="question"><input name="text" required maxlength="400" placeholder="What remains unanswered?"><button class="btn y sm" type="submit">Add question</button></form>`;
     else if (sec === "findings") body = (i.findings ? `<div class="qc-find">${tag(i.findings.verified ? "verified" : "community")}<p>${esc(i.findings.text).replace(/\n/g, "<br>")}</p><span class="muted">Summary by @${esc(i.findings.by)} · ${ago(i.findings.at)}${i.findings.published ? " · published to Publications" : ""}</span>
         <div class="qc-row">${!i.findings.published && canEdit ? `<button class="btn y sm" type="button" data-act="publish-findings">Publish to Publications</button>` : ""}${isTeam() && role() === "editor" && !i.findings.verified ? `<button class="btn sm" type="button" data-act="verify-findings">Mark editorially verified</button>` : ""}</div></div>`
       : `<p class="muted">No findings yet. When the evidence is in, summarise what you found, what you didn’t, and what remains open.</p>`) + `
-      ${canEdit || !i.findings ? `<form class="qc-form" data-form="findings"><h4>${i.findings ? "Revise the findings" : "Write the findings"}</h4><textarea name="text" required rows="5" placeholder="What the evidence shows, what it doesn’t, and what is still open. Cite sources by name.">${i.findings ? esc(i.findings.text) : ""}</textarea><button class="btn y sm" type="submit">Save findings</button></form>` : ""}`;
+      ${canEdit || !i.findings ? `<form class="qc-form" data-form="findings"><h4>${i.findings ? "Revise the findings" : "Write the findings"}</h4><textarea name="text" required rows="5" maxlength="20000" placeholder="What the evidence shows, what it doesn’t, and what is still open. Cite sources by name.">${i.findings ? esc(i.findings.text) : ""}</textarea><button class="btn y sm" type="submit">Save findings</button></form>` : ""}`;
     else body = `<div class="qc-people">${contributors(i).map(n => `<div class="qc-person">${who(n)}<span class="muted">${n === i.by ? "started it" : "contributor"}</span></div>`).join("")}</div>`;
     return `<button class="linkish qc-back" type="button" data-tab="investigations">← All investigations</button>
       <header class="qc-roomhead"><span class="eyebrow">Investigation room · ${esc(i.topic)}</span><h2>${esc(i.title)}</h2>
@@ -274,15 +284,15 @@
     return `<div class="qc-claim"><div class="qc-claimhead"><span class="eyebrow">Claim under review</span>${tag(c.status)}</div><p class="qc-claimtext">${esc(c.text)}</p>
       <div class="qc-tally"><span>${n("supports")} supporting</span><span>${n("challenges")} challenging</span><span>${n("context")} context</span><span>${n("wording")} wording</span></div>
       ${c.responses.map(r => { const s = r.src && i.sources.find(x => x.id === r.src); return `<div class="qc-resp qc-${r.kind}"><b>${RESP[r.kind]}</b><p>${esc(r.text)}</p><span class="muted">${s ? "Source: " + esc(s.title) + " · " : ""}@${esc(r.by)} · ${ago(r.at)}</span></div>`; }).join("")}
-      <form class="qc-form qc-respform" data-form="resp" data-claim="${c.id}"><div class="qc-f3"><select name="kind">${Object.entries(RESP).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select><select name="src"><option value="">No source</option>${i.sources.map(s => `<option value="${s.id}">${esc(s.title.slice(0, 50))}</option>`).join("")}</select><input name="text" required placeholder="Your evidence or point"></div><button class="btn sm" type="submit">Respond to this claim</button>${isTeam() ? ` <select class="qc-setstatus" data-claim="${c.id}" aria-label="Set claim status">${Object.keys(LABEL).filter(k => k !== "community" && (k !== "verified" || role() === "editor")).map(k => `<option value="${k}" ${c.status === k ? "selected" : ""}>${LABEL[k][0]}</option>`).join("")}</select>` : ""}</form></div>`;
+      <form class="qc-form qc-respform" data-form="resp" data-claim="${c.id}"><div class="qc-f3"><select name="kind">${Object.entries(RESP).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select><select name="src"><option value="">No source</option>${i.sources.map(s => `<option value="${s.id}">${esc(s.title.slice(0, 50))}</option>`).join("")}</select><input name="text" required maxlength="2000" placeholder="Your evidence or point"></div><button class="btn sm" type="submit">Respond to this claim</button>${isTeam() ? ` <select class="qc-setstatus" data-claim="${c.id}" aria-label="Set claim status">${Object.keys(LABEL).filter(k => k !== "community" && (k !== "verified" || role() === "editor")).map(k => `<option value="${k}" ${c.status === k ? "selected" : ""}>${LABEL[k][0]}</option>`).join("")}</select>` : ""}</form></div>`;
   }
 
   /* ---------- threaded comments (investigations + discussions) ---------- */
   function thread(list, ctx) {
     return `<div class="qc-thread">${list.map(k => hidden(k.id) ? `<div class="qc-hiddenmsg">A reply is hidden pending moderator review.</div>` : `<div class="qc-cmt"><div class="qc-cmthead">${who(k.by)}<span class="muted">${ago(k.at)}</span>${rep("cmt", ctx + "/" + k.id)}</div><p>${esc(k.text)}</p>${C.notes[k.id] ? `<p class="qc-note"><b>Moderator context:</b> ${esc(C.notes[k.id])}</p>` : ""}
         ${(k.replies || []).map(r => hidden(r.id) ? "" : `<div class="qc-cmt qc-reply"><div class="qc-cmthead">${who(r.by)}<span class="muted">${ago(r.at)}</span></div><p>${esc(r.text)}</p></div>`).join("")}
-        <form class="qc-form qc-replyform" data-form="reply" data-ctx="${ctx}" data-parent="${k.id}"><input name="text" required placeholder="Reply…"><button class="btn sm" type="submit">Reply</button></form></div>`).join("") || `<p class="muted">No comments yet.</p>`}
-      <form class="qc-form" data-form="comment" data-ctx="${ctx}"><textarea name="text" required rows="2" placeholder="Add a comment, question or challenge. Use @name to mention someone."></textarea><button class="btn y sm" type="submit">Comment</button></form></div>`;
+        <form class="qc-form qc-replyform" data-form="reply" data-ctx="${ctx}" data-parent="${k.id}"><input name="text" required maxlength="3000" placeholder="Reply…"><button class="btn sm" type="submit">Reply</button></form></div>`).join("") || `<p class="muted">No comments yet.</p>`}
+      <form class="qc-form" data-form="comment" data-ctx="${ctx}"><textarea name="text" required rows="2" maxlength="3000" placeholder="Add a comment, question or challenge. Use @name to mention someone."></textarea><button class="btn y sm" type="submit">Comment</button></form></div>`;
   }
 
   /* ---------- Module C: discussions ---------- */
@@ -308,7 +318,7 @@
         <p><b>What happened:</b> ${esc(m.what)}</p><p><b>Why it matters:</b> ${esc(m.why)}</p>${m.next ? `<p><b>Needs investigating:</b> ${esc(m.next)}</p>` : ""}${m.sources ? `<p class="muted">Sources: ${esc(m.sources)}</p>` : ""}
         ${m.notes.map(n => `<p class="qc-msnote">@${esc(n.by)}: ${esc(n.text)} <span class="muted">· ${ago(n.at)}</span></p>`).join("")}
         <div class="qc-meta">${sampleTag(m)}${tag(m.status === "editorial" ? "review" : "community")}<span>submitted by @${esc(m.by)} · ${ago(m.at)}</span></div>
-        <form class="qc-form qc-replyform" data-form="msnote" data-id="${m.id}"><input name="text" required placeholder="Add what you know or found"><button class="btn sm" type="submit">Add</button></form>
+        <form class="qc-form qc-replyform" data-form="msnote" data-id="${m.id}"><input name="text" required maxlength="2000" placeholder="Add what you know or found"><button class="btn sm" type="submit">Add</button></form>
         <div class="qc-row">${isTeam() && role() === "editor" ? `<select class="qc-msstatus" data-id="${m.id}" aria-label="Editorial status">${PIPE.map(([k, n]) => `<option value="${k}" ${m.status === k ? "selected" : ""}>${n}</option>`).join("")}</select>` : ""}<button class="btn sm" type="button" data-act="ms-to-inv" data-id="${m.id}">Start an investigation on it</button>${rep("ms", m.id)}</div></article>`).join("")}</div>`;
   }
 
@@ -374,6 +384,11 @@
   /* ---------- modals: onboarding + create ---------- */
   function modal(html) { const ov = document.createElement("div"); ov.className = "qc-modal"; ov.setAttribute("role", "dialog"); ov.innerHTML = `<div class="qc-modalin"><button type="button" class="qc-x" aria-label="Close">×</button>${html}</div>`; document.body.append(ov); ov.querySelector(".qc-x").onclick = () => close(ov); ov.addEventListener("click", e => { if (e.target === ov) close(ov); }); return ov; }
   const close = ov => ov.remove();
+  document.addEventListener("input", e => {
+    const t = e.target; if (!t.closest || !t.closest(".qc-modal, .qc") || !t.maxLength || t.maxLength < 200) return;
+    let c = t.nextElementSibling; if (!c || !c.classList.contains("qc-cnt")) { c = document.createElement("span"); c.className = "qc-cnt"; t.after(c); }
+    c.textContent = t.value.length + " / " + t.maxLength; c.classList.toggle("near", t.value.length > t.maxLength * .9);
+  });
   function onboarding() {
     const m = me() || { name: "", bio: "", interests: [] };
     const ov = modal(`<form data-form="join"><span class="eyebrow">${me() ? "Your profile" : "Join The Questioners’ Club"}</span><h2>${me() ? "Edit your profile" : "What makes you curious?"}</h2>
@@ -415,10 +430,10 @@
     need(() => {
       const s = seedFrom || {};
       const ov = modal(`<form data-form="inv"><span class="eyebrow">New investigation</span><h2>${s.title ? "Investigate this with others" : "Start an investigation"}</h2>
-        <div class="field"><label for="qiT">Title</label><input id="qiT" name="title" required maxlength="140" value="${esc(s.title || "")}"></div>
-        <div class="field"><label for="qiQ">The central question</label><input id="qiQ" name="question" required maxlength="200" value="${esc(s.question || "")}" placeholder="What exactly are you trying to find out?"></div>
-        <div class="field"><label for="qiW">Why it matters</label><textarea id="qiW" name="why" rows="2">${esc(s.why || "")}</textarea></div>
-        <div class="field"><label for="qiS">Sub-questions (one per line)</label><textarea id="qiS" name="subqs" rows="3"></textarea></div>
+        <div class="field"><label for="qiT">Title</label><input id="qiT" name="title" required minlength="5" maxlength="160" value="${esc(s.title || "")}"></div>
+        <div class="field"><label for="qiQ">The central question</label><input id="qiQ" name="question" required maxlength="300" value="${esc(s.question || "")}" placeholder="What exactly are you trying to find out?"></div>
+        <div class="field"><label for="qiW">Why it matters</label><textarea id="qiW" name="why" rows="2" maxlength="1000">${esc(s.why || "")}</textarea></div>
+        <div class="field"><label for="qiS">Sub-questions (one per line)</label><textarea id="qiS" name="subqs" rows="3" maxlength="1500"></textarea></div>
         <div class="field"><label for="qiP">Topic</label><select id="qiP" name="topic">${TOPICS.map(t => `<option ${t === (s.topic || (me().interests[0])) ? "selected" : ""}>${esc(t)}</option>`).join("")}</select></div>
         ${s.sources && s.sources.length ? `<p class="muted qc-small">${s.sources.length} sources from the story will be attached.</p>` : ""}<button class="btn y" type="submit">Create investigation</button></form>`);
       ov.querySelector("form").onsubmit = async e => {
@@ -442,9 +457,9 @@
   function newDisc() {
     need(() => {
       const ov = modal(`<form data-form="disc"><span class="eyebrow">New discussion</span><h2>Ask the club</h2>
-        <div class="field"><label for="qdT">Your question</label><input id="qdT" name="title" required maxlength="160"></div>
+        <div class="field"><label for="qdT">Your question</label><input id="qdT" name="title" required minlength="5" maxlength="200"></div>
         <div class="field"><label for="qdW">Why am I asking this?</label><input id="qdW" name="why" required maxlength="200" placeholder="A line of context helps people give useful answers"></div>
-        <div class="field"><label for="qdB">More detail (optional)</label><textarea id="qdB" name="body" rows="3"></textarea></div>
+        <div class="field"><label for="qdB">More detail (optional)</label><textarea id="qdB" name="body" rows="3" maxlength="5000"></textarea></div>
         <div class="field"><label for="qdL">Link (optional)</label><input id="qdL" name="link" type="url" placeholder="https://…"></div>
         <div class="field"><label for="qdP">Topic</label><select id="qdP" name="topic">${TOPICS.map(t => `<option ${t === me().interests[0] ? "selected" : ""}>${esc(t)}</option>`).join("")}</select></div><button class="btn y" type="submit">Post</button></form>`);
       ov.querySelector("form").onsubmit = async e => { e.preventDefault(); const d = new FormData(e.target);
@@ -460,7 +475,7 @@
   function newMissing() {
     need(() => {
       const ov = modal(`<form data-form="ms"><span class="eyebrow">Missing story</span><h2>What isn’t the news covering?</h2>
-        <div class="qc-f2"><div class="field"><label for="qmH">Headline</label><input id="qmH" name="headline" required maxlength="140"></div><div class="field"><label for="qmP">Location</label><input id="qmP" name="place" required maxlength="80"></div></div>
+        <div class="qc-f2"><div class="field"><label for="qmH">Headline</label><input id="qmH" name="headline" required minlength="5" maxlength="160"></div><div class="field"><label for="qmP">Location</label><input id="qmP" name="place" required maxlength="80"></div></div>
         <div class="field"><label for="qmW">What happened?</label><textarea id="qmW" name="what" required rows="2"></textarea></div>
         <div class="field"><label for="qmY">Why does it matter?</label><textarea id="qmY" name="why" required rows="2"></textarea></div>
         <div class="field"><label for="qmS">Supporting sources (links or descriptions)</label><textarea id="qmS" name="sources" rows="2"></textarea></div>
